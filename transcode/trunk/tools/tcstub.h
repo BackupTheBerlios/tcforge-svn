@@ -57,9 +57,8 @@
 #include "socket.h"
 #include "video_trans.h"
 
-#include "libtc/cfgfile.h"
-#include "libtc/tcframes.h"
-#include "libtc/tcmodule-core.h"
+#include "libtcmodule/tcmodule-core.h"
+#include "libtcutil/tcutil.h"
 
 #define OPTS_SIZE 8192 //Buffersize
 #define NAME_LEN 256

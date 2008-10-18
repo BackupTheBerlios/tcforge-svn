@@ -1,7 +1,7 @@
 #ifndef __FFMPEG_CFG_H
 #define __FFMPEG_CFG_H
 
-#include "libtc/cfgfile.h"
+#include "libtcutil/cfgfile.h"
 #include "libtcext/tc_avcodec.h"
 
 //char *lavc_param_vcodec = "mpeg4";

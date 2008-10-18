@@ -23,8 +23,8 @@
 
 #include "export_profile.h"
 #include "libtc/libtc.h"
-#include "libtc/cfgfile.h"
 #include "libtc/tccodecs.h"
+#include "libtcutil/cfgfile.h"
 
 /* OK, that's quite ugly but I found nothing better, yet.*/
 #ifdef TCEXPORT_PROFILE

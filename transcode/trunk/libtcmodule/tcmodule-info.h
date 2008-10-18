@@ -28,8 +28,9 @@
 
 #include <stdint.h>
 
-#include "tccodecs.h"
-#include "tcformats.h"
+#include "libtc/tccodecs.h"
+#include "libtc/tcformats.h"
+
 
 /* FIXME: move to a enum? */
 /* actions */

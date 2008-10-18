@@ -23,23 +23,24 @@
  *
  */
 
-#include "transcode.h"
-#include "tcinfo.h"
-#include "libtc/libtc.h"
-#include "libtc/iodir.h"
-#include "libtc/xio.h"
-#include "libtc/ratiocodes.h"
-#include "ioaux.h"
-#include "tc.h"
-#include "demuxer.h"
-#include "dvd_reader.h"
-#include "x11source.h"
-
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+
+#include "src/transcode.h"
+#include "src/tcinfo.h"
+#include "libtc/libtc.h"
+#include "libtc/ratiocodes.h"
+#include "libtcutil/iodir.h"
+#include "libtcutil/xio.h"
+
+#include "ioaux.h"
+#include "tc.h"
+#include "demuxer.h"
+#include "dvd_reader.h"
+#include "x11source.h"
 
 
 #define EXE "tcprobe"
@@ -1085,7 +1086,7 @@ int main(int argc, char *argv[])
     return ipipe.error;
 }
 
-#include "libtc/static_xio.h"
+#include "libtcutil/static_xio.h"
 
 /*************************************************************************/
 

@@ -31,11 +31,13 @@
 
 #include <string.h>
 
-#include "libtc.h"
-#include "tccodecs.h"
+#include "libtc/tccodecs.h"
+
+#include "src/transcode.h"
+
 #include "tcmodule-data.h"
 #include "tcmodule-core.h"
-#include "transcode.h"
+
 
 #define TC_FACTORY_MAX_HANDLERS     (16)
 #define MOD_TYPE_MAX_LEN            (TC_BUF_MIN * 2)

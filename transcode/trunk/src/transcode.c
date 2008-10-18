@@ -21,6 +21,15 @@
  *
  */
 
+#include <ctype.h>
+#include <math.h>
+
+#include "libtc/libtc.h"
+#include "libtc/tccodecs.h"
+#include "libtc/ratiocodes.h"
+#include "libtcutil/xio.h"
+#include "libtcutil/cfgfile.h"
+
 #include "transcode.h"
 #include "decoder.h"
 #include "encoder.h"
@@ -32,15 +41,6 @@
 #include "probe.h"
 #include "socket.h"
 #include "split.h"
-
-#include "libtc/xio.h"
-#include "libtc/libtc.h"
-#include "libtc/cfgfile.h"
-#include "libtc/tccodecs.h"
-#include "libtc/ratiocodes.h"
-
-#include <ctype.h>
-#include <math.h>
 
 #include "cmdline.h"
 
@@ -2812,8 +2812,8 @@ int main(int argc, char *argv[])
 // it is just there to trick the linker to not remove
 // unneeded object files from a .a file.
 
-#include "libtc/static_optstr.h"
-#include "libtc/static_tctimer.h"
+#include "libtcutil/static_tcutil.h"
+#include "libtcutil/static_tctimer.h"
 #include "avilib/static_avilib.h"
 #include "avilib/static_wavlib.h"
 

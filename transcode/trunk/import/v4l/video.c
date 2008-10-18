@@ -24,8 +24,9 @@
  *
  */
 
-#include "transcode.h"
-#include "libtc/cfgfile.h"
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/cfgfile.h"
 #include "aclib/imgconvert.h"
 
 #include "vcr.h"
@@ -33,7 +34,6 @@
 #include "counter.h"
 #include "frequencies.h"
 
-#include "src/filter.h"
 
 struct fgdevice fg;
 

@@ -19,12 +19,12 @@
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "transcode.h"
+#include "src/transcode.h"
 
-#include "libtc/optstr.h"
-#include "libtc/cfgfile.h"
+#include "libtcutil/optstr.h"
+#include "libtcutil/cfgfile.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include "libtcext/tc_ogg.h"
 

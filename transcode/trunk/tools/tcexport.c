@@ -30,17 +30,18 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "transcode.h"
-#include "export_profile.h"
-#include "framebuffer.h"
-#include "counter.h"
-#include "probe.h"
-#include "encoder.h"
-#include "filter.h"
-#include "socket.h"
-#include "libtc/tcmodule-core.h"
+#include "src/transcode.h"
+#include "src/export_profile.h"
+#include "src/framebuffer.h"
+#include "src/counter.h"
+#include "src/probe.h"
+#include "src/encoder.h"
+#include "src/filter.h"
+#include "src/socket.h"
+
+#include "libtcmodule/tcmodule-core.h"
+#include "libtcutil/cfgfile.h"
 #include "libtc/libtc.h"
-#include "libtc/cfgfile.h"
 #include "libtc/tccodecs.h"
 #include "libtc/tcframes.h"
 

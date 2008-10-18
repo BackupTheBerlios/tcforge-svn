@@ -26,10 +26,10 @@
 #define MOD_CAP     "3:2 pulldown / interlace detection plugin"
 #define MOD_AUTHOR  "Thomas Oestreich"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 #include <stdint.h>
 

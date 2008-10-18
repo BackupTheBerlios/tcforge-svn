@@ -29,8 +29,8 @@
 #include <time.h>
 #include <errno.h>
 
+#include "common.h"
 #include "tctimer.h"
-#include "libtc.h"
 
 /*
  * Internal time representation:

@@ -38,8 +38,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
 #include "optstr.h"
-#include "libtc.h"
+#include "memutils.h"
+#include "strutils.h"
+
+
 
 const char* optstr_lookup(const char *haystack, const char *needle)
 {

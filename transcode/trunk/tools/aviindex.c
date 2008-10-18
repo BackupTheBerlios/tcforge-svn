@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 
 #include "aud_scan.h"
 
@@ -900,6 +900,8 @@ aviout:
 
   return(0);
 }
+
+#include "libtcutil/tcutil.h"
 
 /*************************************************************************/
 

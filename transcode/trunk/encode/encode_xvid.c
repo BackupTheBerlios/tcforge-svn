@@ -37,11 +37,11 @@
 #include <string.h>
 #include <math.h>
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtcvideo/tcvideo.h"
-#include "libtc/cfgfile.h"
-#include "libtc/optstr.h"
-#include "libtc/tcmodule-plugin.h"
+#include "libtcutil/cfgfile.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 #include "libtc/tccodecs.h"
 
 #include <xvid.h>

@@ -7,10 +7,10 @@
  * for details.
  */
 
-#ifndef STATIC_TCTIMER_H
-#define STATIC_TCTIMER_H
+#ifndef STATIC_TIMER_H
+#define STATIC_TIMER_H
 
-#include "libtc/tctimer.h"
+#include "libtcutil/tctimer.h"
 void dummy_tctimer(void);
 void dummy_tctimer(void) {
     TCTimer t;
@@ -19,4 +19,4 @@ void dummy_tctimer(void) {
     tc_timer_fini(&t);
 }
 
-#endif /* STATIC_TCTIMER_H */
+#endif /* STATIC_TIMER_H */

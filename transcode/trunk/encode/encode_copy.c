@@ -19,11 +19,12 @@
  */
 
 
-#include "transcode.h"
-#include "framebuffer.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/framebuffer.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcutil/optstr.h"
+
+#include "libtcmodule/tcmodule-plugin.h"
 
 #define MOD_NAME    "encode_copy.so"
 #define MOD_VERSION "v0.0.4 (2007-11-18)"

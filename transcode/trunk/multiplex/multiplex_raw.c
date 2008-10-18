@@ -18,18 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "transcode.h"
-#include "libtc/optstr.h"
-
-#include "libtc/tcmodule-plugin.h"
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
+
+#include "libtcmodule/tcmodule-plugin.h"
 
 #define MOD_NAME    "multiplex_raw.so"
 #define MOD_VERSION "v0.0.3 (2006-03-06)"

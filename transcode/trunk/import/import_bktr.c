@@ -27,9 +27,9 @@
 #define MOD_VERSION	"v0.0.2 (2004-10-02)"
 #define MOD_CODEC	"(video) bktr"
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 #include "libtcvideo/tcvideo.h"
 
 /*%*

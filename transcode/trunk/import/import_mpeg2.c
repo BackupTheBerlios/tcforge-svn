@@ -25,7 +25,7 @@
 #define MOD_VERSION "v0.4.0 (2003-10-02)"
 #define MOD_CODEC   "(video) MPEG2"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_RGB | TC_CAP_YUV | TC_CAP_VID;

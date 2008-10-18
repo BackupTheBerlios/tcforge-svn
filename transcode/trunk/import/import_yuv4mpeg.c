@@ -36,7 +36,7 @@
 #include "mjpegtools/mpegconsts.h"
 #endif
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtcvideo/tcvideo.h"
 #include "avilib/wavlib.h"
 

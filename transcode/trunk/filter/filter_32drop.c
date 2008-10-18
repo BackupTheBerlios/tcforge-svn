@@ -26,10 +26,10 @@
 #define MOD_CAP     "3:2 inverse telecine removal plugin"
 #define MOD_AUTHOR  "Chad Page"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 #include <stdint.h>
 

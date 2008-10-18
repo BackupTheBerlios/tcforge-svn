@@ -51,8 +51,8 @@
 #define MOD_VERSION "v0.2.1 (2004-08-06)"
 #define MOD_CODEC   "(audio) MPEG 1/2"
 
-#include "transcode.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
 
 #include <stdio.h>
 #include <unistd.h>

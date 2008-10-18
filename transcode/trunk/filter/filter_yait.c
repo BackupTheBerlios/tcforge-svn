@@ -25,12 +25,13 @@
 #define MOD_CAP     "Yet Another Inverse Telecine filter"
 #define MOD_AUTHOR  "Allan Snider"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/libtc.h"
-#include "libtc/optstr.h"
-
 #include <stdlib.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtc/libtc.h"
+#include "libtcutil/optstr.h"
+
 #include "yait.h"
 
 

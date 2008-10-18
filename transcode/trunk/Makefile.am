@@ -14,6 +14,9 @@ SUBDIRS = \
 	aclib \
 	avilib \
 	$(LIBDLDARWIN) \
+	libtcutil \
+	libtcmodule \
+	libtcext \
 	libtc \
 	libtcaudio \
 	libtcvideo \

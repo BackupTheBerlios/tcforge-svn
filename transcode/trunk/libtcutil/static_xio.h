@@ -10,9 +10,10 @@
 #ifndef STATIC_XIO_H
 #define STATIC_XIO_H
 
-#include "xio.h"
 #include <fcntl.h>
 #include <unistd.h>
+
+#include "libtcutil/xio.h"
 
 void dummy_xio(void);
 void dummy_xio(void)

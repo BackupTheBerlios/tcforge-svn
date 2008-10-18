@@ -25,8 +25,8 @@
 #define MOD_VERSION "v0.1.0 (2005-10-16)"
 #define MOD_CODEC   "(video) LZO"
 
-#include "transcode.h"
 #include "magic.h"
+#include "src/transcode.h"
 #include "libtcext/tc_lzo.h"
 
 static int verbose_flag = TC_QUIET;

@@ -43,8 +43,8 @@
 
 #include "avilib/avilib.h"
 #include "aclib/ac.h"
-#include "libtc/tcglob.h"
 #include "libtc/framecode.h"
+#include "libtcutil/tcglob.h"
 #include "libtcvideo/tcvideo.h"
 
 

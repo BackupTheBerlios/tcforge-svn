@@ -26,7 +26,7 @@
 #define MOD_VERSION "v0.1.3 (2005-12-04)"
 #define MOD_CODEC   "(video) * | (audio) *"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_PCM | TC_CAP_RGB | TC_CAP_YUV |

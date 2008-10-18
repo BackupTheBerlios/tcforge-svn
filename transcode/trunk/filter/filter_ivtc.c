@@ -27,9 +27,9 @@
 #define MOD_CAP     "NTSC inverse telecine plugin"
 #define MOD_AUTHOR  "Thanassis Tsiodras"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
 
 
 static int show_results=0;

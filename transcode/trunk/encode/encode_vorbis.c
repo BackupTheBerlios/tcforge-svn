@@ -25,12 +25,12 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisenc.h>
 
-#include "transcode.h"
-#include "framebuffer.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/framebuffer.h"
+#include "libtcutil/optstr.h"
 
 #include "libtc/ratiocodes.h"
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #define TC_ENCODER 1
 #include "libtcext/tc_ogg.h"

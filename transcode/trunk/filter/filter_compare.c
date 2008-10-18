@@ -31,20 +31,20 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "transcode.h"
-#include "filter.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdint.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 #define MOD_NAME    "filter_compare.so"
 #define MOD_VERSION "v0.1.2 (2003-08-29)"
 #define MOD_CAP     "compare with other image to find a pattern"
 #define MOD_AUTHOR  "Antonio Beamud"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <stdint.h>
 
 #define DELTA_COLOR 45.0
 

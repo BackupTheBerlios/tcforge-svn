@@ -19,11 +19,11 @@
  */
 
 
-#include "transcode.h"
-#include "framebuffer.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/framebuffer.h"
+#include "libtcutil/optstr.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #define MOD_NAME    "encode_null.so"
 #define MOD_VERSION "v0.0.3 (2005-06-05)"

@@ -2,7 +2,7 @@
 #define MOD_VERSION "v0.0.3 (2007-07-15)"
 #define MOD_CODEC   "(video) VNC"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_VID | TC_CAP_RGB | TC_CAP_YUV;

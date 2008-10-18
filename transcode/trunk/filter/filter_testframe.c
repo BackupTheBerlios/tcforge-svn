@@ -26,9 +26,9 @@
 #define MOD_CAP     "generate stream of testframes"
 #define MOD_AUTHOR  "Thomas Oestreich"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
 
 static int mode=0;
 static vob_t *vob=NULL;

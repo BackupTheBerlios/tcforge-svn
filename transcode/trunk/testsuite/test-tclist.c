@@ -26,7 +26,7 @@
 
 #include "config.h"
 #include "libtc/libtc.h"
-#include "libtc/tclist.h"
+#include "libtcutil/tclist.h"
 
 
 /*************************************************************************/

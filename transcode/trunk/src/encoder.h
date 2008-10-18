@@ -29,7 +29,7 @@
 #include "transcode.h"
 #include "framebuffer.h"
 
-#include "libtc/tcmodule-core.h"
+#include "libtcmodule/tcmodule-core.h"
 #include "encoder-common.h"
 
 /*

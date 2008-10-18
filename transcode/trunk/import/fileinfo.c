@@ -32,8 +32,9 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "libtc/libtc.h"
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 #include "ioaux.h"
 #include "tc.h"
 

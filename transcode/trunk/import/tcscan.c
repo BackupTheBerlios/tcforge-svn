@@ -21,17 +21,17 @@
  *
  */
 
-#undef TCF_DEBUG
+#include <math.h>
 
-#include "transcode.h"
-#include "tcinfo.h"
+#include "src/transcode.h"
+#include "src/tcinfo.h"
 
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 #include "libtc/ratiocodes.h"
+#include "avilib/avilib.h"
+
 #include "ioaux.h"
 #include "tc.h"
-#include "avilib/avilib.h"
-#include <math.h>
 
 #define EXE "tcscan"
 
@@ -716,4 +716,5 @@ int tc_get_mp3_header(unsigned char* hbuf, int* chans, int* srate, int *bitrate)
     return framesize;
 }
 
-#include "libtc/static_xio.h"
+#include "libtcutil/static_xio.h"
+

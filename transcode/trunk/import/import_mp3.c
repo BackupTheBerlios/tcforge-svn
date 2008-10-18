@@ -25,7 +25,7 @@
 #define MOD_VERSION "v0.1.4 (2003-08-04)"
 #define MOD_CODEC   "(audio) MPEG"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_PCM;
@@ -33,7 +33,7 @@ static int capability_flag = TC_CAP_PCM;
 #define MOD_PRE mp3
 #include "import_def.h"
 
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 
 char import_cmd_buf[TC_BUF_MAX];
 

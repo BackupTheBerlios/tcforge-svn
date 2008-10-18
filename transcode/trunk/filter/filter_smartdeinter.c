@@ -37,10 +37,10 @@
 #define MOD_CAP     "VirtualDub's smart deinterlacer"
 #define MOD_AUTHOR  "Donald Graft, Tilmann Bitterberg"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 #include "libtcvideo/tcvideo.h"
 

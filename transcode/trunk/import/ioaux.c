@@ -24,7 +24,7 @@
 
 #include "ioaux.h"
 #include "libtc/libtc.h"
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 
 
 unsigned int stream_read_int16(const unsigned char *s)

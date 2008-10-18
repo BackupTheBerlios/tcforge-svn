@@ -26,10 +26,10 @@
 #define MOD_CAP     "DVD subtitle overlay plugin"
 #define MOD_AUTHOR  "Thomas Oestreich"
 
-#include "transcode.h"
-#include "encoder.h"
-#include "filter.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/encoder.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
 #include "libtcvideo/tcvideo.h"
 
 #include <stdint.h>

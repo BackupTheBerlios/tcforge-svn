@@ -77,13 +77,14 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/libtc.h"
-#include "libtc/optstr.h"
-
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtc/libtc.h"
+#include "libtcutil/optstr.h"
+
 
 static vob_t *vob=NULL;
 

@@ -25,9 +25,10 @@
 #include <stdlib.h>
 
 #include "config.h"
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/tcmodule-core.h"
+#include "libtcutil/tcutil.h"
+#include "libtcmodule/tcmodule-core.h"
 
 int verbose = TC_QUIET;
 int err;
@@ -60,12 +61,11 @@ static void test_result_helper(const char *name, int ret, int expected)
     }
 
     if (ret != expected) {
-        tc_log_error(__FILE__, "'%s'%s%sFAILED%s (%i|%i)",
-                     name, spaces, COL_RED, COL_GRAY,
-                     ret, expected);
+        tc_log_error(__FILE__, "'%s'%sFAILED (%i|%i)",
+                     name, spaces, ret, expected);
     } else {
-        tc_log_info(__FILE__, "'%s'%s%sOK%s",
-                    name, spaces, COL_GREEN, COL_GRAY);
+        tc_log_info(__FILE__, "'%s'%sOK",
+                    name, spaces);
     }
 }
 
@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-#include "static_optstr.h"
+#include "libtcutil/static_optstr.h"
 
 /*************************************************************************/
 

@@ -9,10 +9,10 @@
  * for details.
  */
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
-#include "libtc/tcmodule-plugin.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 #include "libtcvideo/tcvideo.h"
 
 #ifdef OMS_COMPATIBLE

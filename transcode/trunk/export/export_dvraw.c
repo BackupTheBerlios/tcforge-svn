@@ -27,7 +27,7 @@
 
 #include "transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 #include "libtcvideo/tcvideo.h"
 
 #include <stdio.h>

@@ -26,11 +26,12 @@
 #define MOD_CAP     "generate audio clips from source"
 #define MOD_AUTHOR  "Thomas Oestreich"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/optstr.h"
-
 #include <math.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
+
 
 static uint64_t total=0;
 

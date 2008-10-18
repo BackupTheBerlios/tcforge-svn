@@ -53,13 +53,14 @@
 #define MOD_CAP     "plugin to modify framerate"
 #define MOD_AUTHOR  "Marrq"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/libtc.h"
-#include "libtc/optstr.h"
-#include "libtc/ratiocodes.h"
-
 #include <math.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtc/libtc.h"
+#include "libtc/ratiocodes.h"
+#include "libtcutil/optstr.h"
+
 
 //#define DEBUG 1
 

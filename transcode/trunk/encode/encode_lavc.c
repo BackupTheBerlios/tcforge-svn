@@ -19,18 +19,18 @@
  */
 
 
-#include "transcode.h"
-#include "framebuffer.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/framebuffer.h"
+#include "src/filter.h"
 
 #include "aclib/imgconvert.h"
 
-#include "libtc/optstr.h"
-#include "libtc/cfgfile.h"
+#include "libtcutil/optstr.h"
+#include "libtcutil/cfgfile.h"
 #include "libtc/ratiocodes.h"
 #include "libtc/tcframes.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include "libtcext/tc_avcodec.h"
 

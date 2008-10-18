@@ -32,12 +32,12 @@
     TC_MODULE_FLAG_RECONFIGURABLE
 
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include "libtcaudio/tcaudio.h"
 

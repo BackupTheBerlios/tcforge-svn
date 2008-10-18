@@ -25,8 +25,8 @@
 #define MOD_VERSION "v0.0.8 (2003-07-09)"
 #define MOD_CODEC   "(video) * | (audio) *"
 
-#include "transcode.h"
-#include "tcinfo.h"
+#include "src/transcode.h"
+#include "src/tcinfo.h"
 #include "libtcvideo/tcvideo.h"
 
 static int verbose_flag = TC_QUIET;

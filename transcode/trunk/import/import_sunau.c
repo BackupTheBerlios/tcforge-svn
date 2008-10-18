@@ -25,7 +25,7 @@
 #define MOD_VERSION	"v0.0.2 (2004-10-02)"
 #define MOD_CODEC	"(audio) pcm"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_PCM;
@@ -37,7 +37,7 @@ static int capability_flag = TC_CAP_PCM;
 #include <sys/ioctl.h>
 #include <sys/audioio.h>
 
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 
 static int sunau_fd = -1;

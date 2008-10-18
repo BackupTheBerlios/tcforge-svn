@@ -268,7 +268,7 @@ void dummy_tcformat(void)
 }
 
 
-#include "libtc/static_optstr.h"
+#include "libtcutil/static_tcutil.h"
 #include "avilib/static_avilib.h"
 #include "avilib/static_wavlib.h"
 

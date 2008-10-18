@@ -19,10 +19,10 @@
  */
 
 
-#include "transcode.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include "avilib/avilib.h"
 

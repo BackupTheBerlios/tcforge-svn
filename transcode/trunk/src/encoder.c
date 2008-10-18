@@ -1253,7 +1253,7 @@ static int OLD_encoder_export(TCEncoderData *data, vob_t *vob)
  * (read: when we have enough encode/multiplexor module to go).
  *************************************************************************/
 
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 
 //-----------------------------------------------------------------
 //

@@ -27,10 +27,10 @@
 #define MOD_CAP     "frame rate conversion filter (interpolating 29 to 23)"
 #define MOD_AUTHOR  "Tilmann Bitterberg, Max Alekseyev"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 /*-------------------------------------------------
  *

@@ -27,7 +27,7 @@
 #define MOD_VERSION     "v1.6.1 (2008-10-28)"
 #define MOD_CODEC       "(video) v4l2 | (audio) pcm"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag     = TC_QUIET;
 static int capability_flag  = TC_CAP_RGB|TC_CAP_YUV|TC_CAP_YUV422|TC_CAP_PCM;
@@ -116,8 +116,8 @@ static int capability_flag  = TC_CAP_RGB|TC_CAP_YUV|TC_CAP_YUV422|TC_CAP_PCM;
 #endif
 
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
-#include "libtc/cfgfile.h"
+#include "libtcutil/optstr.h"
+#include "libtcutil/cfgfile.h"
 #include "libtcvideo/tcvideo.h"
 
 #define TC_V4L2_CHANNELS_FILE           "tvchannels.cfg"

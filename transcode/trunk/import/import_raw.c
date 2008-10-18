@@ -25,7 +25,7 @@
 #define MOD_VERSION "v0.3.3 (2007-08-26)"
 #define MOD_CODEC   "(video) RGB/YUV | (audio) PCM"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_RGB|TC_CAP_YUV|TC_CAP_PCM|TC_CAP_YUV422;

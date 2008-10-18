@@ -26,7 +26,7 @@
 
 #include "config.h"
 #include "libtc/libtc.h"
-#include "libtc/iodir.h"
+#include "libtcutil/iodir.h"
 
 
 // typical use case #1

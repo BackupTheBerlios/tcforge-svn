@@ -23,7 +23,10 @@
 #include <string.h>
 #include <glob.h>
 
-#include "libtc.h"
+#include "common.h"
+#include "memutils.h"
+#include "strutils.h"
+#include "logging.h"
 #include "tcglob.h"
 
 

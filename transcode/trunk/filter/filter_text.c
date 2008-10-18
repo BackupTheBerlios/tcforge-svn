@@ -26,10 +26,10 @@
 #define MOD_CAP     "write text in the image"
 #define MOD_AUTHOR  "Tilmann Bitterberg"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 #include "video_trans.h"
 

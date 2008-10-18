@@ -26,10 +26,10 @@
 #define MOD_CAP     "Filter through a rectangular Mask"
 #define MOD_AUTHOR  "Thomas Oestreich, Chad Page"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 
 static char *buffer;

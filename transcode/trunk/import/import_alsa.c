@@ -20,10 +20,9 @@
 
 
 
-#include "transcode.h"
-#include "libtc/optstr.h"
-
-#include "libtc/tcmodule-plugin.h"
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include "config.h"
 

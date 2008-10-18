@@ -19,10 +19,10 @@
  */
 
 
-#include "transcode.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #define MOD_NAME    "multiplex_null.so"
 #define MOD_VERSION "v0.0.2 (2005-12-29)"

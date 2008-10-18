@@ -1302,6 +1302,24 @@ LIBTC_LIBS="\$(top_builddir)/libtc/libtc.la"
 AC_SUBST(LIBTC_LIBS)
 
 dnl
+dnl libtcmodule
+dnl
+LIBTCMODULE_LIBS="\$(top_builddir)/libtcmodule/libtcmodule.la"
+AC_SUBST(LIBTCMODULE_LIBS)
+
+dnl
+dnl libtcutil
+dnl
+LIBTCUTIL_LIBS="\$(top_builddir)/libtcutil/libtcutil.la"
+AC_SUBST(LIBTCUTIL_LIBS)
+
+dnl
+dnl libtcext
+dnl
+LIBTCEXT_LIBS="\$(top_builddir)/libtcext/libtcext.la"
+AC_SUBST(LIBTCEXT_LIBS)
+
+dnl
 dnl libtcaudio
 dnl
 LIBTCAUDIO_LIBS="\$(top_builddir)/libtcaudio/libtcaudio.la"
@@ -1421,8 +1439,10 @@ AC_CONFIG_FILES([
 	multiplex/Makefile
 	libdldarwin/Makefile
 	libtc/Makefile
-	libtcaudio/Makefile
 	libtcext/Makefile
+	libtcmodule/Makefile
+	libtcutil/Makefile
+	libtcaudio/Makefile
 	libtcvideo/Makefile
 	pvm3/Makefile
 	src/Makefile

@@ -25,7 +25,7 @@
 #define MOD_VERSION "v0.5.0 (2008-01-15)"
 #define MOD_CODEC   "(video) * | (audio) *"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_PCM | TC_CAP_RGB | TC_CAP_AUD |
@@ -34,8 +34,8 @@ static int capability_flag = TC_CAP_PCM | TC_CAP_RGB | TC_CAP_AUD |
 #define MOD_PRE avi
 #include "import_def.h"
 
-#include "libtc/xio.h"
 #include "libtc/tccodecs.h"
+#include "libtcutil/xio.h"
 #include "libtcvideo/tcvideo.h"
 
 

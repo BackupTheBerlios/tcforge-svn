@@ -45,8 +45,8 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "transcode.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
 
 #include <stdlib.h>
 #include <stdio.h>

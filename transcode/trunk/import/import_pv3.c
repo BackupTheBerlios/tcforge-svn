@@ -45,10 +45,10 @@
 #define MOD_FLAGS \
     TC_MODULE_FLAG_RECONFIGURABLE
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
-#include "libtc/tcmodule-plugin.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 #include "libtcvideo/tcvideo.h"
 #include "aclib/ac.h"
 #include "w32dll.h"

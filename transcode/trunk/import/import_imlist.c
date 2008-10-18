@@ -45,10 +45,10 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "transcode.h"
-
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_RGB|TC_CAP_VID;

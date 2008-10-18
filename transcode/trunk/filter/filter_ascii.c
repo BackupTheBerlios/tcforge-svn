@@ -27,10 +27,10 @@
 #define MOD_CAP     		"Colored ascii-art filter plugin; render a movie into ascii-art."
 #define MOD_AUTHOR		"Julien Tierny"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 /* For RGB->YUV conversion */
 #include "libtcvideo/tcvideo.h"

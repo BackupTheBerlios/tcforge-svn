@@ -29,15 +29,16 @@
 #define MOD_CAP     "White Balance Filter - correct images with a broken white balance"
 #define MOD_AUTHOR  "Guillaume Cottenceau"
 
-#include "transcode.h"
-#include "filter.h"
+#include <math.h>
+#include <ctype.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 #include "libtcvideo/tcvideo.h"
 
-#include <math.h>
-#include <ctype.h>
 
 static TCVHandle tcvhandle = 0;
 static unsigned char * buffer = NULL;

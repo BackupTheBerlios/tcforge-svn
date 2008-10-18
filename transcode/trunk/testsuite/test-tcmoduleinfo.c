@@ -23,8 +23,8 @@
 
 
 #include "src/transcode.h"
-#include "libtc/tcmodule-info.h"
 #include "libtc/tccodecs.h"
+#include "libtcmodule/tcmodule-info.h"
 
 static const TCCodecID empty_codecs[] = { TC_CODEC_ERROR };
 static TCModuleInfo empty = {

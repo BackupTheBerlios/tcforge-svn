@@ -31,8 +31,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "libtc/libtc.h"
-#include "libtc/tctimer.h"
+#include "libtcutil/tctimer.h"
+
 #include "libtc/tccodecs.h"
 
 

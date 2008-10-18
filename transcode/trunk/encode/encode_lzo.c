@@ -19,10 +19,10 @@
  */
 
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "aclib/imgconvert.h"
-#include "libtc/optstr.h"
-#include "libtc/tcmodule-plugin.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include "libtcext/tc_lzo.h"
 

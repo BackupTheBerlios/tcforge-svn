@@ -26,9 +26,9 @@
 #define MOD_CAP     "xv only preview plugin"
 #define MOD_AUTHOR  "Thomas Oestreich, Tilmann Bitterberg"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
 #include "libtcvideo/tcvideo.h"
 
 #include "video_trans.h"

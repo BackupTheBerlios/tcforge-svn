@@ -28,7 +28,7 @@
 #include "transcode.h"
 #include "filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 //#undef HAVE_ASM_MMX
 //#undef CAN_COMPILE_C_ALTIVEC

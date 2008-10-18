@@ -25,7 +25,7 @@
 #define MOD_VERSION "v0.4.1 (2007-07-15)"
 #define MOD_CODEC   "(video) DVD | (audio) MPEG/AC3/PCM"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 static int verbose_flag = TC_QUIET;
 static int capability_flag = TC_CAP_RGB | TC_CAP_YUV | TC_CAP_AC3 | TC_CAP_PCM;
@@ -38,7 +38,7 @@ static int capability_flag = TC_CAP_RGB | TC_CAP_YUV | TC_CAP_AC3 | TC_CAP_PCM;
 #include "demuxer.h"
 #include "clone.h"
 
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 /*%*
  *%* DESCRIPTION 

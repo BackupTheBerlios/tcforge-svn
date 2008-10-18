@@ -37,7 +37,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "libtc/xio.h"
+
+#include "libtcutil/xio.h"
 
 //#define AVI_DEBUG
 

@@ -38,12 +38,13 @@
 #define MOD_CAP     "Volume normalizer"
 #define MOD_AUTHOR  "pl, Tilmann Bitterberg"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/libtc.h"
-#include "libtc/optstr.h"
-
 #include <math.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtc/libtc.h"
+#include "libtcutil/optstr.h"
+
 
 
 // basic parameter

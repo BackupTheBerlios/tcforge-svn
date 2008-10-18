@@ -37,8 +37,7 @@
 // - drop a few coefficients but always keep the first one
 
 
-// includes
-#include "transcode.h"
+#include "src/transcode.h"
 
 #include <assert.h>
 #include <math.h>
@@ -2000,4 +1999,5 @@ int main (int argc, char *argv[])
 	return 0;
 }
 
-#include "libtc/static_xio.h"
+#include "libtcutil/static_xio.h"
+

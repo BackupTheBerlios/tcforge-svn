@@ -25,12 +25,12 @@
 #define MOD_VERSION "v0.3.12 (2003-08-04)"
 #define MOD_CODEC   "(video) * | (audio) MPEG/AC3/PCM"
 
-#include "transcode.h"
 #include "aud_aux.h"
+#include "src/transcode.h"
 #include "avilib/avilib.h"
 #include "import/magic.h"
 #include "libtc/libtc.h"
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 #include "libtcvideo/tcvideo.h"
 
 #include <stdio.h>

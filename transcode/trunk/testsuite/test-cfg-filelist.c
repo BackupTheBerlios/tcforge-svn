@@ -27,7 +27,7 @@
 
 #include "config.h"
 #include "libtc/libtc.h"
-#include "libtc/cfgfile.h"
+#include "libtcutil/cfgfile.h"
 
 
 int main(int argc, char *argv[])

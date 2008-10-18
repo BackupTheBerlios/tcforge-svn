@@ -25,12 +25,12 @@
 */
 
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/cfgfile.h"
-#include "libtc/optstr.h"
-#include "libtc/tcmodule-plugin.h"
 #include "libtc/ratiocodes.h"
+#include "libtcutil/cfgfile.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #include <x264.h>
 
@@ -330,7 +330,8 @@ static void x264_log(void *userdata, int level, const char *format,
     }
     tc_vsnprintf(buf, sizeof(buf), format, args);
     buf[strcspn(buf,"\r\n")] = 0;  /* delete trailing newline */
-    tc_log(tclevel, MOD_NAME, "%s", buf);
+    /* bypass log filtering silently */
+    tc_log(tclevel, TC_QUIET, MOD_NAME, "%s", buf);
 }
 
 /*************************************************************************/

@@ -10,7 +10,7 @@
 #ifndef STATIC_OPTSTR_H
 #define STATIC_OPTSTR_H
 
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 void dummy_optstr(void);
 void dummy_optstr(void) {
   optstr_lookup(NULL, NULL);

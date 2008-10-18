@@ -18,12 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "transcode.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
 
-#include "libtc/tcmodule-plugin.h"
-#include "libtc/tctimer.h"
-#include "libtc/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
+#include "libtcutil/tctimer.h"
+#include "libtcutil/optstr.h"
 
 #include "x11source.h"
 

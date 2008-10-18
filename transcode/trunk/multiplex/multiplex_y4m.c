@@ -18,21 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "config.h"
-
-#include "transcode.h"
-#include "libtc/optstr.h"
-#include "libtc/ratiocodes.h"
-
-#include "libtc/tcmodule-plugin.h"
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+
+#include "config.h"
+
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
+#include "libtc/ratiocodes.h"
+
+#include "libtcmodule/tcmodule-plugin.h"
 
 #if defined(HAVE_MJPEGTOOLS_INC)
 #include "yuv4mpeg.h"

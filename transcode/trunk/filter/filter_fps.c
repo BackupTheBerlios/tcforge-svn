@@ -26,10 +26,10 @@
 #define MOD_CAP     "convert video frame rate, gets defaults from -f and --export_fps"
 #define MOD_AUTHOR  "Christopher Cramer"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 
 static int

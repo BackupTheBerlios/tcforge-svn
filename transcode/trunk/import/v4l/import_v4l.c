@@ -21,9 +21,10 @@
  *
  */
 
-#include "transcode.h"
+#include "src/transcode.h"
+#include "libtcutil/optstr.h"
+
 #include "vcr.h"
-#include "libtc/optstr.h"
 
 #define MOD_NAME    "import_v4l.so"
 #define MOD_VERSION "v0.0.6 (2006-05-08)"

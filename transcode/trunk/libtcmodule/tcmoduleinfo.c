@@ -19,11 +19,13 @@
  */
 
 
-#include "libtc.h"
-#include "tcmodule-info.h"
-#include "transcode.h"
-
 #include <string.h>
+
+#include "src/transcode.h"
+
+#include "tcmodule-info.h"
+
+
 
 #define HAVE_FEATURE(info, feat) \
     ((info)->features & (TC_MODULE_FEATURE_ ## feat))

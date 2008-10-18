@@ -25,10 +25,10 @@
 #define MOD_VERSION "v0.6.1 (2006-05-02)"
 #define MOD_CODEC   "(video) MPEG-2 | (audio) MPEG/AC3/PCM | (subtitle)"
 
-#include "transcode.h"
+#include "src/transcode.h"
 
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
 /*%*
  *%* DESCRIPTION 

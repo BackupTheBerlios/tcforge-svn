@@ -56,13 +56,14 @@
 
 #include "xvid4.h"
 
-#include "transcode.h"
-#include "avilib/avilib.h"
 #include "aud_aux.h"
+
+#include "src/transcode.h"
+#include "avilib/avilib.h"
 #include "libtc/libtc.h"
 #include "libtcvideo/tcvideo.h"
 
-#include "libtc/cfgfile.h"
+#include "libtcutil/cfgfile.h"
 
 /*****************************************************************************
  * Transcode module binding functions and strings

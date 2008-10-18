@@ -22,7 +22,8 @@ static char *rcsid = "$OpenBSD: strlcat.c,v 1.12 2005/03/30 20:13:52 otto Exp $"
 #endif /* LIBC_SCCS and not lint */
 #endif  /* 0 */
 
-#include "libtc.h"
+#include "common.h"
+#include "strutils.h"
 
 #ifndef HAVE_STRLCAT
 

@@ -25,9 +25,9 @@
 #define MOD_VERSION "v0.3.1 (2003-10-14)"
 #define MOD_CODEC   "(video) DV | (audio) PCM"
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
 #include "libtcvideo/tcvideo.h"
 
 static int verbose_flag = TC_QUIET;
@@ -66,7 +66,7 @@ MOD_open
     if (sret < 0) {
         return(TC_IMPORT_ERROR);
     }
-    if(sret == 1) {
+    if (sret == 1) {
         tc_snprintf(cat_buf, TC_BUF_MAX, "tccat");
     } else {
         if(vob->im_v_string) {

@@ -12,10 +12,10 @@
 #include "decoder.h"
 #include "probe.h"
 #include "libtc/libtc.h"
-#include "libtc/cfgfile.h"
 #include "libtc/ratiocodes.h"
 #include "libtc/tccodecs.h"
-#include "libtc/xio.h"
+#include "libtcutil/xio.h"
+#include "libtcutil/cfgfile.h"
 
 #include "cmdline.h"
 

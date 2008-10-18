@@ -26,7 +26,7 @@
 
 #include "config.h"
 #include "libtc/libtc.h"
-#include "libtc/tcglob.h"
+#include "libtcutil/tcglob.h"
 
 
 int main(int argc, char *argv[])

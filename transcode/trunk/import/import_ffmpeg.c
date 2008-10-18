@@ -28,11 +28,11 @@
 #define MOD_VERSION "v0.2.2 (2007-11-04)"
 #define MOD_CODEC   "(video) libavformat/libavcodec"
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
 #include "libtc/tcframes.h"
+#include "libtcutil/optstr.h"
 #include "libtcext/tc_avcodec.h"
 #include "libtcvideo/tcvideo.h"
 

@@ -285,6 +285,7 @@ tccat_LDADD = \
 	$(DLDARWIN_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	-lm
 
 tccat_CFLAGS = $(AM_CFLAGS) \
@@ -329,7 +330,8 @@ tcdecode_LDADD = \
 	$(DLDARWIN_LIBS) \
 	$(LIBTCVIDEO_LIBS) \
 	$(ACLIB_LIBS) \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 tcdecode_CFLAGS = $(AM_CFLAGS) \
 	$(LIBAVCODEC_CFLAGS) \
@@ -370,6 +372,7 @@ tcdemux_LDADD = \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	$(PTHREAD_LIBS) \
 	-lm
 
@@ -410,6 +413,7 @@ tcextract_LDADD = \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	-lm
 
 tcextract_CFLAGS = $(AM_CFLAGS) \
@@ -481,6 +485,7 @@ tcprobe_LDADD = \
 	$(LIBTCVIDEO_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	-lm
 
 tcprobe_CFLAGS = $(AM_CFLAGS) \
@@ -508,6 +513,7 @@ tcrequant_LDADD = \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	-lm
 
 tcrequant_CFLAGS = $(AM_CFLAGS)
@@ -533,6 +539,7 @@ tcscan_LDADD = \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	-lm
 
 tcscan_CFLAGS = $(AM_CFLAGS) \
@@ -557,6 +564,7 @@ tcxmlcheck_LDADD = \
 	$(LIBXML2_LIBS) \
 	$(ACLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	-lm
 
 tcxmlcheck_CFLAGS = $(AM_CFLAGS) \
@@ -570,6 +578,7 @@ tcxmlcheck_CFLAGS = $(AM_CFLAGS) \
 
 tcxpm2rgb_SOURCES = tcxpm2rgb.c
 
-tcxpm2rgb_LDADD = $(LIBTC_LIBS)
+tcxpm2rgb_LDADD = $(LIBTC_LIBS) $(LIBTCUTIL_LIBS)
 
 tcxpm2rgb_CFLAGS = $(AM_CFLAGS)
+

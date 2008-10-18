@@ -1,3 +1,9 @@
+2008-10-18 Francesco Romani <fromani at gmail dot com>
+  * way too much files
+  split libtc into smaller libraries.
+  Power up tclog addind built-in message filtering, explicit
+  debug function and debug mask/filtering.
+
 2008-10-07 Francesco Romani <fromani at gmail dot com>
   * import/import_im.c
   fix strange behaviour with --multi_input and some libMagick versions.

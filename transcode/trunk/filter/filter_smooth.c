@@ -26,9 +26,9 @@
 #define MOD_CAP     "(single-frame) smoothing plugin"
 #define MOD_AUTHOR  "Chad Page"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
 
 /* FIXME: this uses the filter ID as an index--the ID can grow
  * arbitrarily large, so this needs to be fixed */

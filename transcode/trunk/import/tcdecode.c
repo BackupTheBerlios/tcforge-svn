@@ -21,14 +21,15 @@
  *
  */
 
-#include "transcode.h"
-#include "tcinfo.h"
-
 #include <limits.h>
+
+#include "src/transcode.h"
+#include "src/tcinfo.h"
+
+#include "libtcutil/xio.h"
 
 #include "ioaux.h"
 #include "tc.h"
-#include "libtc/xio.h"
 
 #define EXE "tcdecode"
 
@@ -320,7 +321,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#include "libtc/static_xio.h"
+#include "libtcutil/static_xio.h"
 
 /*************************************************************************/
 

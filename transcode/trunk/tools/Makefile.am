@@ -37,7 +37,8 @@ avisync_LDADD = \
 	$(AVILIB_LIBS) \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 avimerge_SOURCES = \
 	avimerge.c \
@@ -50,7 +51,8 @@ avimerge_LDADD = \
 	$(AVILIB_LIBS) \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 avifix_SOURCES = \
 	avifix.c \
@@ -59,7 +61,8 @@ avifix_LDADD = \
 	$(AVILIB_LIBS) \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 aviindex_SOURCES = \
 	aviindex.c \
@@ -70,7 +73,8 @@ aviindex_LDADD = \
 	$(AVILIB_LIBS) \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 avisplit_SOURCES = \
 	avisplit.c \
@@ -83,7 +87,8 @@ avisplit_LDADD = \
 	$(AVILIB_LIBS) \
 	$(XIO_LIBS) \
 	$(ACLIB_LIBS) \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 tcmodinfo_SOURCES = tcmodinfo.c tcstub.c
 tcmodinfo_CPPFLAGS = $(AM_CPPFLAGS) \
@@ -95,6 +100,8 @@ tcmodinfo_LDADD = \
 	$(AVILIB_LIBS) \
 	$(WAVLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
+	$(LIBTCMODULE_LIBS) \
 	$(LIBTCVIDEO_LIBS) \
 	$(PTHREAD_LIBS) \
 	-lm
@@ -110,6 +117,8 @@ tcmodchain_LDADD = \
 	$(AVILIB_LIBS) \
 	$(WAVLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS) \
+	$(LIBTCMODULE_LIBS) \
 	$(LIBTCVIDEO_LIBS) \
 	$(PTHREAD_LIBS) \
 	-lm
@@ -134,6 +143,8 @@ tcexport_LDADD = \
 	$(AVILIB_LIBS) \
 	$(WAVLIB_LIBS) \
 	$(LIBTC_LIBS) \
+	$(LIBTCMODULE_LIBS) \
+	$(LIBTCUTIL_LIBS) \
 	$(LIBTCVIDEO_LIBS) \
 	$(LIBTCAUDIO_LIBS) \
 	$(XIO_LIBS) \
@@ -146,7 +157,8 @@ tcmp3cut_SOURCES = \
 	aud_scan.c \
 	aud_scan.h
 tcmp3cut_LDADD = \
-	$(LIBTC_LIBS)
+	$(LIBTC_LIBS) \
+	$(LIBTCUTIL_LIBS)
 
 tcyait_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/filter
 tcyait_SOURCES = \

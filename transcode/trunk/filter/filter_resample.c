@@ -31,12 +31,13 @@
 #define MOD_FLAGS \
     TC_MODULE_FLAG_RECONFIGURABLE|TC_MODULE_FLAG_BUFFERING
 
-#include "transcode.h"
-#include "filter.h"
+#include "src/transcode.h"
+#include "src/filter.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
-#include "libtc/tcmodule-plugin.h"
+#include "libtcutil/optstr.h"
+#include "libtcmodule/tcmodule-plugin.h"
 #include "libtcext/tc_avcodec.h"
+
 
 typedef struct {
     uint8_t *resample_buf;

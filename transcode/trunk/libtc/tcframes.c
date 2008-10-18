@@ -26,7 +26,13 @@
 
 #include "src/tc_defaults.h"
 
+#include "libtcutil/memutils.h"
+#include "libtcutil/logging.h"
+#include "libtcutil/common.h"
+
+#include "mediainfo.h"
 #include "tcframes.h"
+
 
 int tc_video_planes_size(size_t psizes[3],
                          int width, int height, int format)

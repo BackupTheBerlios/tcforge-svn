@@ -26,9 +26,9 @@
 #define MOD_CAP     "xv/sdl/gtk preview plugin"
 #define MOD_AUTHOR  "Thomas Oestreich"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/optstr.h"
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtcutil/optstr.h"
 
 #include "filter_preview.h"
 

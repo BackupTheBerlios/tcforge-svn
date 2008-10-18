@@ -14,11 +14,11 @@
 #include <stdlib.h>
 #include <libdv/dv.h>
 
-#include "transcode.h"
+#include "src/transcode.h"
 #include "aclib/imgconvert.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 
-#include "libtc/tcmodule-plugin.h"
+#include "libtcmodule/tcmodule-plugin.h"
 
 #define MOD_NAME    "encode_dv.so"
 #define MOD_VERSION "v0.0.4 (2007-07-11)"

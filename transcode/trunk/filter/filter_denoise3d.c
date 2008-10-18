@@ -24,12 +24,12 @@
 #define MOD_CAP     "High speed 3D Denoiser"
 #define MOD_AUTHOR  "Daniel Moreno, A'rpi"
 
-#include "transcode.h"
-#include "filter.h"
-#include "libtc/libtc.h"
-#include "libtc/optstr.h"
-
 #include <math.h>
+
+#include "src/transcode.h"
+#include "src/filter.h"
+#include "libtc/libtc.h"
+#include "libtcutil/optstr.h"
 
 /*
 	set tabstop=4 for best layout
