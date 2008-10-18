@@ -1,0 +1,26 @@
+
+
+Security
+~~~~~~~~
+
+tcrund is insecure. Period.
+
+tcrund requires the users to authenticate themselves before to do any 
+action, but this was introduced to prevent *accidents* and not hostile 
+actions. 
+
+Communications are not encrypted, session tokens are easily predictable.
+
+The server doesn't enforce any resource limitation, so it's easy
+to cause DoS on the server machine.
+
+The server has not received any security audit, and very likely it will
+NEVER receive them.
+
+Some of the above points will be addressed in future releases, but
+in a nutsheel tcrund will remain insecure. Sad but true.
+
+Use tcrund *ONLY* in private, trusted networks.
+*DO* *NOT* *USE* *IT* across the internet or any public network.
+'Nuff said.
+
