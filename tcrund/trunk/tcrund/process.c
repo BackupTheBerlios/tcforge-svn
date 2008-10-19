@@ -2,7 +2,7 @@
  * process.c -- transcode process control code.
  * (C) 2008 Francesco Romani <fromani at gmail dot com>
  *
- * This file is part of tcrund, a tv recording daemon.
+ * This file is part of tcrund, the transcode remote control daemon.
  *
  * tcrund is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

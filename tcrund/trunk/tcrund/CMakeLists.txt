@@ -1,5 +1,5 @@
 
-add_executable(tcrund tcrund.c)
+add_executable(tcrund tcrund.c logging_file.c process.c server.c)
 
 find_package(XMLRPC)
 if(XMLRPC_FOUND)
@@ -19,14 +19,13 @@ endif(EVENT_FOUND)
 
 
 include_directories(${tcrund_SOURCE_DIR})
-include_directories(${tcrund_SOURCE_DIR}/tcstubs)
-include_directories(${tcrund_SOURCE_DIR}/libtc)
+include_directories(${tcrund_SOURCE_DIR}/tclibs)
+include_directories(${tcrund_SOURCE_DIR}/tclibs/libtcutil)
 include_directories(${tcrund_SOURCE_DIR}/tcrund)
 
-link_directories(${tcrund_BINARY_DIR}/libtc)
+link_directories(${tcrund_BINARY_DIR}/tclibs)
 
-
-target_link_libraries(tcrund tc)
+target_link_libraries(tcrund tcutil)
 target_link_libraries(tcrund xmlrpc)
 target_link_libraries(tcrund xmlrpc_util)
 target_link_libraries(tcrund xmlrpc_xmltok)

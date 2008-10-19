@@ -1,8 +1,8 @@
 /*
- * server.c -- transcode recording daemon.
+ * server.c -- transcode remote control daemon.
  * (C) 2008 Francesco Romani <fromani at gmail dot com>
  *
- * This file is part of tcrund, a tv recording daemon.
+ * This file is part of tcrund, the transcode remote control daemon.
  *
  * tcrund is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ enum {
 };
 
 struct tcserver_ {
-    TCRecDConfig        *config;
+    TCRConfig           *config;
 
     int                 status;
 
@@ -51,7 +51,7 @@ struct tcserver_ {
     struct event_base   *evbase;
     struct evhttp       *http;
 
-    TCProcess           *current;
+    TCRProcess          *current;
     uint32_t            instanceid;
 };
 
@@ -60,38 +60,38 @@ static TCServer tcserver; /* static instance forced by xmlrpc-c */
 
 /*************************************************************************/
 
-static xmlrpc_value *tc_server_record_status(xmlrpc_env *envP,
+static xmlrpc_value *tcr_server_record_status(xmlrpc_env *envP,
                                              xmlrpc_value *paramArrayP,
                                              void *serverInfo ATTR_UNUSED,
                                              void *channelInfo ATTR_UNUSED)
 {
 }
 
-static xmlrpc_value *tc_server_record_start(xmlrpc_env *envP,
+static xmlrpc_value *tcr_server_record_start(xmlrpc_env *envP,
                                             xmlrpc_value *paramArrayP,
                                             void *serverInfo ATTR_UNUSED,
                                             void *channelInfo ATTR_UNUSED)
 {
 }
 
-static xmlrpc_value *tc_server_record_stop(xmlrpc_env *envP,
+static xmlrpc_value *tcr_server_record_stop(xmlrpc_env *envP,
                                            xmlrpc_value *paramArrayP,
                                            void *serverInfo ATTR_UNUSED,
                                            void *channelInfo ATTR_UNUSED)
 {
 }
 
-static void tc_server_post_handler(struct evhttp_request *req, void *userdata)
+static void tcr_server_post_handler(struct evhttp_request *req, void *userdata)
 {
 }
 
-static void tc_server_base_handler(struct evhttp_request *req, void *userdata)
+static void tcr_server_base_handler(struct evhttp_request *req, void *userdata)
 {
 }
 
 /*************************************************************************/
 
-static int tc_server_init(TCServer *tcs)
+static int tcr_server_init(TCServer *tcs)
 {
     xmlrpc_env_init(&tcs->env);
     tcs->registry = xmlrpc_registry_new(&tcs->env);
@@ -101,32 +101,32 @@ static int tc_server_init(TCServer *tcs)
     
 }
 
-static int tc_server_setup(TCServer *tcs)
+static int tcr_server_setup(TCServer *tcs)
 {
-    struct xmlrpc_tc_server_info3 methodStatus = {
-        .tc_serverName     = "TC.record.status",
-        .tc_serverFunction = tc_server_record_status,
+    struct xmlrpc_tcr_server_info3 methodStatus = {
+        .tcr_serverName     = "TC.record.status",
+        .tcr_serverFunction = tcr_server_record_status,
     };
-    struct xmlrpc_tc_server_info3 methodStart = {
-        .tc_serverName     = "TC.record.start",
-        .tc_serverFunction = tc_server_record_start,
+    struct xmlrpc_tcr_server_info3 methodStart = {
+        .tcr_serverName     = "TC.record.start",
+        .tcr_serverFunction = tcr_server_record_start,
     };
-    struct xmlrpc_tc_server_info3 methodStatus = {
-        .tc_serverName     = "TC.record.stop",
-        .tc_serverFunction = tc_server_record_stop,
+    struct xmlrpc_tcr_server_info3 methodStatus = {
+        .tcr_serverName     = "TC.record.stop",
+        .tcr_serverFunction = tcr_server_record_stop,
     };
 
     xmlrpc_registry_add_method3(&env, registryP, &methodStatus);
     xmlrpc_registry_add_method3(&env, registryP, &methodStart);
     xmlrpc_registry_add_method3(&env, registryP, &methodStop);
 
-    evhttp_set_cb(tcs->http, "/XML-RPC", tc_server_post_handler, tcs);
-    evhttp_set_cb(tcs->http, "/",        tc_server_base_handler, tcs);
+    evhttp_set_cb(tcs->http, "/XML-RPC", tcr_server_post_handler, tcs);
+    evhttp_set_cb(tcs->http, "/",        tcr_server_base_handler, tcs);
 }
 
 /*************************************************************************/
 
-int tc_server_new(TCServer **tcs, TCRecDConfig *config)
+int tcr_server_new(TCServer **tcs, TCRunDConfig *config)
 {
     TCServer *serv = NULL;
     int ret = TC_ERROR;
@@ -134,17 +134,17 @@ int tc_server_new(TCServer **tcs, TCRecDConfig *config)
     if (!tcs || !config) {
         return TC_ERROR;
     }
-    serv = tc_zalloc(sizeof(TCServer));
+    serv = tcr_zalloc(sizeof(TCServer));
     if (!serv) {
         goto fail;
     }
 
-    ret = tc_server_init(serv);
+    ret = tcr_server_init(serv);
     if (ret != TC_OK) {
         goto fail_init;
     }
 
-    ret = tc_server_setup(serv);
+    ret = tcr_server_setup(serv);
         goto fail_setup;
     }
 
@@ -155,14 +155,14 @@ int tc_server_new(TCServer **tcs, TCRecDConfig *config)
 
 fail_setup:
 fail_init:
-    tc_free(serv);
+    tcr_free(serv);
 fail:
     *tcs = NULL;
     return TC_ERROR;
 }
 
 
-int tc_server_run(TCServer *tcs)
+int tcr_server_run(TCServer *tcs)
 {
     evhttp_bind_socket(tcs->http, tcs->config->host, (u_short)tcs->config->port);
 

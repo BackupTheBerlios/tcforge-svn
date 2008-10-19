@@ -2,7 +2,7 @@
  * process.h -- transcode process control code.
  * (C) 2008 Francesco Romani <fromani at gmail dot com>
  *
- * This file is part of tcrund, a tv recording daemon.
+ * This file is part of tcrund, the transcode remote control daemon.
  *
  * tcrund is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ TCRProcess *tcr_process_new_from_conf(const char *cfgfile);
 
 int tcr_process_run(TCRProcess *proc);
 
-int tcr_process_send_command(TCRProcess *proc, TCRommandCode cmd,
+int tcr_process_send_command(TCRProcess *proc, TCRCommandCode cmd,
                              char *args[], char *outbuf);
 
 int tcr_process_del(TCRProcess *proc);

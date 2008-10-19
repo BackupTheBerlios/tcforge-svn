@@ -1,8 +1,8 @@
 /*
- * tcrund.c -- transcode recording daemon.
+ * tcrund.c -- transcode remote control daemon.
  * (C) 2008 Francesco Romani <fromani at gmail dot com>
  *
- * This file is part of tcrund, a tv recording daemon.
+ * This file is part of tcrund, the transcode remote control daemon.
  *
  * tcrund is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,29 +28,28 @@
 
 #define MOD_NAME    "main"
 
-typedef struct tcrundcontext_ TCRunDContext;
-struct tcrundcontext_ {
-    TCRecDConfig    config;
-    TCCLogData      log;
-    TCServer        *server;
+typedef struct tcrcontext_ TCRContext;
+struct tcrcontext_ {
+    TCRConfig    config;
+    TCRServer    *server;
 };
 
-static TCRunDContext TCRunD;
+static TCRContext TCRunD;
 
 
-static int tcrund_read_config(const char *cfgfile, TCRecDConfig *config)
+static int tcr_read_config(const char *cfgfile, TCRConfig *config)
 {
     return -1;
 }
 
 static void cleanup(void)
 {
-    tcclog_close(&TCRunD.log);
+    ;
 }
 
 static void sighandler(int signum)
 {
-    tcrund_log(MOD_NAME, TCC_LOG_INFO, "got signal [%i] (%s), exiting...", signum, "");
+//    tcr_log(MOD_NAME, TCC_LOG_INFO, "got signal [%i] (%s), exiting...", signum, "");
 /*    if (TCRunD.server) {
         tc_server_cleanup(TCRunD.server);
         tc_server_del(TCRunD.server);
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, sighandler);
     atexit(cleanup);
 
-    err = tcrund_read_config(cfgfile, &TCRunD.config);
+    err = tcr_read_config(cfgfile, &TCRunD.config);
     if (err) {
         /* TODO */
     }
