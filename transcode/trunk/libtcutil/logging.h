@@ -74,7 +74,7 @@ typedef enum tclogmode_ TCLogMode;
 enum tclogmode_ {
     TC_LOG_INVALID = 0,  /* the usual `error/unknown' value */
     TC_LOG_CONSOLE = 1,  /* default */
-    TC_LOG_EXT     = 127 /* use this as base for extra methods */
+    TC_LOG_USEREXT = 127 /* use this as base for extra methods */
 };
 
 typedef struct tclogcontext_ TCLogContext;
