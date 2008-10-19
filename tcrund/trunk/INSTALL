@@ -1,0 +1,30 @@
+
+HOW TO BUILD AND INSTALL TCRUND
+===============================
+
+Dependencies
+~~~~~~~~~~~~
+
+cmake    >= 2.6.0	- http://www.cmake.org
+libevent >= 1.4.3	- http://monkey.org/~provos/libevent/
+xmlrpc-c >= 1.06.27	- http://xmlrpc-c.sf.net
+
+plus the usual build essential components (make, gcc, glibc headers
+and so on)
+
+
+Compilation
+~~~~~~~~~~~
+
+$ cmake .
+$ make
+# make install
+
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+* CMake doesn't find includes/libraries
+  --------------------------------------
+
+WRITEME
+

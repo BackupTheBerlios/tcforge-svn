@@ -28,6 +28,7 @@ link_directories(${tcrund_BINARY_DIR}/tclibs)
 target_link_libraries(tcrund tcutil)
 target_link_libraries(tcrund xmlrpc)
 target_link_libraries(tcrund xmlrpc_util)
+target_link_libraries(tcrund xmlrpc_server)
 target_link_libraries(tcrund xmlrpc_xmltok)
 target_link_libraries(tcrund xmlrpc_xmlparse)
 

@@ -1,4 +1,5 @@
-FIND_PATH(EVENT_INCLUDE_DIR event.h /usr/include/ /usr/local/include/)
+
+FIND_PATH(EVENT_INCLUDE_DIR event.h PATHS /usr/include/ /usr/local/include/)
 
 FIND_LIBRARY(EVENT_LIBRARY NAMES event PATH /usr/lib /usr/local/lib) 
 
