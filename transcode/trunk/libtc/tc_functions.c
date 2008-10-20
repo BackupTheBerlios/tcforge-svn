@@ -61,6 +61,7 @@ pthread_mutex_t tc_libavcodec_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* set sane defaults */
 void libtc_init(int *argc, char ***argv)
 {
+    tc_log_init();
     tc_log_open(TC_LOG_CONSOLE, TC_LOG_EXTRA, argc, argv);
 }
 
