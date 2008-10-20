@@ -180,11 +180,34 @@ int tcr_server_run(TCRServer *tcs)
 {
     evhttp_bind_socket(tcs->http, tcs->config->host, (u_short)tcs->config->port);
 
-    daemon(0, 0);
+    if (!tcs->config->debug_mode) {
+       daemon(0, 0);
+    }
+
     event_dispatch();
 
     return TC_OK;
 }
 
 
+int tcr_server_cleanup(TCRServer *tcs)
+{
+    return TC_ERROR;
+}
+
+int tcr_server_del(TCRServer *tcs)
+{
+    return TC_ERROR;
+}
+
+/*************************************************************************/
+/*
+ * Local variables:
+ *   c-file-style: "stroustrup"
+ *   c-file-offsets: ((case-label . *) (statement-case-intro . *))
+ *   indent-tabs-mode: nil
+ * End:
+ *
+ * vim: expandtab shiftwidth=4:
+ */
 

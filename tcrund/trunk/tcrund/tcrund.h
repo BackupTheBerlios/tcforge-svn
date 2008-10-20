@@ -38,6 +38,8 @@ struct tcrconfig_ {
 
     const char  *files_dir;
     const char  *out_fmt_string;
+
+    int         debug_mode;
 };
 
 typedef enum tcrlogmode_ TCRLogMode;
@@ -45,6 +47,18 @@ enum tcrlogmode_ {
     TCR_LOG_FILE = TC_LOG_USEREXT,
     TCR_LOG_NULL
 };
+
+typedef enum tcrunderrorcode_ TCRunDErrorCode;
+enum tcrunderrorcode_ {
+    TCRUND_OK = 0,
+    TCRUND_ERR_BAD_OPTIONS,
+    TCRUND_ERR_BAD_CONFIG_FILE,
+    TCRUND_ERR_NO_CONFIG_FILE,
+    TCRUND_ERR_NO_LOG,
+    TCRUND_ERR_SERVER_SETUP,
+    TCRUND_ERR_SERVER_RUN,
+};
+
 
 int tcr_log_register_methods(void);
 
