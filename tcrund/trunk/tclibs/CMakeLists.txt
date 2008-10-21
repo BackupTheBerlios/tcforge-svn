@@ -9,5 +9,8 @@ add_definitions(-DHAVE_CONFIG_H)
 include_directories(${tcrund_SOURCE_DIR})
 include_directories(${tcrund_SOURCE_DIR}/tclibs)
 include_directories(${tcrund_SOURCE_DIR}/tclibs/libtcutil)
+
 add_library(tcutil STATIC ${LIBTCUTIL_SOURCES})
+
+set_target_properties(tcutil PROPERTIES COMPILE_FLAGS "-g -Os -Wall -Werror")
 

@@ -18,6 +18,8 @@ else(EVENT_FOUND)
 endif(EVENT_FOUND)
 
 
+include_directories(${XMLRPC_INCLUDE_DIR})
+include_directories(${EVENT_INCLUDE_DIR})
 include_directories(${tcrund_SOURCE_DIR})
 include_directories(${tcrund_SOURCE_DIR}/tclibs)
 include_directories(${tcrund_SOURCE_DIR}/tclibs/libtcutil)
@@ -31,4 +33,7 @@ target_link_libraries(tcrund xmlrpc_util)
 target_link_libraries(tcrund xmlrpc_server)
 target_link_libraries(tcrund xmlrpc_xmltok)
 target_link_libraries(tcrund xmlrpc_xmlparse)
+
+set_target_properties(tcrund PROPERTIES COMPILE_FLAGS "-g -Os -Wall -Werror")
+
 
