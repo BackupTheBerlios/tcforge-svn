@@ -91,7 +91,7 @@ static int tc_log_console_send(TCLogContext *ctx, TCLogLevel level,
     fmt = (fmt != NULL) ?fmt :"";
     /* TC_LOG_EXTRA special handling: force always empty tag */
     tag = (level == TC_LOG_MARK) ?"" :tag;
-    templ = log_template(level)
+    templ = log_template(level);
     
     size = strlen(templ) + strlen(tag) + strlen(fmt) + 1;
 
