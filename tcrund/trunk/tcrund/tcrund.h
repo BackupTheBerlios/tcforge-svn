@@ -27,19 +27,30 @@
 #include "tcutil.h"
 
 
+#define TCRUND_DEFAULT_HOST		"127.0.0.1"
+#define TCRUND_DEFAULT_PORT		39000
+#define TCRUND_DEFAULT_LOG_DIR		"/var/log/tcrund/"
+#define TCRUND_DEFAULT_CONF_PATH	"/etc/tcrund/"
+#define TCRUND_DEFAULT_FILES_PATH	"/srv/tcrund/"
+#define TCRUND_DEFAULT_OUT_FMT_STRING	"out" // FIXME
+
+#define TCRUND_CONFIG_FILE_MAIN		"general"
+
 typedef struct tcrconfig_ TCRConfig;
 struct tcrconfig_ {
-    const char  *host;
-    int         port;
+    /* those WILL BE present into configuration file */
+    char *host;
+    int  port;
 
-    const char  *logpath;
+    char *logs_dir;
 
-    const char  *tc_config_dir;
+    char *tc_conf_dir;
 
-    const char  *files_dir;
-    const char  *out_fmt_string;
+    char *files_dir;
+    char *out_fmt_string;
 
-    int         debug_mode;
+    /* those will NOT be present into configuration file */
+    int  debug_mode;
 };
 
 typedef enum tcrlogmode_ TCRLogMode;

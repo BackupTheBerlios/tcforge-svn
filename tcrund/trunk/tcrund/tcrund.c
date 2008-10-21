@@ -26,10 +26,9 @@
 #include <stdio.h>
 
 #include "config.h"
+
 #include "server.h"
 #include "tcrund.h"
-
-#define MOD_NAME    "main"
 
 
 /*************************************************************************/
@@ -57,24 +56,87 @@ static TCRContext TCRunD = {
 
 /*************************************************************************/
 
-static int tcr_read_config(const char *cfgfile, TCRConfig *config)
+static void tcr_set_config_defaults(TCRConfig *cfg)
 {
-    return -1;
+    if (cfg) {
+        cfg->port           = TCRUND_DEFAULT_PORT;
+        cfg->host           = TCRUND_DEFAULT_HOST;
+        cfg->logs_dir       = TCRUND_DEFAULT_LOG_DIR;
+        cfg->files_dir      = TCRUND_DEFAULT_FILES_PATH;
+        cfg->tc_conf_dir    = TCRUND_DEFAULT_CONF_PATH;
+        cfg->out_fmt_string = TCRUND_DEFAULT_OUT_FMT_STRING;
+    }
 }
+
+/* 
+ * config is static data, is read rarely or just once and not concurrently.
+ * private (tc_malloc'd) data is harder to mantain and doesn't offer benefits
+ * here.
+ */
+static int tcr_read_config(const char *cfg_file, TCRConfig *cfg)
+{
+    TCConfigEntry tcrund_conf[] = {
+        { "port",       &(cfg->port),           TCCONF_TYPE_INT, TCCONF_FLAG_RANGE, 1024, 65535 },
+        { "host",       &(cfg->host),           TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "logs_dir",   &(cfg->logs_dir),       TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "files_dir",  &(cfg->files_dir),      TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "config_dir", &(cfg->tc_conf_dir),    TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "out_format", &(cfg->out_fmt_string), TCCONF_TYPE_STRING, 0, 0, 0 },
+        { NULL,         NULL,                   0,                  0, 0, 0 }
+    };
+    int ret = TC_ERROR;
+    int res = module_read_config(cfg_file, TCRUND_CONFIG_FILE_MAIN,
+                                 tcrund_conf, PACKAGE);
+
+    if (res != 0) {
+        if (cfg->debug_mode) {
+            tc_log(TC_QUIET, TC_LOG_INFO, PACKAGE,
+                   "configuration from [%s]", cfg_file);
+            tc_log(TC_QUIET, TC_LOG_INFO, PACKAGE,
+                   "=================="); /* puah */
+            module_print_config(tcrund_conf, PACKAGE);
+        }
+        ret = TC_OK;
+    }
+    return ret;
+}
+
+#undef RETURN_IF_FAILED
+
+/*************************************************************************/
 
 static void cleanup(void)
 {
-    ;
-}
-
-static void sighandler(int signum)
-{
-//    tcr_log(MOD_NAME, TCC_LOG_INFO, "got signal [%i] (%s), exiting...", signum, "");
-/*    if (TCRunD.server) {
+ /* 
+    if (TCRunD.server) {
         tc_server_cleanup(TCRunD.server);
         tc_server_del(TCRunD.server);
     }
-*/    return;
+*/  
+}
+
+static void sig_reload_handler(int signum)
+{
+    int err = TC_OK;
+
+    tc_log(TC_QUIET, TC_LOG_INFO, PACKAGE,
+           "got signal [%i] reloading configuration file `%s'",
+           signum, TCRunD.cfg_file);
+
+    err = tcr_read_config(TCRunD.cfg_file, &TCRunD.config);
+    if (err) {
+        tc_log(TC_QUIET, TC_ERROR,
+               "error reading the configuration file `%s'", TCRunD.cfg_file);
+        raise(SIGTERM); /* FIXME */
+    }
+}
+
+
+static void sig_exit_handler(int signum)
+{
+    tc_log(TC_QUIET, TC_LOG_INFO, PACKAGE,
+           "got signal [%i] (%s), exiting...", signum, "");
+    tcr_server_stop(TCRunD.server);
 }
 
 /*************************************************************************/
@@ -89,8 +151,8 @@ static void usage(void)
 {
     version();
 
-    fprintf(stderr,"\nUsage: %s -f config [options]\n", PACKAGE);
-    fprintf(stderr,"    -f config   select configuration file to use\n");
+    fprintf(stderr,"\nUsage: %s -f conf [options]\n", PACKAGE);
+    fprintf(stderr,"    -f conf     select configuration file to use\n");
     fprintf(stderr,"    -D          run in debug mode "
                                    "(don't detach from terminal)\n");
     fprintf(stderr,"    -q level    select log level\n");
@@ -135,17 +197,17 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
             VALIDATE_OPTION;
             ctx->cfg_file = optarg;
             break;
-          case 'D':
-            VALIDATE_OPTION;
-            debug_mode = TC_TRUE;
-            break;
           case 'q':
             VALIDATE_OPTION;
             ctx->log_level = verbose_level_from_str(optarg);
             if (ctx->log_level == -1) {
-                fprintf(stderr, "unknown log level: `%s'\n", optarg);
+                fprintf(stderr, "[%s] unknown log level: `%s'\n", 
+                        PACKAGE, optarg);
                 return TC_ERROR;
             }
+            break;
+          case 'D':
+            debug_mode = TC_TRUE;
             break;
           case 'v':
             version();
@@ -181,7 +243,8 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    int err = 0, ch = -1;
+    TCRConfig *cfg = &(TCRunD.config); /* shortcut */
+    int err = 0;
 
     /* parse cmdline options */
     tc_log_init();
@@ -194,35 +257,40 @@ int main(int argc, char *argv[])
     if (!TCRunD.banner_only) {
         /* some validation... */
         if (!TCRunD.cfg_file) {
-            fprintf(stderr, "missing configuration file\n");
-            fprintf(stderr, "option -f is MANDATORY!\n");
+            fprintf(stderr, "[%s] missing configuration file\n", PACKAGE);
+            fprintf(stderr, "[%s] option -f is MANDATORY!\n", PACKAGE);
             return TCRUND_ERR_NO_CONFIG_FILE;
         }
 
         err = tc_log_open(TCRunD.log_mode, TCRunD.log_level, &argc, &argv);
         if (err) {
-            fprintf(stderr, "error opening log\n");
+            fprintf(stderr, "[%s] error opening log\n", PACKAGE);
             return TCRUND_ERR_NO_LOG;
         }
         /* now we can tc_log() safely and happily */
 
-        signal(SIGINT,  sighandler);
-        signal(SIGTERM, sighandler);
+        signal(SIGHUP,  sig_reload_handler);
+        signal(SIGINT,  sig_exit_handler);
+        signal(SIGTERM, sig_exit_handler);
         atexit(cleanup);
 
-        err = tcr_read_config(TCRunD.cfg_file, &TCRunD.config);
+        tcr_set_config_defaults(cfg);
+
+        err = tcr_read_config(TCRunD.cfg_file, cfg);
         if (err) {
             tc_log(TC_QUIET, TC_ERROR,
                    "error reading the configuration file `%s'", TCRunD.cfg_file);
             return TCRUND_ERR_BAD_CONFIG_FILE;
         }
 
-        err = tcr_server_new(&TCRunD.server, &TCRunD.config);
+        err = tcr_server_new(&TCRunD.server, cfg);
         if (err) {
             tc_log(TC_QUIET, TC_ERROR, PACKAGE,
                    "error setting up the server");
             return TCRUND_ERR_SERVER_SETUP;
         }
+
+        tc_log(TC_QUIET, TC_LOG_INFO, PACKAGE, "server run");
 
         err = tcr_server_run(TCRunD.server);
         if (err) {
@@ -230,6 +298,10 @@ int main(int argc, char *argv[])
                    "error starting the event loop");
             return TCRUND_ERR_SERVER_RUN;
         }
+    }
+
+    if (cfg->debug_mode) {
+        tc_log(TC_QUIET, TC_LOG_INFO, PACKAGE, "server end");
     }
 
     tcr_server_cleanup(TCRunD.server);
