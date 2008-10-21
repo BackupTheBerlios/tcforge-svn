@@ -51,22 +51,23 @@
 #define COL_WHITE           COL(37)
 #define COL_GRAY            "\033[0m"
 
-
-
-/* WARNING: we MUST keep in sync templates order with TC_LOG* macros */
-static const char *tc_log_templates[] = {
-    /* TC_LOG_ERR */
-    "["COL_RED"%s"COL_GRAY"]"COL_RED" critical"COL_GRAY": %s\n",
-    /* TC_LOG_WARN */
-    "["COL_RED"%s"COL_GRAY"]"COL_YELLOW" warning"COL_GRAY": %s\n",
-    /* TC_LOG_INFO */
-    "["COL_BLUE"%s"COL_GRAY"] %s\n",
-    /* TC_LOG_MSG */
-    "[%s] %s\n",
-    /* TC_LOG_EXTRA */
-    "%s%s" /* tag placeholder must be present but tag will be ignored */
-};
-
+static const char *log_template(TCLogLevel level)
+{
+    /* WARNING: we MUST keep in sync templates order with TC_LOG* macros */
+    static const char *tc_log_templates[] = {
+        /* TC_LOG_ERR */
+        "["COL_RED"%s"COL_GRAY"]"COL_RED" critical"COL_GRAY": %s\n",
+        /* TC_LOG_WARN */
+        "["COL_RED"%s"COL_GRAY"]"COL_YELLOW" warning"COL_GRAY": %s\n",
+        /* TC_LOG_INFO */
+        "["COL_BLUE"%s"COL_GRAY"] %s\n",
+        /* TC_LOG_MSG */
+        "[%s] %s\n",
+        /* TC_LOG_MARK */
+        "%s%s" /* tag placeholder must be present but tag will be ignored */
+    };
+    return tc_log_templates[level - TC_LOG_ERR];
+}
 
 static int tc_log_console_send(TCLogContext *ctx, TCLogLevel level,
                                const char *tag, const char *fmt, va_list ap)
@@ -76,23 +77,23 @@ static int tc_log_console_send(TCLogContext *ctx, TCLogLevel level,
     char buf[TC_LOG_BUF_SIZE];
     char *msg = buf;
     size_t size = sizeof(buf);
+    const char *templ = NULL;
 
     /* sanity check, avoid {under,over}flow; */
     level = (level < TC_LOG_ERR) ?TC_LOG_ERR :level;
-    level = (level > TC_LOG_EXTRA) ?TC_LOG_EXTRA :level;
+    level = (level > TC_LOG_MARK) ?TC_LOG_MARK :level;
     /* sanity check, avoid dealing with NULL as much as we can */
-    if (!ctx->use_colors && level != TC_LOG_EXTRA) {
-        /* TC_LOG_EXTRA and TC_LOG_MSG must not use colors */
+    if (!ctx->use_colors && level != TC_LOG_MARK) {
         level = TC_LOG_MSG;
     }
 
     tag = (tag != NULL) ?tag :"";
     fmt = (fmt != NULL) ?fmt :"";
     /* TC_LOG_EXTRA special handling: force always empty tag */
-    tag = (level == TC_LOG_EXTRA) ?"" :tag; 
+    tag = (level == TC_LOG_MARK) ?"" :tag;
+    templ = log_template(level)
     
-    size = strlen(tc_log_templates[level])
-           + strlen(tag) + strlen(fmt) + 1;
+    size = strlen(templ) + strlen(tag) + strlen(fmt) + 1;
 
     if (size > sizeof(buf)) {
         /* 
@@ -116,7 +117,7 @@ static int tc_log_console_send(TCLogContext *ctx, TCLogLevel level,
     }
 
     /* construct real format string */
-    tc_snprintf(msg, size, tc_log_templates[level], tag, fmt);
+    tc_snprintf(msg, size, templ, tag, fmt);
 
     vfprintf(ctx->f, msg, ap);
 

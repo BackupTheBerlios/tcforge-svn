@@ -61,12 +61,7 @@ enum tcloglevel_ {
     TC_LOG_WARN  = (1UL << 17), /* non-critical error condition */
     TC_LOG_INFO  = (1UL << 18), /* informative highlighted message */
     TC_LOG_MSG   = (1UL << 19), /* regular message */
-    
-    TC_LOG_EXTRA = (1UL << 28), /* must always be the last */
-    /* 
-     * on this special log level is guaranteed that message will be logged
-     * verbatim: no tag, no colours, anything
-     */
+    TC_LOG_MARK  = (1UL << 20)  /* verbatim, don't add anything */
 };
 
 /* how to present the messages */
