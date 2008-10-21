@@ -106,6 +106,19 @@ static int tc_timer_soft_sleep(TCTimer *timer, uint64_t amount)
 
 /*************************************************************************/
 
+int tc_timer_fini(TCTimer *timer)
+{
+    return timer->fini(timer);
+}
+
+uint64_t tc_timer_elapsed(TCTimer *timer)
+{
+    return timer->elapsed(timer);
+}
+
+int tc_timer_sleep(TCTimer *timer, uint64_t amount);
+
+
 int tc_timer_init_soft(TCTimer *timer, uint16_t frequency)
 {
     int ret = -1;
