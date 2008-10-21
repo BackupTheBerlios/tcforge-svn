@@ -41,27 +41,24 @@ extern "C" {
 
 
 /* how much messages do you want to see? */
-#define TC_VERBOSE_MARK		0x0000FFFF
 typedef enum tcverboselevel_ TCVerboseLevel;
 enum tcverboselevel_ {
     /* let's confine ourselves into the lower half of an uint32_t */
-    TC_QUIET =  0UL,      /* HAS to be zero */
-    TC_INFO  = (1UL << 0),
-    TC_DEBUG = (1UL << 1),
-    TC_STATS = (1UL << 2),
+    TC_QUIET = 0,      /* HAS to be zero */
+    TC_INFO,
+    TC_DEBUG,
+    TC_STATS,
     /***/
 };
 
 /* which messages are that? */
-#define TC_LOG_LEVEL_MASK	0xFFFF0000
 typedef enum tcloglevel_ TCLogLevel;
 enum tcloglevel_ {
-    /* let's confine ourselves into the upper half of an uint32_t */
-    TC_LOG_ERR   = (1UL << 16), /* critical error condition */
-    TC_LOG_WARN  = (1UL << 17), /* non-critical error condition */
-    TC_LOG_INFO  = (1UL << 18), /* informative highlighted message */
-    TC_LOG_MSG   = (1UL << 19), /* regular message */
-    TC_LOG_MARK  = (1UL << 20)  /* verbatim, don't add anything */
+    TC_LOG_ERR   = 0, /* critical error condition */
+    TC_LOG_WARN,      /* non-critical error condition */
+    TC_LOG_INFO,      /* informative highlighted message */
+    TC_LOG_MSG,       /* regular message */
+    TC_LOG_MARK,      /* verbatim, don't add anything */
 };
 
 /* how to present the messages */
