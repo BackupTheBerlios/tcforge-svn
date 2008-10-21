@@ -40,8 +40,8 @@
 
 /*************************************************************************/
 
-static tcr_log_null_send(TCLogContext *ctx, TCLogLevel level,
-                         const char *tag, const char *fmt, va_list ap)
+static int tcr_log_null_send(TCLogContext *ctx, TCLogLevel level,
+                             const char *tag, const char *fmt, va_list ap)
 {
     return TC_OK;
 }
@@ -64,43 +64,47 @@ static int tcr_log_null_open(TCLogContext *ctx, int *argc, char ***argv)
 
 /*************************************************************************/
 
-
-static const char *tcr_log_level_str[] = {
-    "ERROR",   /* TC_LOG_ERR */
-    "WARNING", /* TC_LOG_WARN */
-    "INFO",    /* TC_LOG_INFO */
-    "MESSAGE", /* TC_LOG_MSG */
-    "EXTRA",   /* TC_LOG_EXTRA */
-};
+static const char *level_str(TCLogLevel level)
+{
+    static const char *tcr_log_level_str[] = {
+        "ERROR",   /* TC_LOG_ERR */
+        "WARNING", /* TC_LOG_WARN */
+        "INFO",    /* TC_LOG_INFO */
+        "MESSAGE", /* TC_LOG_MSG */
+        "MARK",    /* TC_LOG_MARK */
+    };
+    return tcr_log_level_str[level - TC_LOG_ERR];
+}
 
 /*
  * looks pretty like tc_log_console_send,
  * but the devil is in the details...
  */
-static tcr_log_file_send(TCLogContext *ctx, TCLogLevel level,
-                         const char *tag, const char *fmt, va_list ap)
+static int tcr_log_file_send(TCLogContext *ctx, TCLogLevel level,
+                             const char *tag, const char *fmt, va_list ap)
 {
     int ret = 0, is_dynbuf = TC_FALSE, truncated = TC_FALSE;
     /* flag: we must use a dynamic (larger than static) buffer? */
     char tsbuf[TC_BUF_MIN];
     char buf[TCR_LOG_BUF_SIZE];
     char *msg = buf;
+    const char *levstr = level_str(level);
     size_t size = sizeof(buf);
     time_t now = 0;
 
     /* sanity check, avoid {under,over}flow; */
     level = (level < TC_LOG_ERR) ?TC_LOG_ERR :level;
-    level = (level > TC_LOG_EXTRA) ?TC_LOG_EXTRA :level;
+    level = (level > TC_LOG_MARK) ?TC_LOG_MARK :level;
     /* sanity check, avoid dealing with NULL as much as we can */
     tag = (tag != NULL) ?tag :"";
     fmt = (fmt != NULL) ?fmt :"";
     /* TC_LOG_EXTRA special handling: force always empty tag */
-    tag = (level == TC_LOG_EXTRA) ?"" :tag; 
+    tag = (level == TC_LOG_MARK) ?"" :tag; 
     
     now = time(NULL);
     strftime(tsbuf, sizeof(tsbuf), "%a %b %d %T %Y", localtime(&now));
 
-    size = strlen(tcr_log_level_str[level]) + strlen(tsbuf),
+    size = strlen(levstr) + strlen(tsbuf)
                   + strlen(tag) + strlen(fmt) + 1;
 
     if (size > sizeof(buf)) {
@@ -126,7 +130,7 @@ static tcr_log_file_send(TCLogContext *ctx, TCLogLevel level,
 
     /* construct real format string */
     tc_snprintf(msg, size, "%s %s %s %s",
-                tsbuf, tag, tcr_log_level_str[level], fmt);
+                tsbuf, tag, levstr, fmt);
 
     ret = vfprintf(ctx->f, msg, ap);
     ctx->log_count++;
