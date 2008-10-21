@@ -32,3 +32,5 @@ int tcr_server_del(TCRServer *tcs);
 
 int tcr_server_cleanup(TCRServer *tcs);
 
+int tcr_server_stop(TCRServer *tcs);
+

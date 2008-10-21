@@ -76,18 +76,21 @@ static xmlrpc_value *tcr_server_run_status(xmlrpc_env *env,
                                            xmlrpc_value *paramArray,
                                            void * const userData)
 {
+    return NULL;
 }
 
 static xmlrpc_value *tcr_server_run_start(xmlrpc_env *envP,
                                           xmlrpc_value *paramArrayP,
                                           void * const userData)
 {
+    return NULL;
 }
 
 static xmlrpc_value *tcr_server_run_stop(xmlrpc_env *envP,
                                          xmlrpc_value *paramArrayP,
                                          void * const userData)
 {
+    return NULL;
 }
 
 static void tcr_server_post_handler(struct evhttp_request *req, void *userdata)
@@ -107,7 +110,8 @@ static int tcr_server_init(TCRServer *tcs)
 
     tcs->evbase   = event_init();
     tcs->http     = evhttp_new(tcs->evbase);
-    
+
+    return TC_OK;
 }
 
 static int tcr_server_setup(TCRServer *tcs)
@@ -135,6 +139,8 @@ static int tcr_server_setup(TCRServer *tcs)
 
     evhttp_set_cb(tcs->http, "/XML-RPC", tcr_server_post_handler, tcs);
     evhttp_set_cb(tcs->http, "/",        tcr_server_base_handler, tcs);
+
+    return TC_OK;
 }
 
 /*************************************************************************/
@@ -189,6 +195,15 @@ int tcr_server_run(TCRServer *tcs)
     return TC_OK;
 }
 
+int tcr_server_stop(TCRServer *tcs)
+{
+    int ret = TC_ERROR;
+    if (tcs) {
+        event_loopbreak();
+        ret = TC_OK;
+    }
+    return ret;
+}
 
 int tcr_server_cleanup(TCRServer *tcs)
 {
