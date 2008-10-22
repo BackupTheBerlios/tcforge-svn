@@ -26,6 +26,8 @@
 /*
  * OK, I must say that I'm not very proud of my work done here.
  * I think I'll must improve it soon.
+ * The configuration file section is likely broken and/or leaking.
+ * Neverthless to say, I can't yet test it. Otherwise, I'll already done.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -61,7 +63,7 @@ static char *pvm_hostname(char *candidate)
 }
 
 /* commodity */
-typedef char PVMString[TC_BUF_MIN];
+typedef char *PVMString;
 
 typedef struct pvmnodedata_ PVMNodeData;
 struct pvmnodedata_ {

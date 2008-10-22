@@ -1135,15 +1135,13 @@ static void tc_lavc_dispatch_settings(TCLavcPrivateData *pd)
  *      Quite a lot, since various (and quite complex) subroutines
  *      are involved. Most notably, various files can be opened/read/closed
  *      on disk, and some memory could be allocated.
- *
- * FIXME: I'm a bit worried about heavy stack usage of this function...
  */
 static int tc_lavc_read_config(TCLavcPrivateData *pd,
                                const char *options, const vob_t *vob)
 {
-    char intra_matrix_file[PATH_MAX] = { '\0' };
-    char inter_matrix_file[PATH_MAX] = { '\0' };
-    char rc_override_buf[TC_BUF_MIN] = { '\0' }; /* XXX */
+    char *intra_matrix_file = NULL;
+    char *inter_matrix_file = NULL;
+    char *rc_override_buf = NULL;
     /* 
      * Please note that option names are INTENTIONALLY identical/similar
      * to mplayer/mencoder ones
