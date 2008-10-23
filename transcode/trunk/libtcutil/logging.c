@@ -51,7 +51,7 @@
 #define COL_WHITE           COL(37)
 #define COL_GRAY            "\033[0m"
 
-static const char *log_template(TCLogLevel level)
+static const char *log_template(TCLogType type)
 {
     /* WARNING: we MUST keep in sync templates order with TC_LOG* macros */
     static const char *tc_log_templates[] = {
@@ -66,10 +66,25 @@ static const char *log_template(TCLogLevel level)
         /* TC_LOG_MARK */
         "%s%s" /* tag placeholder must be present but tag will be ignored */
     };
-    return tc_log_templates[level - TC_LOG_ERR];
+    return tc_log_templates[type - TC_LOG_ERR];
 }
 
-static int tc_log_console_send(TCLogContext *ctx, TCLogLevel level,
+static TCVerboseLevel log_type_to_level(TCLogType type)
+{
+    static const TCVerboseLevel t2lev[] = {
+        TC_QUIET,       /* TC_LOG_ERR */
+        TC_INFO,        /* TC_LOG_WARN */
+        TC_INFO,        /* TC_LOG_INFO */
+        TC_DEBUG,       /* TC_LOG_MSG */
+        TC_STATS,       /* TC_LOG_MARK */
+    };
+    return t2lev[type];
+}
+
+/*************************************************************************/
+
+
+static int tc_log_console_send(TCLogContext *ctx, TCLogType type,
                                const char *tag, const char *fmt, va_list ap)
 {
     int is_dynbuf = TC_FALSE, truncated = TC_FALSE;
@@ -80,18 +95,17 @@ static int tc_log_console_send(TCLogContext *ctx, TCLogLevel level,
     const char *templ = NULL;
 
     /* sanity check, avoid {under,over}flow; */
-    level = (level < TC_LOG_ERR) ?TC_LOG_ERR :level;
-    level = (level > TC_LOG_MARK) ?TC_LOG_MARK :level;
+    type = TC_CLAMP(type, TC_LOG_ERR, TC_LOG_MARK);
     /* sanity check, avoid dealing with NULL as much as we can */
-    if (!ctx->use_colors && level != TC_LOG_MARK) {
-        level = TC_LOG_MSG;
+    if (!ctx->use_colors && type != TC_LOG_MARK) {
+        type = TC_LOG_MSG;
     }
 
     tag = (tag != NULL) ?tag :"";
     fmt = (fmt != NULL) ?fmt :"";
     /* TC_LOG_EXTRA special handling: force always empty tag */
-    tag = (level == TC_LOG_MARK) ?"" :tag;
-    templ = log_template(level);
+    tag = (type == TC_LOG_MARK) ?"" :tag;
+    templ = log_template(type);
     
     size = strlen(templ) + strlen(tag) + strlen(fmt) + 1;
 
@@ -163,7 +177,7 @@ static int tc_log_console_open(TCLogContext *ctx, int *argc, char ***argv)
 
 
 struct tclogmethod {
-    TCLogMode       mode;
+    TCLogTarget     target;
     TCLogMethodOpen open;
 };
 
@@ -179,13 +193,13 @@ static TCLogContext TCLog;
 
 /*************************************************************************/
 
-int tc_log_register_method(TCLogMode mode, TCLogMethodOpen open)
+int tc_log_register_method(TCLogTarget target, TCLogMethodOpen open)
 {
     int ret = TC_ERROR;
 
     if (last_method < TC_LOG_MAX_METHODS) {
-        methods[last_method].mode = mode;
-        methods[last_method].open = open;
+        methods[last_method].target = target;
+        methods[last_method].open   = open;
         last_method++;
 
         ret = TC_OK;
@@ -195,7 +209,7 @@ int tc_log_register_method(TCLogMode mode, TCLogMethodOpen open)
 
 /*************************************************************************/
 
-int tc_log_open(TCLogMode mode, TCVerboseLevel verbose,
+int tc_log_open(TCLogTarget target, TCVerboseLevel verbose,
                 int *argc, char ***argv)
 {
     int i = 0, ret = TC_ERROR;
@@ -206,8 +220,8 @@ int tc_log_open(TCLogMode mode, TCVerboseLevel verbose,
     TCLog.log_count   = 0;
     TCLog.flush_thres = 1;
 
-    for (i = 0; methods[i].mode != TC_LOG_INVALID; i++) {
-        if (mode == methods[i].mode) {
+    for (i = 0; methods[i].target != TC_LOG_INVALID; i++) {
+        if (target == methods[i].target) {
             ret = methods[i].open(&TCLog, argc, argv);
             break;
         }
@@ -221,16 +235,20 @@ int tc_log_close(void)
     return TCLog.close(&TCLog);
 }
 
-int tc_log(TCLogLevel level, TCVerboseLevel verbose,
-           const char *tag, const char *fmt, ...)
+
+int tc_log(TCLogType type, const char *tag, const char *fmt, ...)
 {
+    TCVerboseLevel vlev = TC_QUIET;
     int ret = 0;
 
-    if (TCLog.verbose >= verbose) {
+    type = TC_CLAMP(type, TC_LOG_ERR, TC_LOG_MARK);
+    vlev = log_type_to_level(type);
+
+    if (TCLog.verbose >= t2lev[type]) {
         va_list ap;
 
         va_start(ap, fmt);
-        ret = TCLog.send(&TCLog, level, tag, fmt, ap);
+        ret = TCLog.send(&TCLog, type, tag, fmt, ap);
         va_end(ap);
     }
     return ret;
@@ -239,7 +257,6 @@ int tc_log(TCLogLevel level, TCVerboseLevel verbose,
 /*************************************************************************/
 
 #define TC_DEBUG_ENVVAR     "TC_DEBUG"
-static TCDebugSource debug_sources = 0; /* nothing by default */
 
 struct debugflag {
     const char *name;
@@ -269,8 +286,8 @@ static int tc_log_debug_init(const char *envname)
             for (i = 0; i < n; i++) {
                 for (j = 0; DebugFlags[j].name != NULL; j++) {
                     if (strcmp(DebugFlags[j].name, tokens[i]) == 0) {
-                        debug_sources |= DebugFlags[j].flag;
-                 }
+                        TCLog.debug_src |= DebugFlags[j].flag;
+                    }
                 }
             }
 
@@ -284,10 +301,15 @@ int tc_log_debug(TCDebugSource src, const char *tag, const char *fmt, ...)
 {
     int ret = 0;
 
-    if (debug_sources & src) {
+    /*
+     * we call the backend directly, so we must replicate
+     * the verbosiness check - this time with hardcoded value
+     */
+    if ((TCLog.verbose >= TC_DEBUG) && (TCLog.debug_src & src)) {
         va_list ap;
 
         va_start(ap, fmt);
+        /* add minimum formatting */
         ret = TCLog.send(&TCLog, TC_LOG_MSG, tag, fmt, ap);
         /* always as message */
         va_end(ap);

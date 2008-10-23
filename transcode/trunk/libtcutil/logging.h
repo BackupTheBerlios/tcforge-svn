@@ -43,17 +43,15 @@ extern "C" {
 /* how much messages do you want to see? */
 typedef enum tcverboselevel_ TCVerboseLevel;
 enum tcverboselevel_ {
-    /* let's confine ourselves into the lower half of an uint32_t */
-    TC_QUIET = 0,      /* HAS to be zero */
-    TC_INFO,
-    TC_DEBUG,
-    TC_STATS,
-    /***/
+    TC_QUIET   =  0,
+    TC_INFO    =  1,
+    TC_DEBUG   =  2,	/* still on doubt */
+    TC_STATS   =  3,
 };
 
 /* which messages are that? */
-typedef enum tcloglevel_ TCLogLevel;
-enum tcloglevel_ {
+typedef enum tclogtype_ TCLogType;
+enum tclogtype_ {
     TC_LOG_ERR   = 0, /* critical error condition */
     TC_LOG_WARN,      /* non-critical error condition */
     TC_LOG_INFO,      /* informative highlighted message */
@@ -62,15 +60,28 @@ enum tcloglevel_ {
 };
 
 /* how to present the messages */
-typedef enum tclogmode_ TCLogMode;
-enum tclogmode_ {
+typedef enum tclogtarget_ TCLogTarget;
+enum tclogtarget_ {
     TC_LOG_INVALID = 0,  /* the usual `error/unknown' value */
     TC_LOG_CONSOLE = 1,  /* default */
     TC_LOG_USEREXT = 127 /* use this as base for extra methods */
 };
 
+typedef enum tcdebugsource_ TCDebugSource;
+enum tcdebugsource_ {
+    TC_CLEANUP = 1,
+    TC_FLIST,
+    TC_SYNC,
+    TC_COUNTER,
+    TC_PRIVATE,
+    TC_THREADS,
+    TC_WATCH,
+};
+
 typedef struct tclogcontext_ TCLogContext;
 struct tclogcontext_ {
+    TCDebugSource debug_src;
+
     TCVerboseLevel verbose;
     int use_colors; /* flag */
     FILE *f;
@@ -80,7 +91,7 @@ struct tclogcontext_ {
 
     void *priv;
 
-    int (*send)(TCLogContext *ctx, TCLogLevel level,
+    int (*send)(TCLogContext *ctx, TCLogType level,
 		const char *tag, const char *fmt, va_list ap);
     int (*close)(TCLogContext *ctx);
 };
@@ -96,9 +107,9 @@ int tc_log_fini(void);
 /* log method hook */
 typedef int (*TCLogMethodOpen)(TCLogContext *ctx, int *argc, char ***argv);
 
-int tc_log_register_method(TCLogMode mode, TCLogMethodOpen open);
+int tc_log_register_method(TCLogTarget target, TCLogMethodOpen open);
 
-int tc_log_open(TCLogMode mode, TCVerboseLevel verbose,
+int tc_log_open(TCLogTarget target, TCVerboseLevel verbose,
                 int *argc, char ***argv);
 
 int tc_log_close(void);
@@ -109,7 +120,6 @@ int tc_log_close(void);
  *     to a printf-like format chosen by the caller.
  *
  * Parameters:
- *     level: XXXXXX
  *   verbose: YYYYYY
  *       tag: header of message, to identify subsystem originating
  *            the message. It's suggested to use __FILE__ as
@@ -131,8 +141,7 @@ int tc_log_close(void);
  *     This allocation can fail, and as result log message will be
  *     truncated to fit in avalaible static buffer.
  */
-int tc_log(TCLogLevel level, TCVerboseLevel verbose,
-           const char *tag, const char *fmt, ...)
+int tc_log(TCLogType type, const char *tag, const char *fmt, ...)
 #ifdef HAVE_GCC_ATTRIBUTES
 __attribute__((format(printf,4,5)))
 #endif
@@ -150,23 +159,23 @@ __attribute__((format(printf,4,5)))
 
 /* compatibility macros */
 #define tc_error(format, args...) do { \
-    tc_log(TC_LOG_ERR, TC_QUIET, PACKAGE, format , ## args); \
+    tc_log(TC_LOG_ERR, PACKAGE, format , ## args); \
     exit(1); \
 } while(0)
 #define tc_info(format, args...) \
-    tc_log(TC_LOG_INFO, TC_QUIET, PACKAGE, format , ## args)
+    tc_log(TC_LOG_INFO, PACKAGE, format , ## args)
 #define tc_warn(format, args...) \
-    tc_log(TC_LOG_WARN, TC_QUIET, PACKAGE, format , ## args)
+    tc_log(TC_LOG_WARN, PACKAGE, format , ## args)
 
 /* macro goodies */
 #define tc_log_error(tag, format, args...) \
-    tc_log(TC_LOG_ERR, TC_QUIET, tag, format , ## args)
+    tc_log(TC_LOG_ERR, tag, format , ## args)
 #define tc_log_info(tag, format, args...) \
-    tc_log(TC_LOG_INFO, TC_QUIET, tag, format , ## args)
+    tc_log(TC_LOG_INFO, tag, format , ## args)
 #define tc_log_warn(tag, format, args...) \
-    tc_log(TC_LOG_WARN, TC_QUIET, tag, format , ## args)
+    tc_log(TC_LOG_WARN, tag, format , ## args)
 #define tc_log_msg(tag, format, args...) \
-    tc_log(TC_LOG_MSG, TC_QUIET, tag, format , ## args)
+    tc_log(TC_LOG_MSG, tag, format , ## args)
 
 #define tc_log_perror(tag, string) do {                            \
     const char *__s = (string);  /* watch out for side effects */  \
@@ -174,19 +183,6 @@ __attribute__((format(printf,4,5)))
                  (__s && *__s) ? ": " : "",  strerror(errno));     \
 } while (0)
 
-
-/*************************************************************************/
-
-typedef enum tcdebugsource_ TCDebugSource;
-enum tcdebugsource_ {
-    TC_CLEANUP = (1UL << 0),
-    TC_FLIST   = (1UL << 1),
-    TC_SYNC    = (1UL << 2),
-    TC_COUNTER = (1UL << 3),
-    TC_PRIVATE = (1UL << 4),
-    TC_THREADS = (1UL << 5),
-    TC_WATCH   = (1UL << 6),
-};
 
 int tc_log_debug(TCDebugSource src, const char *tag, const char *fmt, ...)
 #ifdef HAVE_GCC_ATTRIBUTES

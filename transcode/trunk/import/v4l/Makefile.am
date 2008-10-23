@@ -14,20 +14,11 @@ endif
 
 pkg_LTLIBRARIES = $(MOD)
 
-import_v4l_la_SOURCES = import_v4l.c common.c video.c audio.c frequencies.c
-import_v4l_la_LDFLAGS = -no-undefined -module -avoid-version
+import_v4l_la_SOURCES = import_v4l.c
+import_v4l_la_LDFLAGS = -module -avoid-version
 
 import_v4l2_la_SOURCES = import_v4l2.c
 import_v4l2_la_LDFLAGS = -module -avoid-version
 
+EXTRA_DIST = videodev.h videodev2.h
 
-EXTRA_DIST = \
-	audio.h \
-	channels.h \
-	common.h \
-	counter.h \
-	frequencies.h \
-	vcr.h \
-	video.h \
-	videodev.h \
-	videodev2.h
