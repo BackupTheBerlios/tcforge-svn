@@ -404,8 +404,8 @@ static TCFramePtr tc_ring_framebuffer_retrieve_frame(TCRingFrameBuffer *rfb)
             ptr.generic = NULL; /* enforce NULL-ness */
         } else {
             if (verbose >= TC_FLIST) {
-                tc_log_info(__FILE__, "retrieved buffer = %i [%i]",
-                                      rfb->next, ptr.generic->bufid);
+                tc_log_msg(__FILE__, "retrieved buffer = %i [%i]",
+                                     rfb->next, ptr.generic->bufid);
             }
             /* adjust internal pointer */
             rfb->null--;
@@ -436,7 +436,7 @@ static int tc_ring_framebuffer_release_frame(TCRingFrameBuffer *rfb,
         return 1;
     }
     if (verbose >= TC_FLIST) {
-        tc_log_info(__FILE__, "releasing frame #%i [%i]",
+        tc_log_msg(__FILE__, "releasing frame #%i [%i]",
                     frame.generic->bufid, rfb->next);
     }
     frame.generic->status = TC_FRAME_NULL;
@@ -472,7 +472,7 @@ static TCFramePtr tc_ring_framebuffer_register_frame(TCRingFrameBuffer *rfb,
 
     /* retrive a valid pointer from the pool */
     if (verbose >= TC_FLIST) {
-        tc_log_info(__FILE__, "register frame id = %i", id);
+        tc_log_msg(__FILE__, "register frame id = %i", id);
     }
 #ifdef STATBUFFER
     ptr = tc_ring_framebuffer_retrieve_frame(rfb);
