@@ -24,7 +24,7 @@
  */
 
 #define MOD_NAME        "import_v4l2.so"
-#define MOD_VERSION     "v1.6.1 (2008-10-28)"
+#define MOD_VERSION     "v1.6.2 (2008-10-25)"
 #define MOD_CODEC       "(video) v4l2 | (audio) pcm"
 
 #include "src/transcode.h"
@@ -52,6 +52,10 @@ static int capability_flag  = TC_CAP_RGB|TC_CAP_YUV|TC_CAP_YUV422|TC_CAP_PCM;
  *%*
  *%* OUTPUT
  *%*   YUV420P, YUV422P, RGB24, PCM
+ *%*
+  *%* OPTION
+ *%*   ignore_mute (boolean)
+ *%*     disable the device audio muting during the operation.
  *%*
  *%* OPTION
  *%*   resync_margin (integer)
@@ -175,6 +179,11 @@ static int capability_flag  = TC_CAP_RGB|TC_CAP_YUV|TC_CAP_YUV422|TC_CAP_PCM;
 
 /* TODO: memset() verify and sanitization */
 
+typedef enum {
+    mute_on,
+    mute_off
+} v4l2_mute_op;
+
 typedef enum { 
     resync_none,
     resync_clone,
@@ -232,6 +241,7 @@ struct v4l2source_ {
     TCVHandle         tcvhandle;
     TCV4LBuffer       buffers[TC_V4L2_BUFFERS_NUM];
     int               saa7134_audio;
+    int               mute_audio;
     v4l2_resync_op    video_resync_op;
     int               resync_margin_frames;
     int               resync_interval_frames;
@@ -288,18 +298,20 @@ static void tc_v4l2_convert(V4L2Source *vs,
  * UTILS
  * ============================================================*/
 
-static int tc_v4l2_mute(V4L2Source *vs, int flag)
+static int tc_v4l2_mute(V4L2Source *vs, v4l2_mute_op value)
 {
-    struct v4l2_control control = {
-        .id    = V4L2_CID_AUDIO_MUTE,
-        .value = flag
-    };
-    int ret = ioctl(vs->video_fd, VIDIOC_S_CTRL, &control);
-    if (ret < 0) {
-        if (verbose_flag > TC_INFO)
-            tc_log_perror(MOD_NAME,
-                          "error in muting (ioctl(VIDIOC_S_CTRL) failed)");
-        return 0;
+    if (vs->mute_audio) {
+        struct v4l2_control control = {
+            .id    = V4L2_CID_AUDIO_MUTE,
+            .value = value
+        };
+        int ret = ioctl(vs->video_fd, VIDIOC_S_CTRL, &control);
+        if (ret < 0) {
+            if (verbose_flag > TC_INFO)
+                tc_log_perror(MOD_NAME,
+                              "error in muting (ioctl(VIDIOC_S_CTRL) failed)");
+            return 0;
+        }
     }
     return 1;
 }
@@ -914,6 +926,8 @@ static int tc_v4l2_parse_options(V4L2Source *vs, int layout, const char *options
     char fmt_name[TC_BUF_MIN] = { '\0' };
     int ix = 0;
 
+    vs->mute_audio = TC_TRUE; /* for back compatibility and comfort */
+
     switch (layout) {
       case CODEC_RGB:
         vs->fmt = IMG_RGB_DEFAULT;
@@ -935,6 +949,11 @@ static int tc_v4l2_parse_options(V4L2Source *vs, int layout, const char *options
     vs->convert_id = -1;
 
     if (options) {
+        /* flags first */
+        if (optstr_lookup(options, "ignore_mute")) {
+            vs->mute_audio = TC_FALSE;
+        }
+
         optstr_get(options, "resync_margin",   "%i",    &vs->resync_margin_frames);
         optstr_get(options, "resync_interval", "%i",    &vs->resync_interval_frames);
         optstr_get(options, "overrun_guard",   "%i",    &vs->overrun_guard);
@@ -953,11 +972,15 @@ static int tc_v4l2_parse_options(V4L2Source *vs, int layout, const char *options
 
         return TC_ERROR;
     }
-    if (fmt_name[0]) { /* ugly */
+    if (fmt_name[0]) { /* we can do better */
         vs->convert_id = atoi(fmt_name);
     }
 
     if (verbose_flag > TC_INFO) {
+        if (!vs->mute_audio) {
+            tc_log_info(MOD_NAME, "audio muting disabled");
+        }
+
         if (vs->resync_margin_frames == 0) {
             tc_log_info(MOD_NAME, "resync disabled");
         } else {
@@ -1105,7 +1128,7 @@ static int tc_v4l2_video_init(V4L2Source *vs,
     ret = tc_v4l2_video_setup_capture_buffers(vs);
     RETURN_IF_FAILED(ret);
 
-    if (!tc_v4l2_mute(vs, 0))
+    if (!tc_v4l2_mute(vs, mute_on))
         return TC_ERROR;
 
     return tc_v4l2_capture_start(vs);
@@ -1183,7 +1206,7 @@ static int tc_v4l2_video_grab_stop(V4L2Source *vs)
 {
     int ix, ret;
 
-    if (!tc_v4l2_mute(vs, 1))
+    if (!tc_v4l2_mute(vs, mute_off))
         return 1;
 
     ret = tc_v4l2_capture_stop(vs);

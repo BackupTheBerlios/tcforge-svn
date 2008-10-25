@@ -285,6 +285,119 @@
 <!-- import_xml.c -->
 <!-- import_xvid.c -->
 <!-- import_yuv4mpeg.c -->
+<!-- import_nuv.c -->
+<!-- import_v4l.c -->
+<!-- import_v4l2.c -->
+            <varlistentry>
+                <term>
+                    <option>v4l2</option>
+                    <emphasis>[video, audio]</emphasis>
+                </term>
+                <listitem>
+                    <para>This module allow to capture video frames through a V4L2 (V4L api version 2) device. While audio capturing is possible, this kind of usage is discouraged in favour of OSS or ALSA import modules.</para>
+<para>This module accepts the following options:</para>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>overrun_guard (integer)</literal>
+                            </term>
+                            <listitem>
+                                <para>flag (default off). Toggles the buffer overrun guard, that prevents crash when capture buffers are full.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>resync_margin (integer)</literal>
+                            </term>
+                            <listitem>
+                                <para>threshold audio/video desync (in frames) that triggers resync once reached.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>crop (string)</literal>
+                            </term>
+                            <listitem>
+                                <para>forces cropping into selected window (format: WIDTHxHEIGHT+LEFTxTOP)</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>input (string)</literal>
+                            </term>
+                            <listitem>
+                                <para>select the V4L input source. V4L cards have often have more than an input source like, say, a tv tuner and a composite source. Use "list" parameter to get a list of supported input sources.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>format (string)</literal>
+                            </term>
+                            <listitem>
+                                <para>forces output format to given one; use "list" to get a list of supported formats.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>resync_interval (integer)</literal>
+                            </term>
+                            <listitem>
+                                <para>checks the resync_margin every given amount of frames.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>format (integer)</literal>
+                            </term>
+                            <listitem>
+                                <para>forces video frames convertion by using index; use -1 to get a list of supported conversions.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>ignore_mute (boolean)</literal>
+                            </term>
+                            <listitem>
+                                <para>disable the device audio muting during the operation.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>channel (string)</literal>
+                            </term>
+                            <listitem>
+                                <para>synthonize the V4L tuner to selected TV channel. The channel frequencies are taken by the module configuration file, and they must be expressed in KHz.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <literal>convert (integer)</literal>
+                            </term>
+                            <listitem>
+                                <para>forces video frames convertion by using index; use the special value "list" to get a list of supported conversions.</para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </listitem>
+            </varlistentry>
 <!-- end module list -->
 
 

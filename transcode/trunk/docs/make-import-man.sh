@@ -65,7 +65,7 @@ cat << EOF
 	<variablelist>
 
 EOF
-./tcmkmodhelp.py -s ../import/import_*.c
+./tcmkmodhelp.py -s ../import/import_*.c ../import/*/import_*.c
 cat << EOF
 
 
