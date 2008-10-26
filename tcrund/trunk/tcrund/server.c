@@ -55,50 +55,129 @@ enum {
 };
 
 struct tcrserver_ {
-    TCRConfig           *config;
+    TCRConfig          *config;
 
     int                 status;
 
-    xmlrpc_registry     *registry;
+    xmlrpc_registry    *registry;
     xmlrpc_env          env;
 
-    struct event_base   *evbase;
-    struct evhttp       *http;
+    struct event_base  *evbase;
+    struct evhttp      *http;
 
-    TCRProcess          *current;
+    TCRProcess         *current;
     uint32_t            instanceid;
 };
 
 
 /*************************************************************************/
 
-static xmlrpc_value *tcr_server_run_status(xmlrpc_env *env,
-                                           xmlrpc_value *paramArray,
+static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
+                                      xmlrpc_value *paramArray,
+                                      void * const userData)
+{
+    return NULL;
+}
+
+static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
+                                       xmlrpc_value *paramArray,
+                                       void * const userData)
+{
+    return NULL;
+}
+
+static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
+                                           xmlrpc_value *paramArrayP,
                                            void * const userData)
 {
     return NULL;
 }
 
-static xmlrpc_value *tcr_server_run_start(xmlrpc_env *envP,
+static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
                                           xmlrpc_value *paramArrayP,
                                           void * const userData)
 {
     return NULL;
 }
 
-static xmlrpc_value *tcr_server_run_stop(xmlrpc_env *envP,
+static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *envP,
                                          xmlrpc_value *paramArrayP,
                                          void * const userData)
 {
     return NULL;
 }
 
+/*************************************************************************/
+
 static void tcr_server_post_handler(struct evhttp_request *req, void *userdata)
 {
+    xmlrpc_mem_block *xmlres = NULL;
+    TCRServer *tcs = userdata;
+    /* awful, awful casts */
+    char *rawreq = (char*)EVBUFFER_DATA(req->input_buffer);
+    size_t rawlen = (size_t)EVBUFFER_LENGTH(req->input_buffer);
+
+    /* mark */
+    tc_log(TC_LOG_MSG, PACKAGE,
+           "(%s) processing incoming request", __func__);
+
+    /* some input validation */
+    if (!userdata) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) missing context (userdata)", __func__);
+        return;
+    }
+	if (req->type != EVHTTP_REQ_POST) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) received request is not POST", __func__);
+        return;
+	}
+
+    if (!rawreq || !rawlen) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) received empty request", __func__);
+        return;
+    }
+
+    /* ok, let's roll */
+    xmlres = xmlrpc_registry_process_call(&tcs->env,
+                                          tcs->registry,
+                                          tcs->config->host,
+                                          rawreq,
+                                          rawlen);
+
+    /* we're still in danger */
+    if (!xmlres) {
+        tc_log(TC_LOG_WARN, PACKAGE,
+               "(%s) XML registry returned empty response", __func__);
+    } else {
+	    struct evbuffer *evb = evbuffer_new();
+
+        if (!evb) {
+            tc_log(TC_LOG_ERR, PACKAGE,
+                   "(%s) cannot allocate response evbuffer", __func__);
+        } else {
+            char *rawres = XMLRPC_TYPED_MEM_BLOCK_CONTENTS(char, xmlres);
+
+        	evbuffer_add(evb, rawres, strlen(rawres) + 1);
+            /* send the terminator too */
+
+    	    evhttp_send_reply(req, HTTP_OK, "XML response follows", evb);
+
+    	    evbuffer_free(evb);
+            XMLRPC_TYPED_MEM_BLOCK_FREE(char, xmlres);
+
+            tc_log(TC_LOG_MSG, PACKAGE,
+                   "(%s) response sent", __func__);
+        }
+    }
+    return;
 }
 
 static void tcr_server_base_handler(struct evhttp_request *req, void *userdata)
 {
+    /* reroute to post handler until we find something smarter to do */
+    tcr_server_post_handler(req, userdata);
 }
 
 /*************************************************************************/
@@ -119,22 +198,36 @@ static int tcr_server_setup(TCRServer *tcs)
     xmlrpc_registry_add_method(&tcs->env,
                                tcs->registry,
                                NULL,
-                               "TC.run.status",
-                               tcr_server_run_status,
+                               "TC.user.login",
+                               tcr_server_login,
                                tcs);
 
     xmlrpc_registry_add_method(&tcs->env,
                                tcs->registry,
                                NULL,
-                               "TC.run.start",
-                               tcr_server_run_start,
+                               "TC.user.logout",
+                               tcr_server_logout,
                                tcs);
 
     xmlrpc_registry_add_method(&tcs->env,
                                tcs->registry,
                                NULL,
-                               "TC.run.stop",
-                               tcr_server_run_stop,
+                               "TC.process.status",
+                               tcr_server_process_status,
+                               tcs);
+
+    xmlrpc_registry_add_method(&tcs->env,
+                               tcs->registry,
+                               NULL,
+                               "TC.process.start",
+                               tcr_server_process_start,
+                               tcs);
+
+    xmlrpc_registry_add_method(&tcs->env,
+                               tcs->registry,
+                               NULL,
+                               "TC.process.stop",
+                               tcr_server_process_stop,
                                tcs);
 
     evhttp_set_cb(tcs->http, "/XML-RPC", tcr_server_post_handler, tcs);
@@ -151,20 +244,28 @@ int tcr_server_new(TCRServer **tcs, TCRConfig *config)
     int ret = TC_ERROR;
 
     if (!tcs || !config) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) received NULL arguments!", __func__);
         return TC_ERROR;
     }
     serv = tc_zalloc(sizeof(TCRServer));
     if (!serv) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) cannot allocate the server context", __func__);
         goto fail;
     }
 
     ret = tcr_server_init(serv);
     if (ret != TC_OK) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) server initialization failed", __func__);
         goto fail_init;
     }
 
     ret = tcr_server_setup(serv);
     if (ret != TC_OK) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) server setup failed", __func__);
         goto fail_setup;
     }
 
