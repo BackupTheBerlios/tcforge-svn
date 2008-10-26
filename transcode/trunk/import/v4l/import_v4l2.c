@@ -259,6 +259,8 @@ static TCV4LConversion v4l2_format_conversions[] = {
     { V4L2_PIX_FMT_RGB32,   IMG_RGBA32,  IMG_RGB_DEFAULT, "RGB32 [packed] -> RGB [packed]" },
     { V4L2_PIX_FMT_BGR32,   IMG_BGRA32,  IMG_RGB_DEFAULT, "BGR32 [packed] -> RGB [packed]" },
     { V4L2_PIX_FMT_GREY,    IMG_GRAY8,   IMG_RGB_DEFAULT, "8-bit grayscale -> RGB [packed]" },
+    { V4L2_PIX_FMT_YUYV,    IMG_YUY2,    IMG_RGB_DEFAULT, "YUY2 [packed] -> RGB [packed]" },
+    /* an exception for the `vivi' v4l testing fake device */
 
     { V4L2_PIX_FMT_YYUV,    IMG_YUV422P, IMG_YUV422P,     "YUV422 [planar] -> YUV422 [planar] (no conversion)" },
     { V4L2_PIX_FMT_UYVY,    IMG_UYVY,    IMG_YUV422P,     "UYVY [packed] -> YUV422 [planar] (no conversion)" },
