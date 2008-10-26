@@ -96,7 +96,7 @@ int plat_log_open(void)
 int plat_log_send(PlatLogLevel level,
                   const char *tag, const char *fmt, ...)
 {
-    static const TCLogLevel trans_tab[] = {
+    static const TCLogType trans_tab[] = {
         TC_LOG_MSG,  /* PLAT_LOG_DEBUG   */
         TC_LOG_INFO, /* PLAT_LOG_INFO    */
         TC_LOG_WARN, /* PLAT_LOG_WARNING */
@@ -110,7 +110,7 @@ int plat_log_send(PlatLogLevel level,
     va_end(ap);
 
     /* Always log, ignore the priority filter */
-    return tc_log(trans_tab[level], TC_QUIET, tag, "%s", buffer);
+    return tc_log(trans_tab[level], tag, "%s", buffer);
 }
 
 int plat_log_close(void)

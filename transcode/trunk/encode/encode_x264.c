@@ -303,27 +303,27 @@ static TCConfigEntry conf[] ={
 static void x264_log(void *userdata, int level, const char *format,
                      va_list args)
 {
-    TCLogLevel tclevel;
+    TCLogType logtype;
     char buf[TC_BUF_MAX];
 
     if (!format)
         return;
     switch (level) {
       case X264_LOG_ERROR:
-        tclevel = TC_LOG_ERR;
+        logtype = TC_LOG_ERR;
         break;
       case X264_LOG_WARNING:
-        tclevel = TC_LOG_WARN;
+        logtype = TC_LOG_WARN;
         break;
       case X264_LOG_INFO:
         if (!(verbose & TC_INFO))
             return;
-        tclevel = TC_LOG_INFO;
+        logtype = TC_LOG_INFO;
         break;
       case X264_LOG_DEBUG:
         if (!(verbose & TC_DEBUG))
             return;
-        tclevel = TC_LOG_MSG;
+        logtype = TC_LOG_MSG;
         break;
       default:
         return;
@@ -331,7 +331,7 @@ static void x264_log(void *userdata, int level, const char *format,
     tc_vsnprintf(buf, sizeof(buf), format, args);
     buf[strcspn(buf,"\r\n")] = 0;  /* delete trailing newline */
     /* bypass log filtering silently */
-    tc_log(tclevel, TC_QUIET, MOD_NAME, "%s", buf);
+    tc_log(logtype, MOD_NAME, "%s", buf);
 }
 
 /*************************************************************************/

@@ -1,5 +1,5 @@
 /*
- *  tclog.c - transcode logging infrastructure (implementation)
+ *  logging.c - transcode logging infrastructure (implementation)
  *  Written by Thomas Oestreich, Francesco Romani, Andrew Church, and others
  *
  *  This file is part of transcode, a video stream processing tool.
@@ -69,7 +69,7 @@ static const char *log_template(TCLogType type)
     return tc_log_templates[type - TC_LOG_ERR];
 }
 
-static TCVerboseLevel log_type_to_level(TCLogType type)
+static TCVerboseLevel type_to_level(TCLogType type)
 {
     static const TCVerboseLevel t2lev[] = {
         TC_QUIET,       /* TC_LOG_ERR */
@@ -242,9 +242,9 @@ int tc_log(TCLogType type, const char *tag, const char *fmt, ...)
     int ret = 0;
 
     type = TC_CLAMP(type, TC_LOG_ERR, TC_LOG_MARK);
-    vlev = log_type_to_level(type);
+    vlev = type_to_level(type);
 
-    if (TCLog.verbose >= t2lev[type]) {
+    if (TCLog.verbose >= vlev) {
         va_list ap;
 
         va_start(ap, fmt);
