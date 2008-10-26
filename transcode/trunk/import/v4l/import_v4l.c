@@ -43,7 +43,6 @@ static int capability_flag = TC_CAP_RGB|TC_CAP_YUV;
 
 /*************************************************************************/
 
-#define MMAP_DEBUG  1
 
 #define MAX_BUFFER 32
 
