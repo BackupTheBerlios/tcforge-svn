@@ -32,7 +32,7 @@
 #include "videodev.h"
 
 #define MOD_NAME    "import_v4l.so"
-#define MOD_VERSION "v0.1.1 (2008-03-02)"
+#define MOD_VERSION "v0.2.0 (2008-10-26)"
 #define MOD_CODEC   "(video) v4l"
 
 static int verbose_flag    = TC_QUIET;
@@ -42,6 +42,8 @@ static int capability_flag = TC_CAP_RGB|TC_CAP_YUV;
 #include "import_def.h"
 
 /*************************************************************************/
+
+#define MMAP_DEBUG  1
 
 #define MAX_BUFFER 32
 
@@ -58,10 +60,9 @@ struct v4lsource {
     int grab_buf_idx;
     int grab_buf_max;
     struct video_mbuf vid_mbuf;
-    char *video_map;
+    uint8_t *video_mem;
     int grabbing_active;
     int have_new_frame;
-    void *current_image;
     int totalframecount;
     int image_size;
     int image_pixels;
@@ -76,7 +77,7 @@ struct v4lsource {
 
 /*************************************************************************/
 
-static struct v4lsource fg;
+static struct v4lsource VS;
 
 /*************************************************************************/
 
@@ -84,11 +85,11 @@ static int v4lsource_mmap_init(V4LSource *vs);
 static int v4lsource_mmap_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize);
 static int v4lsource_mmap_close(V4LSource *vs);
 
-#if 0
 static int v4lsource_read_init(V4LSource *vs);
 static int v4lsource_read_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize);
-#endif
 static int v4lsource_read_close(V4LSource *vs);
+
+static int v4lsource_generic_close(V4LSource *vs);
 
 /*************************************************************************/
 
@@ -101,11 +102,26 @@ static int v4lsource_read_close(V4LSource *vs);
 
 /*************************************************************************/
 
-#if 0
+static int v4lsource_generic_close(V4LSource *vs)
+{
+    int err = close(vs->video_dev);
+    if (err) {
+        return TC_ERROR;
+    }
+    return TC_OK;
+}
+
+/*************************************************************************/
+
 static int v4lsource_read_init(V4LSource *vs)
 {
+    int ret, flag = 1;
+
     if (verbose_flag)
         tc_log_info(MOD_NAME, "capture method: read");
+
+    ret = ioctl(vs->video_dev, VIDIOCCAPTURE, &flag);
+    RETURN_IF_ERROR(ret, "error starting the capture");
 
     vs->grab  = v4lsource_read_grab;
     vs->close = v4lsource_read_close;
@@ -114,14 +130,21 @@ static int v4lsource_read_init(V4LSource *vs)
 
 static int v4lsource_read_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize)
 {
-    return TC_ERROR;
+    ssize_t r = read(vs->video_dev, buffer, bufsize);
+    if (r != bufsize) {
+        return TC_ERROR;
+    }
+    return TC_OK;
 }
-#endif
 
 static int v4lsource_read_close(V4LSource *vs)
 {
-    close(vs->video_dev);
-    return TC_OK;
+    int ret, flag = 0;
+
+    ret = ioctl(vs->video_dev, VIDIOCCAPTURE, &flag);
+    RETURN_IF_ERROR(ret, "error stopping the capture");
+
+    return v4lsource_generic_close(vs);
 }
 
 /*************************************************************************/
@@ -137,9 +160,9 @@ static int v4lsource_mmap_init(V4LSource *vs)
     ret = ioctl(vs->video_dev, VIDIOCGMBUF, &vs->vid_mbuf);
     RETURN_IF_ERROR(ret, "error requesting capture buffers");
 
-    if (verbose)
+    if (verbose_flag)
         tc_log_info(MOD_NAME, "%d frame buffer%s available", 
-                    vs->vid_mbuf.frames, (vs->vid_mbuf.frames > 0) ?"s" :"");
+                    vs->vid_mbuf.frames, (vs->vid_mbuf.frames > 1) ?"s" :"");
     vs->grab_buf_max = vs->vid_mbuf.frames;
 
     if (!vs->grab_buf_max) {
@@ -147,25 +170,34 @@ static int v4lsource_mmap_init(V4LSource *vs)
         return TC_ERROR;
     }
 
-    // map grabber memory onto user space
-    vs->video_map = mmap(0, vs->vid_mbuf.size, PROT_READ|PROT_WRITE, MAP_SHARED, vs->video_dev, 0);
-    if ((unsigned char *) -1 == (unsigned char *)vs->video_map) {
+    vs->video_mem = mmap(0, vs->vid_mbuf.size, PROT_READ|PROT_WRITE, MAP_SHARED, vs->video_dev, 0);
+    if ((uint8_t *) -1 == vs->video_mem) {
         tc_log_perror(MOD_NAME, "error mapping capture buffers in memory");
         return TC_ERROR;
     }
+#ifdef MMAP_DEBUG
+    tc_log_msg(MOD_NAME, "(mmap_init) video_mem base address=%p size=%li", vs->video_mem, (long)vs->vid_mbuf.size);
+#endif
 
-    // generate mmap records
     for (i = 0; i < vs->grab_buf_max; i++) {
         vs->vid_mmap[i].frame  = i;
         vs->vid_mmap[i].format = vs->format;
         vs->vid_mmap[i].width  = vs->width;
         vs->vid_mmap[i].height = vs->height;
+#ifdef MMAP_DEBUG
+        tc_log_msg(MOD_NAME, "(mmap_init) setup: mmap buf #%i: %ix%i@0x%x",
+                   vs->vid_mmap[i].frame,
+                   vs->vid_mmap[i].width, vs->vid_mmap[i].height,
+                   vs->vid_mmap[i].format);
+#endif
     }
 
-    // initiate capture for frames
     for (i = 1; i < vs->grab_buf_max + 1; i++) {
         ret = ioctl(vs->video_dev, VIDIOCMCAPTURE, &vs->vid_mmap[i % vs->grab_buf_max]);
         RETURN_IF_ERROR(ret, "error setting up a capture buffer");
+#ifdef MMAP_DEBUG
+        tc_log_msg(MOD_NAME, "(mmap_init) enqueue: mmap buf #%i", i % vs->grab_buf_max);
+#endif
     }
 
     vs->grab  = v4lsource_mmap_grab;
@@ -177,28 +209,34 @@ static int v4lsource_mmap_init(V4LSource *vs)
 static int v4lsource_mmap_close(V4LSource *vs)
 {
     // video device
-    munmap(vs->video_map, vs->vid_mbuf.size);
-    return v4lsource_read_close(vs);
+    munmap(vs->video_mem, vs->vid_mbuf.size);
+    return v4lsource_generic_close(vs);
 }
 
 static int v4lsource_mmap_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize)
 {
-    int ret = 0;
     uint8_t *p, *planes[3] = { NULL, NULL, NULL };
+    int ret = 0, offset = 0;
 
-    // advance grab-frame number
     vs->grab_buf_idx = ((vs->grab_buf_idx + 1) % vs->grab_buf_max);
+#ifdef MMAP_DEBUG
+    tc_log_msg(MOD_NAME, "(mmap_grab) querying for buffer #%i", vs->grab_buf_idx);
+#endif
 
     // wait for next image in the sequence to complete grabbing
     ret = ioctl(vs->video_dev, VIDIOCSYNC, &vs->vid_mmap[vs->grab_buf_idx]);
     RETURN_IF_ERROR(ret, "error waiting for new video frame (VIDIOCSYNC)");
 
     //copy frame
-    p = &vs->video_map[vs->vid_mbuf.offsets[vs->grab_buf_idx]];
+    offset = vs->vid_mbuf.offsets[vs->grab_buf_idx];
+    p = vs->video_mem + offset;
+#ifdef MMAP_DEBUG
+    tc_log_msg(MOD_NAME, "(mmap_grab) got offset=%i frame pointer=%p", offset, p);
+#endif
 
     switch (vs->format) {
-      case VIDEO_PALETTE_RGB24:
-      case VIDEO_PALETTE_YUV420P: /* fallback */
+      case VIDEO_PALETTE_RGB24: /* fallback */
+      case VIDEO_PALETTE_YUV420P:
         ac_memcpy(buffer, p, vs->image_size);
         break;
       case VIDEO_PALETTE_YUV422:
@@ -218,20 +256,73 @@ static int v4lsource_mmap_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize)
 
 /*************************************************************************/
 
-static int v4lsource_init(const char *device, int w, int h, int fmt,
-                           int verbose)
+static int v4lsource_setup_capture(V4LSource *vs, int w, int h, int fmt)
 {
-    struct video_capability capability;
     struct video_picture pict;
+    struct video_window win;
     int ret;
 
-    fg.video_dev = open(device, O_RDWR);
-    if (fg.video_dev == -1) {
+    // picture parameter
+    ret = ioctl(VS.video_dev, VIDIOCGPICT, &pict);
+    RETURN_IF_ERROR(ret, "error getting picture parameters (VIDIOCGPICT)");
+
+    // store variables
+    VS.width           = w;
+    VS.height          = h;
+    VS.format          = fmt;
+    // reset grab counter variables
+    VS.grab_buf_idx    = 0;
+    VS.totalframecount = 0;
+    // calculate framebuffer size
+    VS.image_pixels    = w * h;
+    switch (VS.format) {
+      case VIDEO_PALETTE_RGB24:
+        VS.image_size = VS.image_pixels * 3;
+        break;
+      case VIDEO_PALETTE_YUV420P:
+        VS.image_size = (VS.image_pixels * 3) / 2;
+        break;
+      case VIDEO_PALETTE_YUV422:
+        VS.image_size = VS.image_pixels * 2; // XXX
+        break;
+    }
+
+    if (fmt == VIDEO_PALETTE_RGB24) {
+        pict.depth = 24;
+    }
+    pict.palette = fmt;
+
+    ret = ioctl(VS.video_dev, VIDIOCSPICT, &pict);
+    RETURN_IF_ERROR(ret, "error setting picture parameters (VIDIOCSPICT)");
+
+    ret = ioctl(vs->video_dev, VIDIOCGWIN, &win);
+    RETURN_IF_ERROR(ret, "error getting capture window properties");
+
+    win.width  = vs->width;
+    win.height = vs->height;
+    win.flags  = 0; /* no flags */
+    
+    ret = ioctl(vs->video_dev, VIDIOCSWIN, &win);
+    RETURN_IF_ERROR(ret, "error getting capture window properties");
+
+    return TC_OK;
+}
+
+/*************************************************************************/
+
+static int v4lsource_init(const char *device, const char *options,
+                          int w, int h, int fmt)
+{
+    struct video_capability capability;
+    int ret, use_read = TC_FALSE;
+
+    VS.video_dev = open(device, O_RDWR);
+    if (VS.video_dev == -1) {
         tc_log_perror(MOD_NAME, "error opening grab device");
         return TC_ERROR;
     }
 
-    ret = ioctl(fg.video_dev, VIDIOCGCAP, &capability);
+    ret = ioctl(VS.video_dev, VIDIOCGCAP, &capability);
     RETURN_IF_ERROR(ret, "error quering capabilities (VIDIOCGCAP)");
    
     if (verbose_flag)
@@ -241,40 +332,18 @@ static int v4lsource_init(const char *device, int w, int h, int fmt,
         return TC_ERROR;
     }
 
-    // picture parameter
-    ret = ioctl(fg.video_dev, VIDIOCGPICT, &pict);
-    RETURN_IF_ERROR(ret, "error getting picture parameters (VIDIOCGPICT)");
+    ret = v4lsource_setup_capture(&VS, w, h, fmt);
 
-    // store variables
-    fg.width           = w;
-    fg.height          = h;
-    fg.format          = fmt;
-    // reset grab counter variables
-    fg.grab_buf_idx    = 0;
-    fg.totalframecount = 0;
-    // calculate framebuffer size
-    fg.image_pixels    = w * h;
-    switch (fg.format) {
-      case VIDEO_PALETTE_RGB24:
-        fg.image_size = fg.image_pixels * 3;
-        break;
-      case VIDEO_PALETTE_YUV420P:
-        fg.image_size = (fg.image_pixels * 3) / 2;
-        break;
-      case VIDEO_PALETTE_YUV422:
-        fg.image_size = fg.image_pixels * 2; // XXX
-        break;
+    if (options) {
+        if (optstr_lookup(options, "capture_read")) {
+            use_read = TC_TRUE;
+        }
     }
 
-    if (fmt == VIDEO_PALETTE_RGB24) {
-        pict.depth = 24;
+    if (use_read) {
+        return v4lsource_read_init(&VS);
     }
-    pict.palette = fmt;
-
-    ret = ioctl(fg.video_dev, VIDIOCSPICT, &pict);
-    RETURN_IF_ERROR(ret, "error setting picture parameters (VIDIOCSPICT)");
-
-    return v4lsource_mmap_init(&fg);
+    return v4lsource_mmap_init(&VS);
 }
 
 /*************************************************************************/
@@ -302,9 +371,8 @@ MOD_open
             break;
         }
         
-        if (v4lsource_init(vob->video_in_file,
-                            vob->im_v_width, vob->im_v_height,
-                            fmt, verbose_flag) < 0) {
+        if (v4lsource_init(vob->video_in_file, vob->im_v_string,
+                            vob->im_v_width, vob->im_v_height, fmt) < 0) {
             tc_log_error(MOD_NAME, "error grab init");
             return TC_ERROR;
         }
@@ -316,7 +384,7 @@ MOD_open
 MOD_decode
 {
     if (param->flag == TC_VIDEO) {
-        return fg.grab(&fg, param->buffer, param->size);
+        return VS.grab(&VS, param->buffer, param->size);
         return TC_OK;
     }
     return TC_ERROR;
@@ -325,7 +393,7 @@ MOD_decode
 MOD_close
 {
     if (param->flag == TC_VIDEO) {
-        fg.close(&fg);
+        VS.close(&VS);
         return TC_OK;
     }
     return TC_ERROR;
