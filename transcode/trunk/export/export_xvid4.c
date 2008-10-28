@@ -751,11 +751,11 @@ static void read_config_file(xvid_transcode_module_t *mod)
         };
 
     /* Read the values */
-    module_read_config("xvid4.cfg", NULL, complete_config, MOD_NAME);
+    tc_config_read_file("xvid4.cfg", NULL, complete_config, MOD_NAME);
 
     /* Print the values */
     if(verbose_flag & TC_DEBUG)
-        module_print_config(complete_config, MOD_NAME);
+        tc_config_print(complete_config, MOD_NAME);
 
     return;
 }

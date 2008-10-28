@@ -593,10 +593,10 @@ MOD_init
         break;
     }
 
-    module_read_config("ffmpeg.cfg", codec->name, lavcopts_conf, MOD_NAME);
+    tc_config_read_file("ffmpeg.cfg", codec->name, lavcopts_conf, MOD_NAME);
     if (verbose_flag & TC_DEBUG) {
         tc_log_info(MOD_NAME, "Using the following FFMPEG parameters:");
-        module_print_config(lavcopts_conf, MOD_NAME);
+        tc_config_print(lavcopts_conf, MOD_NAME);
     }
 
     /* this overrides transcode settings */

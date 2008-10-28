@@ -414,7 +414,7 @@ static int parse_nodes(char *p_hostfile, int nodes)
     for (i = 0; i < nodes; i++) {
         tc_snprintf(buf, sizeof(buf), "Node%i", i+1);
 
-        ret = module_read_config(p_hostfile, buf, node_conf[i], __FILE__);
+        ret = tc_config_read_file(p_hostfile, buf, node_conf[i], __FILE__);
         if (ret) {
             int done = dispatch_node(i, &nodes_data[i], &s_pvm_conf);
             if (done) {
@@ -434,7 +434,7 @@ static void parse_config(char *p_hostfile, int full)
 
         if (!full && pvm_config[i].serverside)
             continue;
-        ret = module_read_config(p_hostfile, pvm_config[i].name,
+        ret = tc_config_read_file(p_hostfile, pvm_config[i].name,
                                  pvm_config[i].conf, __FILE__);
         if (ret) {
             int done = pvm_config[i].dispatch(i, &s_pvm_conf);
@@ -447,9 +447,9 @@ static void parse_filelist(char *p_hostfile)
 {
     int i = 0;
     for (i = 0; pvm_filelist[i].name != NULL; i++) {
-        TCConfigList *list = module_read_config_list(p_hostfile,
-                                                     pvm_filelist[i].name, 
-                                                     __FILE__);
+        TCConfigList *list = tc_config_list_read_file(p_hostfile,
+                                                      pvm_filelist[i].name, 
+                                                      __FILE__);
         if (list) {
             int type = pvm_filelist[i].type;
             char *codec = (type == TC_VIDEO) 
@@ -467,7 +467,7 @@ static void parse_filelist(char *p_hostfile)
                 *(pvm_filelist[i].list) = head;
             }
             /* always */
-            module_free_config_list(list, (head != NULL) ?1 :0);
+            tc_config_list_free(list, (head != NULL) ?1 :0);
         }
     }
 }

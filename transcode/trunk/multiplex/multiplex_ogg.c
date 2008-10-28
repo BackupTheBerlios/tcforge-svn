@@ -106,7 +106,7 @@ static int tc_shout_configure(TCShout *tcsh, const char *id)
             tc_log_info(MOD_NAME,
                         "reading configuration data for stream '%s'...", id);
         }
-        module_read_config(TC_SHOUT_CONFIG_FILE, id, shout_conf, MOD_NAME);
+        tc_config_read_file(TC_SHOUT_CONFIG_FILE, id, shout_conf, MOD_NAME);
 
 	    shout_set_format(shout, SHOUT_FORMAT_VORBIS); /* always true in here */
 	    shout_set_public(shout, public); /* first the easy stuff */

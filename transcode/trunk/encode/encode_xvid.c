@@ -678,11 +678,11 @@ static void read_config_file(XviDPrivateData *mod)
     };
 
     /* Read the values */
-    module_read_config(XVID_CONFIG_FILE, NULL, xvid_config, MOD_NAME);
+    tc_config_read_file(XVID_CONFIG_FILE, NULL, xvid_config, MOD_NAME);
 
     /* Print the values */
     if (verbose & TC_DEBUG) {
-        module_print_config(xvid_config, MOD_NAME);
+        tc_config_print(xvid_config, MOD_NAME);
     }
 
     return;

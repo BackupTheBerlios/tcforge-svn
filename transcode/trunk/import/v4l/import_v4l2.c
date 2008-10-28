@@ -891,9 +891,9 @@ static int tc_v4l2_video_set_tuner_frequency(V4L2Source *vs)
             { NULL, 0, 0, 0, 0, 0 }
         };
 
-        ret = module_read_config(TC_V4L2_CHANNELS_FILE,
-                                 vs->channel_name,
-                                 chan_conf, MOD_NAME);
+        ret = tc_config_read_file(TC_V4L2_CHANNELS_FILE,
+                                  vs->channel_name,
+                                  chan_conf, MOD_NAME);
         if (!ret) {
             tc_log_error(MOD_NAME, "Error reading the frequencies"
                                    " configuration file.");

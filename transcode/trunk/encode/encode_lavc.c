@@ -1252,7 +1252,7 @@ static int tc_lavc_read_config(TCLavcPrivateData *pd,
         { NULL, 0, 0, 0, 0, 0 }
     };
 
-    module_read_config(LAVC_CONFIG_FILE,
+    tc_config_read_file(LAVC_CONFIG_FILE,
                        tc_codec_to_string(vob->ex_v_codec),
                        lavc_conf, MOD_NAME);
 
@@ -1265,7 +1265,7 @@ static int tc_lavc_read_config(TCLavcPrivateData *pd,
             return TC_ERROR;
         }
         for (i = 0; i < n; i++) {
-            if (!module_read_config_line(opts[i], lavc_conf, MOD_NAME)) {
+            if (!tc_config_read_line(opts[i], lavc_conf, MOD_NAME)) {
                 tc_log_error(MOD_NAME, "error parsing module options (%s)",
                              opts[i]);
                 tc_strfreev(opts);
@@ -1281,7 +1281,7 @@ static int tc_lavc_read_config(TCLavcPrivateData *pd,
     tc_lavc_init_rc_override(pd, rc_override_buf);
 
     if (verbose >= TC_DEBUG) {
-        module_print_config(lavc_conf, MOD_NAME);
+        tc_config_print(lavc_conf, MOD_NAME);
     }
     /* only now we can do this safely */
     tc_lavc_dispatch_settings(pd);

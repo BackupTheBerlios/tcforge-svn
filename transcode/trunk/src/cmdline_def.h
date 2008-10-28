@@ -306,7 +306,7 @@ TC_OPTION(config_dir,         0,   "dir",
                 "assume config files are in this dir [off]",
                 if (*optarg == '-')
                     goto short_usage;
-                tc_set_config_dir(optarg);
+                tc_config_set_dir(optarg);
 )
 
 /********/ TC_HEADER("Input stream selection") /********/

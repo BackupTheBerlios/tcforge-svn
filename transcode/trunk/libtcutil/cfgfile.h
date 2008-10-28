@@ -41,31 +41,31 @@ typedef struct {
 /*************************************************************************/
 
 /* Set the directory used to find configuration files. */
-void tc_set_config_dir(const char *dir);
+void tc_config_set_dir(const char *dir);
 
 /* Read module configuration data from the given file. */
-int module_read_config(const char *filename, const char *section,
-                       TCConfigEntry *conf, const char *tag);
+int tc_config_read_file(const char *filename, const char *section,
+                        TCConfigEntry *conf, const char *tag);
 
 /* Process a string as if it were a line from a configuration file. */
-int module_read_config_line(const char *string, TCConfigEntry *conf,
-                            const char *tag);
+int tc_config_read_line(const char *string, TCConfigEntry *conf,
+                        const char *tag);
 
 /* Print module configuration data. */
-void module_print_config(const TCConfigEntry *conf, const char *tag);
+void tc_config_print(const TCConfigEntry *conf, const char *tag);
 
 /*************************************************************************/
 
 /* Read a List section of a configuration file. Triggered by PVM module. */
-TCList *module_read_config_list(const char *filename,
-                                const char *section, const char *tag);
+TCList *tc_config_list_read_file(const char *filename,
+                                 const char *section, const char *tag);
 
 /* Print module configuration list for a given section */
-void module_print_config_list(const TCList *list,
-			      const char *section, const char *tag);
+void tc_config_list_print(const TCList *list,
+			  const char *section, const char *tag);
 
 /* Dispose a configuration list produced by read_config_list */
-void module_free_config_list(TCList *list, int refonly);
+void tc_config_list_free(TCList *list, int refonly);
 
 /*************************************************************************/
 

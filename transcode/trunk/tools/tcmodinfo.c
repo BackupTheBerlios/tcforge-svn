@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     memset(&ptr, 0, sizeof(ptr));
 
     ac_init(AC_ALL);
-    tc_set_config_dir(NULL);
+    tc_config_set_dir(NULL);
 
     if (argc == 1) {
         usage();

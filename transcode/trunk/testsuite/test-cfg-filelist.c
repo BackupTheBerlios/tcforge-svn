@@ -43,14 +43,14 @@ int main(int argc, char *argv[])
     section  = argv[2];
 
     libtc_init(NULL, NULL); /* XXX: dirty! */
-    tc_set_config_dir("");  /* XXX: dirty? */
-    list = module_read_config_list(filename, section, __FILE__);
+    tc_config_set_dir("");  /* XXX: dirty? */
+    list = tc_config_list_read_file(filename, section, __FILE__);
     if (!list) {
         fprintf(stderr, "unable to scan '%s'\n", filename);
         exit(1);
     } else {
-        module_print_config_list(list, section, "test");
-        module_free_config_list(list, 0);
+        tc_config_list_print(list, section, "test");
+        tc_config_list_free(list, 0);
     }
 
     return 0;

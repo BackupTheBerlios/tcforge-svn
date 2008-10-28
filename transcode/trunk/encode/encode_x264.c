@@ -584,7 +584,7 @@ static int x264_configure(TCModuleInstance *self,
     confdata.x264params.analyse.inter = ~0;
 
     /* Read settings from configuration file */
-    module_read_config(X264_CONFIG_FILE, NULL, conf, MOD_NAME);
+    tc_config_read_file(X264_CONFIG_FILE, NULL, conf, MOD_NAME);
 
     /* Parse options given in -y option string (format:
      * "name1=value1:name2=value2:...") */
@@ -592,7 +592,7 @@ static int x264_configure(TCModuleInstance *self,
          s != NULL;
          s = strtok(NULL,":")
     ) {
-        if (!module_read_config_line(s, conf, MOD_NAME)) {
+        if (!tc_config_read_line(s, conf, MOD_NAME)) {
             tc_log_error(MOD_NAME, "Error parsing module options");
             return TC_ERROR;
         }
@@ -626,7 +626,7 @@ static int x264_configure(TCModuleInstance *self,
      * file to $x264params. Let's give some status report and finally open
      * the encoder. */
     if (verbose >= TC_DEBUG) {
-        module_print_config(conf, MOD_NAME);
+        tc_config_print(conf, MOD_NAME);
     }
 
     pd->enc = x264_encoder_open(&pd->x264params);

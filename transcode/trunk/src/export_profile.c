@@ -69,7 +69,7 @@ static TCExportProfile prof_data = {
 
     /*
      * we need to take care of strings deallocating
-     * them between module_read_config() calls, to
+     * them between tc_config_read_file() calls, to
      * avoid memleaks, so we use NULL marking here.
      */
     .info.video.string = NULL,
@@ -152,7 +152,7 @@ static TCExportProfile prof_data = {
  *      TCConfigEntry data.
  *      Also note that this function mangle global private prof_data
  *      variable, most notably by invoking cleanup_strings on it
- *      to avoid memleaks in subsequent calls of module_read_config.
+ *      to avoid memleaks in subsequent calls of tc_config_read_file.
  * Preconditions:
  *      this function should be always used _after_ a succesfull
  *      call to tc_setup_export_profiles, which parse the profiles
@@ -413,10 +413,10 @@ static int tc_load_single_export_profile(int i, TCConfigEntry *config,
         tc_snprintf(prof_name, sizeof(prof_name), "%s.cfg",
                     prof_data.profiles[i]);
 
-        tc_set_config_dir(basedir);
-        ret = module_read_config(prof_name, NULL, config, package);
+        tc_config_set_dir(basedir);
+        ret = tc_config_read_file(prof_name, NULL, config, package);
         if (ret == 0) {
-            found = 0; /* module_read_config() failed */
+            found = 0; /* tc_config_read_file() failed */
         } else {
             if (verbose >= TC_INFO) {
                 tc_log_info(package, "E: %-16s | %s", "loaded profile",
@@ -440,7 +440,7 @@ static int tc_load_single_export_profile(int i, TCConfigEntry *config,
 #undef SETUP_CLIPPING
 
 /*
- * module_read_config (used internally, see later)
+ * tc_config_read_file (used internally, see later)
  * allocates new strings for option values, so
  * we need to take care of them using this couple
  * of functions

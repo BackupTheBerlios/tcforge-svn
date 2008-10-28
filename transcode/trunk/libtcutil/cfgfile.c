@@ -113,7 +113,7 @@ static int lookup_section(FILE *f, const char *section, const char *tag)
 /*************************************************************************/
 
 /**
- * tc_set_config_dir:  Sets the directory in which configuration files are
+ * tc_config_set_dir:  Sets the directory in which configuration files are
  * searched for.
  *
  * Parameters:
@@ -123,7 +123,7 @@ static int lookup_section(FILE *f, const char *section, const char *tag)
  *     None.
  */
 
-void tc_set_config_dir(const char *dir)
+void tc_config_set_dir(const char *dir)
 {
     tc_free(config_dir);
     config_dir = dir ? tc_strdup(dir) : NULL;
@@ -133,7 +133,7 @@ void tc_set_config_dir(const char *dir)
 /*************************************************************************/
 
 /**
- * module_read_config:  Reads in configuration information from an external
+ * tc_config_read_file:  Reads in configuration information from an external
  * file.
  *
  * Parameters:
@@ -146,7 +146,7 @@ void tc_set_config_dir(const char *dir)
  *     Nonzero on success, zero on failure.
  */
 
-int module_read_config(const char *filename, const char *section,
+int tc_config_read_file(const char *filename, const char *section,
                        TCConfigEntry *conf, const char *tag)
 {
     char buf[TC_BUF_MAX], path_buf[PATH_MAX+1];
@@ -157,7 +157,7 @@ int module_read_config(const char *filename, const char *section,
     if (!tag)
         tag = __FILE__;
     if (!filename || !conf) {
-        tc_log_error(tag, "module_read_config(): %s == NULL!",
+        tc_log_error(tag, "tc_config_read_file(): %s == NULL!",
                      !filename ? "filename" : !conf ? "conf" : "???");
         return 0;
     }
@@ -208,7 +208,7 @@ int module_read_config(const char *filename, const char *section,
 /*************************************************************************/
 
 /**
- * module_read_config_line:  Processes a string as if it were a line read
+ * tc_config_read_line:  Processes a string as if it were a line read
  * from a configuration file.  The string must have all leading and
  * trailing whitespace stripped.
  *
@@ -220,13 +220,13 @@ int module_read_config(const char *filename, const char *section,
  *     Nonzero if the string was successfully processed, else zero.
  */
 
-int module_read_config_line(const char *string, TCConfigEntry *conf,
-                            const char *tag)
+int tc_config_read_line(const char *string, TCConfigEntry *conf,
+                        const char *tag)
 {
     if (!tag)
         tag = __FILE__;
     if (!string || !conf) {
-        tc_log_error(tag, "module_read_config_line(): %s == NULL!",
+        tc_log_error(tag, "tc_config_read_line(): %s == NULL!",
                      !string ? "string" : !conf ? "conf" : "???");
         return 0;
     }
@@ -236,7 +236,7 @@ int module_read_config_line(const char *string, TCConfigEntry *conf,
 /*************************************************************************/
 
 /**
- * module_print_config:  Prints the given array of configuration data.
+ * tc_config_print:  Prints the given array of configuration data.
  *
  * Parameters:
  *     conf: Array of configuration data.
@@ -245,13 +245,13 @@ int module_read_config_line(const char *string, TCConfigEntry *conf,
  *     None.
  */
 
-void module_print_config(const TCConfigEntry *conf, const char *tag)
+void tc_config_print(const TCConfigEntry *conf, const char *tag)
 {
     /* Sanity checks */
     if (!tag)
         tag = __FILE__;
     if (!conf) {
-        tc_log_error(tag, "module_print_config(): conf == NULL!");
+        tc_log_error(tag, "tc_config_print(): conf == NULL!");
         return;
     }
 
@@ -493,7 +493,7 @@ static void parse_line_error(const char *buf, const char *filename, int line,
 /*************************************************************************/
 
 /**
- * module_read_config_list:  Read a list section from given configuration
+ * tc_config_list_read_file:  Read a list section from given configuration
  * file and return the corresponding data list.
  *
  * Parameters:
@@ -505,8 +505,8 @@ static void parse_line_error(const char *buf, const char *filename, int line,
  *     NULL otherwise.
  */
 
-TCList *module_read_config_list(const char *filename,
-                                const char *section, const char *tag)
+TCList *tc_config_list_read_file(const char *filename,
+                                 const char *section, const char *tag)
 {
     char buf[TC_BUF_MAX], path_buf[PATH_MAX+1];
     TCList *list = tc_malloc(sizeof(TCList));
@@ -517,15 +517,15 @@ TCList *module_read_config_list(const char *filename,
     if (!tag)
         tag = __FILE__;
     if (!filename) {
-        tc_log_error(tag, "module_read_config_list(): missing filename");
+        tc_log_error(tag, "tc_config_list_read_file(): missing filename");
         return 0;
     }
     if (!section) {
-        tc_log_error(tag, "module_read_config_list(): missing section");
+        tc_log_error(tag, "tc_config_list_read_file(): missing section");
         return 0;
     }
     if (!list) {
-        tc_log_error(tag, "module_read_config_list(): unable to allocate list");
+        tc_log_error(tag, "tc_config_list_read_file(): unable to allocate list");
     }
     tc_list_init(list, 0);
 
@@ -560,7 +560,7 @@ TCList *module_read_config_list(const char *filename,
             int err  = tc_list_append_dup(list, buf, strlen(buf) + 1);
             if (err) {
                 tc_log_error(tag, "out of memory at line %i", line);
-                module_free_config_list(list, 0);
+                tc_config_list_free(list, 0);
                 list = NULL;
             }
         }
@@ -571,8 +571,8 @@ TCList *module_read_config_list(const char *filename,
 }
 
 /**
- * module_free_config_list:  Dispose a configuration list created by
- * module_read_config_list.
+ * tc_config_list_free:  Dispose a configuration list created by
+ * tc_config_list_read_file.
  *
  * Parameters:
  *     list: Head of configuration list to free.
@@ -583,7 +583,7 @@ TCList *module_read_config_list(const char *filename,
  * Return value:
  *     None.
  */
-void module_free_config_list(TCList *list, int refonly)
+void tc_config_list_free(TCList *list, int refonly)
 {
     tc_list_del(list, !refonly);
 }
@@ -596,7 +596,7 @@ static int elem_printer(TCListItem *item, void *tag)
     
 
 /**
- * module_print_config_list:  Prints the given configuration list.
+ * tc_config_list_print:  Prints the given configuration list.
  *
  * Parameters:
  *     list: Configuration list to be printed.
@@ -605,18 +605,18 @@ static int elem_printer(TCListItem *item, void *tag)
  * Return value:
  *     None.
  */
-void module_print_config_list(const TCList *list,
-                              const char *section, const char *tag)
+void tc_config_list_print(const TCList *list,
+                          const char *section, const char *tag)
 {
     /* Sanity checks */
     if (!tag)
         tag = __FILE__;
     if (!section) {
-        tc_log_error(tag, "module_print_config_list(): section == NULL!");
+        tc_log_error(tag, "tc_config_list_print(): section == NULL!");
         return;
     }
     if (!list) {
-        tc_log_error(tag, "module_print_config_list(): list == NULL!");
+        tc_log_error(tag, "tc_config_list_print(): list == NULL!");
         return;
     }
 
@@ -635,3 +635,4 @@ void module_print_config_list(const TCList *list,
  *
  * vim: expandtab shiftwidth=4:
  */
+

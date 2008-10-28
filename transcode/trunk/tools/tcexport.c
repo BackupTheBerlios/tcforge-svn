@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
     vob->divxlogfile = VIDEO_LOG_FILE;
 
     ac_init(AC_ALL);
-    tc_set_config_dir(NULL);
+    tc_config_set_dir(NULL);
     config_init(&config, vob);
     counter_on();
 
