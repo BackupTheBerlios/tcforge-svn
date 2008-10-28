@@ -1,0 +1,17 @@
+# transcode GNU makefile build helper
+#
+
+TC_PREFIX   = @TC_PREFIX@
+
+TC_INCLUDES = -I$(TC_PREFIX) \
+              -I$(TC_PREFIX)/aclib \
+              -I$(TC_PREFIX)/libtcutil \
+              -I$(TC_PREFIX)/libtcvideo \
+              -I$(TC_PREFIX)/libtcaudio \
+              -I$(TC_PREFIX)/libtcext \
+              -I$(TC_PREFIX)/libtc \
+              -I$(TC_PREFIX)/src
+
+TC_CFLAGS   = @CFLAGS@ $(TC_INCLUDES)
+CFLAGS     += $(TC_CFLAGS)
+
