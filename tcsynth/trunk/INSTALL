@@ -1,0 +1,29 @@
+
+HOW TO BUILD AND INSTALL TCSYNTH
+================================
+
+Dependencies
+~~~~~~~~~~~~
+
+cmake    >= 2.6.0	- http://www.cmake.org
+lua	 >= 5.1		- http://www.lua.org
+
+plus the usual build essential components (make, gcc, glibc headers
+and so on)
+
+
+Compilation
+~~~~~~~~~~~
+
+$ cmake .
+$ make
+# make install
+
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+* CMake doesn't find includes/libraries
+  --------------------------------------
+
+WRITEME
+

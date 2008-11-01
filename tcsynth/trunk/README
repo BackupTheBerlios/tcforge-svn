@@ -1,0 +1,12 @@
+
+TCSYNTH: Transcode scripting engine
+===================================
+
+Introduction
+~~~~~~~~~~~~
+
+TCSynth is a scripting language designed for handling audio/video
+stream processing, vaguely like awk does for text streams.
+It uses the transcode infrastructure and module set and it is
+(VERY) loosely inspired by avisynth.
+
