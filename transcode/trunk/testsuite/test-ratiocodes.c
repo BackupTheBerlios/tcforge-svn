@@ -27,6 +27,7 @@
 #include "config.h"
 #include "tc_defaults.h"
 #include "libtc/libtc.h"
+#include "libtc/tcframes.h"
 #include "libtc/ratiocodes.h"
 
 #ifndef PACKAGE
