@@ -37,6 +37,32 @@
 
 /*************************************************************************/
 
+// default PAL video size
+#define PAL_W                  720
+#define PAL_H                  576
+#define BPP                     24
+#define PAL_FPS                 25.0
+#define MIN_FPS                  1.0
+#define NTSC_FILM    ((double)(24000)/1001.0)
+#define NTSC_VIDEO   ((double)(30000)/1001.0)
+
+//NTSC
+#define NTSC_W                  720
+#define NTSC_H                  480
+
+//new max frame size:
+#define TC_MAX_V_FRAME_WIDTH     2500
+#define TC_MAX_V_FRAME_HEIGHT    2000
+
+// max bytes per pixel
+#define TC_MAX_V_BYTESPP        4
+
+// audio defaults
+#define RATE         48000
+#define BITS            16
+#define CHANNELS         2
+
+
 #define SIZE_RGB_FRAME ((int) TC_MAX_V_FRAME_WIDTH*TC_MAX_V_FRAME_HEIGHT*(BPP/8))
 #define SIZE_PCM_FRAME ((int) (RATE/MIN_FPS) * BITS/8 * CHANNELS * 3)
 
