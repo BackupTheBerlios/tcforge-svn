@@ -85,8 +85,8 @@ static int tcr_read_config(const char *cfg_file, TCRConfig *cfg)
         { NULL,         NULL,                   0,                  0, 0, 0 }
     };
     int ret = TC_ERROR;
-    int res = module_read_config(cfg_file, TCRUND_CONFIG_FILE_MAIN,
-                                 tcrund_conf, PACKAGE);
+    int res = tc_config_read_file(cfg_file, TCRUND_CONFIG_FILE_MAIN,
+                                  tcrund_conf, PACKAGE);
 
     if (res != 0) {
         if (cfg->debug_mode) {
@@ -94,7 +94,7 @@ static int tcr_read_config(const char *cfg_file, TCRConfig *cfg)
                    "configuration from [%s]", cfg_file);
             tc_log(TC_LOG_INFO, PACKAGE,
                    "=================="); /* puah */
-            module_print_config(tcrund_conf, PACKAGE);
+            tc_config_print(tcrund_conf, PACKAGE);
         }
         ret = TC_OK;
     }
