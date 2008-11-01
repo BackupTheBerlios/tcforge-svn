@@ -8,9 +8,9 @@
  * for details.
  */
 
+#include "libtcutil/tcutil.h"
 #include "tcaudio.h"
 
-#include "src/transcode.h"
 #include <math.h>
 
 /*************************************************************************/
@@ -62,7 +62,7 @@ TCAHandle tca_init(AudioFormat format)
                      format);
         return NULL;
     }
-    handle = malloc(sizeof(*handle));
+    handle = tc_malloc(sizeof(*handle));
     if (!handle)
         return NULL;
     handle->format   = format;
