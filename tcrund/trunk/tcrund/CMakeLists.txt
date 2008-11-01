@@ -18,8 +18,6 @@ else(EVENT_FOUND)
 endif(EVENT_FOUND)
 
 
-include_directories(${XMLRPC_INCLUDE_DIR})
-include_directories(${EVENT_INCLUDE_DIR})
 include_directories(${tcrund_SOURCE_DIR})
 include_directories(${tcrund_SOURCE_DIR}/tclibs)
 include_directories(${tcrund_SOURCE_DIR}/tclibs/libtcutil)
