@@ -9,8 +9,10 @@
 #define VERSION "0.0.1"
 #endif
 
+/* Define if the compiler is gcc and it supports attributes (usually yes) */
 #cmakedefine HAVE_GCC_ATTRIBUTES
 
+/* Define if we have dlfcn support */
 #cmakedefine HAVE_DLFCN_H
 
 /* Define if your compiler understands 3DNow! assembly instructions */

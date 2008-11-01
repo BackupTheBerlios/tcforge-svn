@@ -1,4 +1,43 @@
 
+include(CheckIncludeFile)
+include(CheckCSourceCompiles)
+
+CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+    CHECK_C_SOURCE_COMPILES(
+     "#include <stdio.h>
+      int foo(char *,...) __attribute__((format(printf,1,2)));
+      __attribute__((unused)) static int bar;
+      int main(void)
+      {
+          return 0;
+      }"
+    HAVE_GCC_ATTRIBUTES)
+
+    CHECK_C_SOURCE_COMPILES(
+     "void *p; asm volatile(\"packuswb %%mm1,%%mm2\"::\"r\"(p));"
+    HAVE_ASM_MMX)
+
+    CHECK_C_SOURCE_COMPILES(
+     "void *p;
+      asm volatile(\"pfmul %%mm3,%%mm4\"::\"r\"(p));"
+    HAVE_ASM_3DNOW)
+
+    CHECK_C_SOURCE_COMPILES(
+     "void *p;
+      asm volatile(\"movntps  %%xmm0, 0\"::\"r\"(p));"
+    HAVE_ASM_SSE)
+
+    CHECK_C_SOURCE_COMPILES(
+     "void *p;
+      asm volatile(\"movdqa  %%xmm2, %%xmm3\"::\"r\"(p));"
+    HAVE_ASM_SSE2)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+configure_file(${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/config.h)
+
+
 set(ACLIB_SOURCES
     aclib/accore.c aclib/average.c aclib/imgconvert.c
     aclib/img_rgb_packed.c aclib/img_yuv_mixed.c
