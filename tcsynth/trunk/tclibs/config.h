@@ -9,4 +9,7 @@
 #define VERSION "0.0.1"
 #endif
 
+#define HAVE_DLFCN_H 1
+#define HAVE_GCC_ATTRIBUTES 1
+
 #endif /* TCSYNTH_CONFIG_H */

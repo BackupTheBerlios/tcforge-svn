@@ -24,6 +24,7 @@ add_definitions(-DHAVE_CONFIG_H)
 include_directories(${tcsynth_SOURCE_DIR})
 include_directories(${tcsynth_SOURCE_DIR}/tclibs)
 include_directories(${tcsynth_SOURCE_DIR}/tclibs/src) # ugh
+include_directories(${tcsynth_SOURCE_DIR}/tclibs/avilib) # ugh^2
 
 include_directories(${tcsynth_SOURCE_DIR}/tclibs/aclib)
 include_directories(${tcsynth_SOURCE_DIR}/tclibs/libtc)
