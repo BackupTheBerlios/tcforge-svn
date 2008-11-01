@@ -35,6 +35,10 @@
 
 #include "libtc/tccodecs.h"
 
+/*************************************************************************/
+
+#define SIZE_RGB_FRAME ((int) TC_MAX_V_FRAME_WIDTH*TC_MAX_V_FRAME_HEIGHT*(BPP/8))
+#define SIZE_PCM_FRAME ((int) (RATE/MIN_FPS) * BITS/8 * CHANNELS * 3)
 
 /*************************************************************************/
 
