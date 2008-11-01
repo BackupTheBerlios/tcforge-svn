@@ -1,0 +1,28 @@
+#ifndef TCSYNTH_CONFIG_H
+#define TCSYNTH_CONFIG_H
+
+#ifndef PACKAGE
+#define PACKAGE "tcsynth"
+#endif
+
+#ifndef VERSION
+#define VERSION "0.0.1"
+#endif
+
+#cmakedefine HAVE_GCC_ATTRIBUTES
+
+#cmakedefine HAVE_DLFCN_H
+
+/* Define if your compiler understands 3DNow! assembly instructions */
+#cmakedefine HAVE_ASM_3DNOW
+
+/* Define if your compiler understands MMX assembly instructions */
+#cmakedefine HAVE_ASM_MMX
+
+/* Define if your compiler understands SSE assembly instructions */
+#cmakedefine HAVE_ASM_SSE
+
+/* Define if your compiler understands SSE2 assembly instructions */
+#cmakedefine HAVE_ASM_SSE2
+
+#endif /* TCSYNTH_CONFIG_H */
