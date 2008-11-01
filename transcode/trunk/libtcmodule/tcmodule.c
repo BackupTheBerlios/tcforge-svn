@@ -33,7 +33,7 @@
 
 #include "libtc/tccodecs.h"
 
-#include "src/transcode.h"
+#include "libtcutil/tcutil.h"
 
 #include "tcmodule-data.h"
 #include "tcmodule-core.h"

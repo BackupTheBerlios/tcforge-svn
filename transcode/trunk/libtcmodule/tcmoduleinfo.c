@@ -21,7 +21,8 @@
 
 #include <string.h>
 
-#include "src/transcode.h"
+#include "libtc/libtc.h"
+#include "libtcutil/tcutil.h"
 
 #include "tcmodule-info.h"
 
