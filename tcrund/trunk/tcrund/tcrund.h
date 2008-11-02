@@ -36,6 +36,9 @@
 
 #define TCRUND_CONFIG_FILE_MAIN		"general"
 
+#define TCRUND_DEFAULT_ACCOUNT_PATH     "/etc/tcrund/users.cfg"
+
+
 typedef struct tcrconfig_ TCRConfig;
 struct tcrconfig_ {
     /* those WILL BE present into configuration file */

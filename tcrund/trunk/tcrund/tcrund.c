@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include "server.h"
+#include "tcrauth.h"
 #include "tcrund.h"
 
 
@@ -42,16 +43,18 @@ struct tcrcontext_ {
     TCLogTarget     log_target;
     TCVerboseLevel  log_level;
     const char      *cfg_file;
+    const char      *account_file;
     int              banner_only; /* flag */
 };
 
 static TCRContext TCRunD = {
-/*  .config      intentionally left out */
-    .server      = NULL,
-    .cfg_file    = NULL,
-    .log_level   = TC_INFO,
-    .log_target  = TCR_LOG_FILE,
-    .banner_only = TC_FALSE
+/*  .config       intentionally left out */
+    .server       = NULL,
+    .cfg_file     = NULL,
+    .account_file = NULL,
+    .log_level    = TC_INFO,
+    .log_target   = TCR_LOG_FILE,
+    .banner_only  = TC_FALSE
 };
 
 /*************************************************************************/
@@ -76,13 +79,13 @@ static void tcr_set_config_defaults(TCRConfig *cfg)
 static int tcr_read_config(const char *cfg_file, TCRConfig *cfg)
 {
     TCConfigEntry tcrund_conf[] = {
-        { "port",       &(cfg->port),           TCCONF_TYPE_INT, TCCONF_FLAG_RANGE, 1024, 65535 },
-        { "host",       &(cfg->host),           TCCONF_TYPE_STRING, 0, 0, 0 },
-        { "logs_dir",   &(cfg->logs_dir),       TCCONF_TYPE_STRING, 0, 0, 0 },
-        { "files_dir",  &(cfg->files_dir),      TCCONF_TYPE_STRING, 0, 0, 0 },
-        { "config_dir", &(cfg->tc_conf_dir),    TCCONF_TYPE_STRING, 0, 0, 0 },
-        { "out_format", &(cfg->out_fmt_string), TCCONF_TYPE_STRING, 0, 0, 0 },
-        { NULL,         NULL,                   0,                  0, 0, 0 }
+        { "port",         &(cfg->port),           TCCONF_TYPE_INT, TCCONF_FLAG_RANGE, 1024, 65535 },
+        { "host",         &(cfg->host),           TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "logs_dir",     &(cfg->logs_dir),       TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "files_dir",    &(cfg->files_dir),      TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "config_dir",   &(cfg->tc_conf_dir),    TCCONF_TYPE_STRING, 0, 0, 0 },
+        { "out_format",   &(cfg->out_fmt_string), TCCONF_TYPE_STRING, 0, 0, 0 },
+        { NULL,           NULL,                   0,                  0, 0, 0 }
     };
     int ret = TC_ERROR;
     int res = tc_config_read_file(cfg_file, TCRUND_CONFIG_FILE_MAIN,
@@ -153,6 +156,7 @@ static void usage(void)
 
     fprintf(stderr,"\nUsage: %s -f conf [options]\n", PACKAGE);
     fprintf(stderr,"    -f conf     select configuration file to use\n");
+    fprintf(stderr,"    -p file     select user account data file to use\n");
     fprintf(stderr,"    -D          run in debug mode "
                                    "(don't detach from terminal)\n");
     fprintf(stderr,"    -q level    select log level\n");
@@ -191,11 +195,15 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
 {
     int ch = -1, debug_mode = TC_FALSE;
 
-    while ((ch = getopt(argc, argv, "Df:q:vh?")) != -1) {
+    while ((ch = getopt(argc, argv, "Df:p:q:vh?")) != -1) {
         switch (ch) {
           case 'f':
             VALIDATE_OPTION;
             ctx->cfg_file = optarg;
+            break;
+          case 'p':
+            VALIDATE_OPTION;
+            ctx->account_file = optarg;
             break;
           case 'q':
             VALIDATE_OPTION;
@@ -262,6 +270,12 @@ int main(int argc, char *argv[])
             return TCRUND_ERR_NO_CONFIG_FILE;
         }
 
+        if (!TCRunD.account_file) {
+            fprintf(stderr, "[%s] missing users account data file\n", PACKAGE);
+            fprintf(stderr, "[%s] option -p is MANDATORY!\n", PACKAGE);
+            return TCRUND_ERR_NO_CONFIG_FILE;
+        }
+
         err = tc_log_open(TCRunD.log_target, TCRunD.log_level, &argc, &argv);
         if (err) {
             fprintf(stderr, "[%s] error opening log\n", PACKAGE);
@@ -281,6 +295,13 @@ int main(int argc, char *argv[])
             tc_log(TC_LOG_ERR, PACKAGE,
                    "error reading the configuration file `%s'", TCRunD.cfg_file);
             return TCRUND_ERR_BAD_CONFIG_FILE;
+        }
+
+        err = tcr_auth_init(TCR_AUTH_PLAINPASS, TCRunD.account_file);
+        if (err) {
+            tc_log(TC_LOG_ERR, PACKAGE,
+                   "error setting up the authentication module");
+            return TCRUND_ERR_SERVER_SETUP;
         }
 
         err = tcr_server_new(&TCRunD.server, cfg);
@@ -306,6 +327,7 @@ int main(int argc, char *argv[])
 
     tcr_server_cleanup(TCRunD.server);
     tcr_server_del(TCRunD.server);
+    tcr_auth_fini();
 
     return TCRUND_OK;
 }

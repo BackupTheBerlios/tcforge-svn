@@ -40,6 +40,7 @@
 
 #include "tcutil.h"
 
+#include "tcrauth.h"
 #include "process.h"
 #include "server.h"
 
@@ -48,6 +49,14 @@
 
 /*************************************************************************/
 
+typedef struct tcrclient_ TCRClient;
+struct tcrclient_ {
+    char             sessionid[TCR_AUTH_TOKEN_LEN];
+    TCRAuthSession  *as;
+    TCRProcess      *current;
+};
+
+/*************************************************************************/
 
 enum {
     TC_SERVER_IDLE = 0,
@@ -65,9 +74,89 @@ struct tcrserver_ {
     struct event_base  *evbase;
     struct evhttp      *http;
 
-    TCRProcess         *current;
-    uint32_t            instanceid;
+    TCList              clients;
 };
+
+
+/*************************************************************************/
+
+struct find_data {
+    const char *sessionid;
+    TCRClient  *client;
+};
+
+static int client_finder(TCListItem *item, void *userdata)
+{
+    struct find_data *FD = userdata;
+    TCRClient *c = item->data;
+    if (strcmp(c->sessionid, FD->sessionid) == 0) {
+        FD->client = c;
+        return 1;
+    }
+    return 0;
+}
+
+static TCRClient *find_client_by_sessionid(TCRServer *tcs, 
+                                           const char *sessionid)
+{
+    struct find_data FD = {
+        .sessionid = sessionid,
+        .client    = NULL,
+    };
+    if (tcs && sessionid) {
+        tc_list_foreach(&(tcs->clients), client_finder, &FD);
+    }
+    return FD.client;
+}
+
+/*************************************************************************/
+
+typedef struct tcrmessage_ TCRMessage;
+struct tcrmessage_ {
+    xmlrpc_env     *env;
+    /* input */
+    const char     *msgtoken;
+    const char     *sestoken;
+    const char     *instanceid;
+    /* output */
+    char            msgreply[TCR_AUTH_REPLY_LEN];
+    xmlrpc_int32     result;
+    xmlrpc_int32     status;
+};
+
+static TCRClient *tcr_server_validate_message(TCRServer *tcs, TCRMessage *msg)
+{
+    TCRClient *client = NULL;
+    
+    if (msg) {
+        client = find_client_by_sessionid(tcs, msg->sestoken);
+        if (client) {
+            int res = tcr_auth_message_new(client->as, msg->sestoken,
+                                           msg->msgtoken, msg->msgreply);
+            if (res != TCR_AUTH_OK) {
+                client = NULL;
+            }
+        }
+    }
+    return client;
+}
+
+static xmlrpc_value *tcr_server_build_response(TCRMessage *msg)
+{
+    return xmlrpc_build_value(msg->env,
+                              "sii",
+                              msg->msgreply,
+                              msg->result,
+                              msg->status);
+}
+
+static void tcr_server_init_message(TCRMessage *msg, xmlrpc_env *env)
+{
+    if (msg && env) {
+        memset(msg, 0, sizeof(TCRMessage));
+        msg->env = env;
+    }
+}
 
 
 /*************************************************************************/
@@ -83,28 +172,75 @@ static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
                                        xmlrpc_value *paramArray,
                                        void * const userData)
 {
-    return NULL;
+    TCRServer *tcs = userData;
+    TCRClient *client = NULL;
+    TCRMessage msg;
+
+    tcr_server_init_message(&msg, env);
+
+    xmlrpc_decompose_value(env, paramArray,
+                           "ss",
+                           &msg.sestoken, &msg.msgtoken);
+
+    client = tcr_server_validate_message(tcs, &msg);
+
+    return tcr_server_build_response(&msg);
 }
 
 static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
-                                           xmlrpc_value *paramArrayP,
-                                           void * const userData)
+                                               xmlrpc_value *paramArrayP,
+                                               void * const userData)
 {
-    return NULL;
+    TCRServer *tcs = userData;
+    TCRClient *client = NULL;
+    TCRMessage msg;
+
+    memset(&msg, 0, sizeof(msg));
+    xmlrpc_decompose_value(envP, paramArrayP,
+                           "sss",
+                           &msg.sestoken, &msg.msgtoken, &msg.instanceid);
+
+    client = tcr_server_validate_message(tcs, &msg);
+
+    return tcr_server_build_response(&msg);
 }
 
 static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
-                                          xmlrpc_value *paramArrayP,
-                                          void * const userData)
+                                              xmlrpc_value *paramArrayP,
+                                              void * const userData)
 {
-    return NULL;
+    TCRServer *tcs = userData;
+    TCRClient *client = NULL;
+    TCRMessage msg;
+
+    memset(&msg, 0, sizeof(msg));
+    xmlrpc_decompose_value(envP, paramArrayP,
+                           "sss",
+                           &msg.sestoken, &msg.msgtoken, &msg.instanceid);
+
+
+    client = tcr_server_validate_message(tcs, &msg);
+
+    return tcr_server_build_response(&msg);
 }
 
 static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *envP,
-                                         xmlrpc_value *paramArrayP,
-                                         void * const userData)
+                                             xmlrpc_value *paramArrayP,
+                                             void * const userData)
 {
-    return NULL;
+    TCRServer *tcs = userData;
+    TCRClient *client = NULL;
+    TCRMessage msg;
+
+    memset(&msg, 0, sizeof(msg));
+    xmlrpc_decompose_value(envP, paramArrayP,
+                           "sss",
+                           &msg.sestoken, &msg.msgtoken, &msg.instanceid);
+
+
+    client = tcr_server_validate_message(tcs, &msg);
+
+    return tcr_server_build_response(&msg);
 }
 
 /*************************************************************************/
@@ -190,7 +326,7 @@ static int tcr_server_init(TCRServer *tcs)
     tcs->evbase   = event_init();
     tcs->http     = evhttp_new(tcs->evbase);
 
-    return TC_OK;
+    return tc_list_init(&(tcs->clients), 1);
 }
 
 static int tcr_server_setup(TCRServer *tcs)

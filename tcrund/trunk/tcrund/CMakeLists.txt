@@ -1,5 +1,5 @@
 
-add_executable(tcrund tcrund.c logging_file.c process.c server.c)
+add_executable(tcrund tcrund.c logging_file.c process.c server.c tcrauth.c)
 
 find_package(XMLRPC)
 if(XMLRPC_FOUND)
