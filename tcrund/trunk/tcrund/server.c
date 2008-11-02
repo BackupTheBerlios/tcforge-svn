@@ -144,13 +144,13 @@ static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
                                       void * const userData)
 {
     char sessionid[TCR_AUTH_TOKEN_LEN] = { '\0' };
-    TCRServer *tcs = userData;
-    TCRClient *client = NULL;
+//    TCRServer *tcs = userData;
+//    TCRClient *client = NULL;
     const char *username = NULL;
     const char *password = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(envP, paramArrayP,
+    xmlrpc_decompose_value(env, paramArray,
                            "ss", &username, &password);
 
     return xmlrpc_build_value(env,
@@ -169,7 +169,7 @@ static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
     const char *instanceid = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(envP, paramArrayP,
+    xmlrpc_decompose_value(env, paramArray,
                            "ss", &sessionid, &instanceid);
 
     client = tcr_server_validate_request(tcs, sessionid);
@@ -177,8 +177,8 @@ static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
     return xmlrpc_build_value(env, "i", result);
 }
 
-static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
-                                               xmlrpc_value *paramArrayP,
+static xmlrpc_value *tcr_server_process_status(xmlrpc_env *env,
+                                               xmlrpc_value *paramArray,
                                                void * const userData)
 {
     TCRServer *tcs = userData;
@@ -187,7 +187,7 @@ static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
     const char *instanceid = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(envP, paramArrayP,
+    xmlrpc_decompose_value(env, paramArray,
                            "ss", &sessionid, &instanceid);
 
     client = tcr_server_validate_request(tcs, sessionid);
@@ -204,8 +204,8 @@ static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
 
 }
 
-static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
-                                              xmlrpc_value *paramArrayP,
+static xmlrpc_value *tcr_server_process_start(xmlrpc_env *env,
+                                              xmlrpc_value *paramArray,
                                               void * const userData)
 {
     TCRServer *tcs = userData;
@@ -214,7 +214,7 @@ static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
     const char *instanceid = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(envP, paramArrayP,
+    xmlrpc_decompose_value(env, paramArray,
                            "ss", &sessionid, &instanceid);
 
     client = tcr_server_validate_request(tcs, sessionid);
@@ -222,8 +222,8 @@ static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
     return xmlrpc_build_value(env, "i", result);
 }
 
-static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *envP,
-                                             xmlrpc_value *paramArrayP,
+static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *env,
+                                             xmlrpc_value *paramArray,
                                              void * const userData)
 {
     TCRServer *tcs = userData;
@@ -232,7 +232,7 @@ static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *envP,
     const char *instanceid = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(envP, paramArrayP,
+    xmlrpc_decompose_value(env, paramArray,
                            "ss", &sessionid, &instanceid);
 
     client = tcr_server_validate_request(tcs, sessionid);
@@ -329,6 +329,13 @@ static int tcr_server_init(TCRServer *tcs)
 
 static int tcr_server_setup(TCRServer *tcs)
 {
+    xmlrpc_registry_add_method(&tcs->env,
+                               tcs->registry,
+                               NULL,
+                               "TC.version",
+                               tcr_server_version,
+                               tcs);
+
     xmlrpc_registry_add_method(&tcs->env,
                                tcs->registry,
                                NULL,
