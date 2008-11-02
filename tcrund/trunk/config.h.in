@@ -1,0 +1,38 @@
+#ifndef TCRUND_CONFIG_H
+#define TCRUND_CONFIG_H
+
+/* static definitions */
+#ifndef PACKAGE
+#define PACKAGE "tcrund"
+#endif
+
+#ifndef VERSION
+#define VERSION "0.0.1"
+#endif
+
+/* the following are detected by cmake */
+
+/* IBP check skipped, we never need it here */
+
+#cmakedefine HAVE_MALLOC_H
+
+#cmakedefine HAVE_STRING_H
+
+#cmakedefine HAVE_LIBINTL_H
+
+#cmakedefine HAVE_GCC_ATTRIBUTES
+
+#cmakedefine HAVE_STRTOF
+
+#cmakedefine HAVE_GETPAGESIZE
+
+#cmakedefine HAVE_GETTIMEOFDAY
+
+#cmakedefine HAVE_VSSCANF
+
+#cmakedefine HAVE_STRLCAT
+
+#cmakedefine HAVE_STRLCPY
+
+
+#endif /* TCRUND_CONFIG_H */
