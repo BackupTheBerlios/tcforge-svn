@@ -21,6 +21,7 @@
 #ifndef TCRAUTH_H
 #define TCRAUTH_H
 
+
 typedef struct tcrauthsession_ TCRAuthSession;
 
 enum {

@@ -111,61 +111,52 @@ static TCRClient *find_client_by_sessionid(TCRServer *tcs,
 
 /*************************************************************************/
 
-typedef struct tcrmessage_ TCRMessage;
-struct tcrmessage_ {
-    xmlrpc_env     *env;
-    /* input */
-    const char     *msgtoken;
-    const char     *sestoken;
-    const char     *instanceid;
-    /* output */
-    char            msgreply[TCR_AUTH_REPLY_LEN];
-    xmlrpc_int32     result;
-    xmlrpc_int32     status;
-};
-
-static TCRClient *tcr_server_validate_message(TCRServer *tcs, TCRMessage *msg)
+static TCRClient *tcr_server_validate_request(TCRServer *tcs,
+                                              const char *sessionid)
 {
-    TCRClient *client = NULL;
-    
-    if (msg) {
-        client = find_client_by_sessionid(tcs, msg->sestoken);
-        if (client) {
-            int res = tcr_auth_message_new(client->as, msg->sestoken,
-                                           msg->msgtoken, msg->msgreply);
-            if (res != TCR_AUTH_OK) {
-                client = NULL;
-            }
+    TCRClient *client = find_client_by_sessionid(tcs, sessionid);
+    if (client) {
+        int res = tcr_auth_message_new(client->as, sessionid,
+                                       NULL, NULL);
+        if (res != TCR_AUTH_OK) {
+            client = NULL;
         }
     }
     return client;
 }
 
-static xmlrpc_value *tcr_server_build_response(TCRMessage *msg)
-{
-    return xmlrpc_build_value(msg->env,
-                              "sii",
-                              msg->msgreply,
-                              msg->result,
-                              msg->status);
-}
-
-static void tcr_server_init_message(TCRMessage *msg, xmlrpc_env *env)
-{
-    if (msg && env) {
-        memset(msg, 0, sizeof(TCRMessage));
-        msg->env = env;
-    }
-}
-
 
 /*************************************************************************/
+
+static xmlrpc_value *tcr_server_version(xmlrpc_env *env,
+                                        xmlrpc_value *paramArray,
+                                        void * const userData)
+{
+    return xmlrpc_build_value(env,
+                              "{s:i,s:i}",
+                              "protocol", TCRUND_PROTOCOL_VERSION,
+                              "server",   TCRUND_SERVER_VERSION);
+}
+
 
 static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
                                       xmlrpc_value *paramArray,
                                       void * const userData)
 {
-    return NULL;
+    char sessionid[TCR_AUTH_TOKEN_LEN] = { '\0' };
+    TCRServer *tcs = userData;
+    TCRClient *client = NULL;
+    const char *username = NULL;
+    const char *password = NULL;
+    int result = -1;
+
+    xmlrpc_decompose_value(envP, paramArrayP,
+                           "ss", &username, &password);
+
+    return xmlrpc_build_value(env,
+                              "{s:i,s:s}",
+                              "result",    result,
+                              "sessionid", sessionid);
 }
 
 static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
@@ -174,17 +165,16 @@ static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
 {
     TCRServer *tcs = userData;
     TCRClient *client = NULL;
-    TCRMessage msg;
+    const char *sessionid = NULL;
+    const char *instanceid = NULL;
+    int result = -1;
 
-    tcr_server_init_message(&msg, env);
+    xmlrpc_decompose_value(envP, paramArrayP,
+                           "ss", &sessionid, &instanceid);
 
-    xmlrpc_decompose_value(env, paramArray,
-                           "ss",
-                           &msg.sestoken, &msg.msgtoken);
+    client = tcr_server_validate_request(tcs, sessionid);
 
-    client = tcr_server_validate_message(tcs, &msg);
-
-    return tcr_server_build_response(&msg);
+    return xmlrpc_build_value(env, "i", result);
 }
 
 static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
@@ -193,16 +183,25 @@ static xmlrpc_value *tcr_server_process_status(xmlrpc_env *envP,
 {
     TCRServer *tcs = userData;
     TCRClient *client = NULL;
-    TCRMessage msg;
+    const char *sessionid = NULL;
+    const char *instanceid = NULL;
+    int result = -1;
 
-    memset(&msg, 0, sizeof(msg));
     xmlrpc_decompose_value(envP, paramArrayP,
-                           "sss",
-                           &msg.sestoken, &msg.msgtoken, &msg.instanceid);
+                           "ss", &sessionid, &instanceid);
 
-    client = tcr_server_validate_message(tcs, &msg);
+    client = tcr_server_validate_request(tcs, sessionid);
 
-    return tcr_server_build_response(&msg);
+    return xmlrpc_build_value(env,
+                              "{s:i,s:i,s:i,s:i,s:i,s:i,s:i}",
+                              "result",  result,
+                              "status",  -1,
+                              "encoded", 0, 
+                              "dropped", 0,
+                              "import",  0,
+                              "filter",  0,
+                              "export",  0);
+
 }
 
 static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
@@ -211,17 +210,16 @@ static xmlrpc_value *tcr_server_process_start(xmlrpc_env *envP,
 {
     TCRServer *tcs = userData;
     TCRClient *client = NULL;
-    TCRMessage msg;
+    const char *sessionid = NULL;
+    const char *instanceid = NULL;
+    int result = -1;
 
-    memset(&msg, 0, sizeof(msg));
     xmlrpc_decompose_value(envP, paramArrayP,
-                           "sss",
-                           &msg.sestoken, &msg.msgtoken, &msg.instanceid);
+                           "ss", &sessionid, &instanceid);
 
+    client = tcr_server_validate_request(tcs, sessionid);
 
-    client = tcr_server_validate_message(tcs, &msg);
-
-    return tcr_server_build_response(&msg);
+    return xmlrpc_build_value(env, "i", result);
 }
 
 static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *envP,
@@ -230,17 +228,17 @@ static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *envP,
 {
     TCRServer *tcs = userData;
     TCRClient *client = NULL;
-    TCRMessage msg;
+    const char *sessionid = NULL;
+    const char *instanceid = NULL;
+    int result = -1;
 
-    memset(&msg, 0, sizeof(msg));
     xmlrpc_decompose_value(envP, paramArrayP,
-                           "sss",
-                           &msg.sestoken, &msg.msgtoken, &msg.instanceid);
+                           "ss", &sessionid, &instanceid);
 
+    client = tcr_server_validate_request(tcs, sessionid);
 
-    client = tcr_server_validate_message(tcs, &msg);
+    return xmlrpc_build_value(env, "i", result);
 
-    return tcr_server_build_response(&msg);
 }
 
 /*************************************************************************/

@@ -27,6 +27,10 @@
 #include "tcutil.h"
 
 
+#define TCRUND_PROTOCOL_VERSION         1
+#define TCRUND_SERVER_VERSION           1
+
+
 #define TCRUND_DEFAULT_HOST		"127.0.0.1"
 #define TCRUND_DEFAULT_PORT		39000
 #define TCRUND_DEFAULT_LOG_DIR		"/var/log/tcrund/"

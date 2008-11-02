@@ -1,0 +1,103 @@
+TCRUND PROTOCOL DOCUMENTATION
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Introduction
+============
+
+The protocol is implemented using XML-RPC (over http). The default IP port is 39000.
+
+All XML-RPC requests should go to the following URI: http://host:port/XML-RPC
+
+messages:
+
+* TC.version
+  ----------
+  Get the version of the server and the protocol supported by the server.
+
+  Parameters:
+    None
+  Return Value:
+    A struct containing the following fields:
+    * protocol : (int) version of the protocol supported by the server.
+                 All lower versions of the protcol MUST be supported too.
+                 The protocol version deterimes how to communicate with the server.
+    * server   : (int) version of the server.
+                 All lower versions of the server actions MUST be supported too.
+                 The server version determines what the server can do.
+
+* TC.user.login
+  -------------
+  Authenticate an user and open a new session. When the session is succesfully opened,
+  a client can actually issue commands to the server.
+  Only one session per-user can be active at time.
+
+  Parameters:
+    username : (string) the username to authenticate.
+    password : (string) the password of the username.
+  Return Value:
+    A struct containing the following fields:
+    * result    : (int) result of the operation.
+                   0 -> OK
+                  -1 -> login failed 
+    * sessionid : (string) opaque string to use for all future messages except login.
+                  contains nothing (empty string) if result is != 0.
+
+* TC.user.logout
+  --------------
+  Destroy a formerly opened session, resetting the server state.
+
+  Parameters:
+    sessionid : (string) the sessionid (returned by login message) to close
+  Return Value:
+    result : (int) result of the operation.
+             0 -> OK
+            -1 -> logout failed
+
+* TC.process.start
+  ----------------
+  Start a predefined instance of transcode.
+
+  Parameters:
+    sessionid  : (string) the id of the session - obtained as response of a succesfull login.
+    instanceid : (string) the id of the instance to start.
+  Return Value:
+    result : (int) result of the operation.
+             0 -> OK
+             1 -> unknown instance.
+            -1 -> startup failed.
+
+* TC.process.stop
+  ---------------
+  Stop a running instance of transcode.
+ 
+  Parameters:
+    sessionid  : (string) the id of the session - obtained as response of a succesfull login.
+    instanceid : (string) the id of the instance to stop.
+  Return Value:
+    result : (int) result of the operation.
+             0 -> OK
+             1 -> instance not running.
+            -1 -> stop failed.
+
+* TC.process.status
+  -----------------
+  Get the status of a running instance.
+
+  Parameters:
+    sessionid  : (string) the id of the session - obtained as response of a succesfull login.
+    instanceid : (string) the id of the instance to stop.
+  Return Value:
+    A struct containing the following fields:
+    * result    : (int) result of the operation.
+                  0 -> OK
+                  1 -> instance not running.
+                 -1 -> query failed.
+    * status    : (int) status of the instance.
+                  0 -> instance running.
+                 -1 -> instance not running.
+    * encoded   : (int) number of frames encoded so far.
+    * dropped   : (int) number of frames dropped so far.
+    * import    : (int) number of frames staging into the import layer.
+    * filter    : (int) number of frames staging into the filter layer.
+    * export    : (int) number of frames staging into the export layer.
+
