@@ -39,6 +39,6 @@ docs_DATA = ChangeLog
 pkgconfig_DATA = transcode-$(VERSION).pc
 
 transcode-$(VERSION).pc: transcode.pc
-	cp schroedinger.pc schroedinger-$(SCHRO_MAJORMINOR).pc
+	cp transcode.pc transcode-$(VERSION).pc
 
 CLEANFILES = transcode-$(VERSION).pc
