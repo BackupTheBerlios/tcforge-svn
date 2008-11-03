@@ -35,3 +35,10 @@ EXTRA_DIST = STYLE transcode.spec
 
 docsdir = $(datadir)/doc/transcode
 docs_DATA = ChangeLog
+
+pkgconfig_DATA = transcode-$(VERSION).pc
+
+transcode-$(VERSION).pc: transcode.pc
+	cp schroedinger.pc schroedinger-$(SCHRO_MAJORMINOR).pc
+
+CLEANFILES = transcode-$(VERSION).pc

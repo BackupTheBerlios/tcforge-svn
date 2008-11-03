@@ -1397,7 +1397,8 @@ AC_ARG_WITH(prof-path,
   PROF_PATH=$withval)
 AC_SUBST(PROF_PATH)
 
-TC_PREFIX=`pwd`
+pkgconfigdir="\$(libdir)/pkgconfig"
+AC_SUBST(pkgconfigdir)
 
 X_CFLAGS=`echo $X_CFLAGS | sed -e 's/  */ /g'`
 X_PRE_LIBS=`echo $X_PRE_LIBS | sed -e 's/  */ /g'`
@@ -1453,7 +1454,7 @@ AC_CONFIG_FILES([
 	transcode.spec
 	filter/parse_csv.awk
 	filter/filter_list.awk
-	tc_build.mak
+	transcode.pc
 ])
 AC_OUTPUT
 
