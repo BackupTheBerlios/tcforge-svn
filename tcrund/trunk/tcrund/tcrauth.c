@@ -92,11 +92,10 @@ int tcr_auth_fini(void)
 
 
 
-int tcr_auth_session_new(TCRAuthSession **as, const char *username,
-                         const char *token, char *reply)
+TCRAuthSession *tcr_auth_session_new(const char *username, const char *token,
+                                     char *reply, int *error)
 {
-    int ret = TC_ERROR;
-    return ret;
+    return NULL;
 }
 
 

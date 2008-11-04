@@ -50,9 +50,8 @@ int tcr_auth_init(TCRAuthMethod authmethod, const char *cfgfile);
 int tcr_auth_fini(void);
 
 
-
-int tcr_auth_session_new(TCRAuthSession **as, const char *username,
-                         const char *token, char *reply);
+TCRAuthSession *tcr_auth_session_new(const char *username, const char *token,
+                                     char *reply, int *error);
 
 int tcr_auth_session_del(TCRAuthSession *as, const char *sestoken);
 
