@@ -25,8 +25,8 @@ enum {
      TCR_PROC_CMD_OUT_BUF_LEN	= 256
 };
 
-typedef enum procommandcode_ TCRCommandCode;
-enum tcprocesscommandcode_ {
+typedef enum tcrcommandcode_ TCRCommandCode;
+enum tcrcommandcode_ {
      TCR_COMMAND_CODE_UNKNOWN	=  0,
      TCR_COMMAND_CODE_STOP	=  1,
      TCR_COMMAND_CODE_STATUS    =  2,
@@ -46,6 +46,8 @@ int tcr_process_run(TCRProcess *proc);
 
 int tcr_process_send_command(TCRProcess *proc, TCRCommandCode cmd,
                              char *args[], char *outbuf);
+
+int tcr_process_status(TCRProcess *proc);
 
 int tcr_process_del(TCRProcess *proc);
 
