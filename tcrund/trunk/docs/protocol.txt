@@ -37,8 +37,9 @@ messages:
   Return Value:
     A struct containing the following fields:
     * result    : (int) result of the operation.
-                   0 -> OK
-                  -1 -> login failed 
+                     0 -> OK
+                    -1 -> login failed
+                  -100 -> internal error (resource allocation failed) 
     * sessionid : (string) opaque string to use for all future messages except login.
                   contains nothing (empty string) if result is != 0.
 
