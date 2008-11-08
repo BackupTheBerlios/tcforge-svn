@@ -82,12 +82,12 @@ static TCRAuthContext TCRAuth;
 
 int tcr_auth_init(TCRAuthMethod authmethod, const char *usersfile)
 {
-    return TC_ERROR;
+    return TC_OK;
 }
 
 int tcr_auth_fini(void)
 {
-    return TC_ERROR;
+    return TC_OK;
 }
 
 
