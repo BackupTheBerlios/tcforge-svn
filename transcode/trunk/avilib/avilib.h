@@ -43,11 +43,6 @@
 
 #define AVI_MAX_TRACKS 8
 
-enum {
-  AVI_ERROR = -1,
-  AVI_OK = 0,
-};
-
 typedef struct
 {
   off_t key;
@@ -297,8 +292,6 @@ typedef struct
 #define AVI_ERR_NO_IDX      13     /* The file has been opened with
                                       getIndex==0, but an operation has been
                                       performed that needs an index */
-#define AVI_ERR_NO_BUFSIZE  14     /* Given buffer is not large enough
-                                      to hold the requested data */
 
 /* Possible Audio formats */
 
@@ -327,9 +320,9 @@ void AVI_set_video(avi_t *AVI, int width, int height, double fps,
 void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format,
 		   long mp3rate);
 int  AVI_write_frame(avi_t *AVI, const char *data, long bytes, int keyframe);
+int  AVI_dup_frame(avi_t *AVI);
 int  AVI_write_audio(avi_t *AVI, const char *data, long bytes);
-//int  AVI_dup_frame(avi_t *AVI);
-//int  AVI_append_audio(avi_t *AVI, const char *data, long bytes);
+int  AVI_append_audio(avi_t *AVI, const char *data, long bytes);
 long AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 long AVI_bytes_written(avi_t *AVI);
@@ -339,7 +332,8 @@ avi_t *AVI_open_input_indexfile(const char *filename, int getIndex,
 				const char *indexfile);
 avi_t *AVI_open_fd(int fd, int getIndex);
 avi_t *AVI_open_indexfd(int fd, int getIndex, const char *indexfile);
-
+int avi_parse_input_file(avi_t *AVI, int getIndex);
+int avi_parse_index_from_file(avi_t *AVI, const char *filename);
 long AVI_audio_mp3rate(avi_t *AVI);
 long AVI_audio_padrate(avi_t *AVI);
 long AVI_video_frames(avi_t *AVI);
@@ -364,7 +358,6 @@ int  AVI_seek_start(avi_t *AVI);
 int  AVI_set_video_position(avi_t *AVI, long frame);
 long AVI_get_video_position(avi_t *AVI, long frame);
 long AVI_read_frame(avi_t *AVI, char *vidbuf, int *keyframe);
-long AVI_read_video(avi_t *AVI, char *vidbuf, long bytes, int *keyframe);
 
 int  AVI_set_audio_position(avi_t *AVI, long byte);
 int  AVI_set_audio_bitrate(avi_t *AVI, long bitrate);
@@ -380,13 +373,21 @@ long AVI_audio_codecf_offset(avi_t *AVI);
 long AVI_video_codech_offset(avi_t *AVI);
 long AVI_video_codecf_offset(avi_t *AVI);
 
+int  AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
+                               char *audbuf, long max_audbuf,
+                               long *len);
+
 void AVI_print_error(const char *str);
-const char *AVI_strerror(void);
+char *AVI_strerror(void);
+char *AVI_syserror(void);
 
 int AVI_scan(const char *name);
 int AVI_dump(const char *name, int mode);
 
+int AVI_file_check(const char *import_file);
+
 uint64_t AVI_max_size(void);
+int avi_update_header(avi_t *AVI);
 
 int AVI_set_audio_track(avi_t *AVI, int track);
 int AVI_get_audio_track(avi_t *AVI);
@@ -430,19 +431,20 @@ struct wave_header
 	struct chunk_struct  data;
 };
 
-struct AVIStreamHeader {
-  long  fccType;
-  long  fccHandler;
-  long  dwFlags;
-  long  dwPriority;
-  long  dwInitialFrames;
-  long  dwScale;
-  long  dwRate;
-  long  dwStart;
-  long  dwLength;
-  long  dwSuggestedBufferSize;
-  long  dwQuality;
-  long  dwSampleSize;
-};
+struct AVIStreamHeader
+{
+  uint32_t  fccType;
+  uint32_t  fccHandler;
+  uint32_t  dwFlags;
+  uint32_t  dwPriority;
+  uint32_t  dwInitialFrames;
+  uint32_t  dwScale;
+  uint32_t  dwRate;
+  uint32_t  dwStart;
+  uint32_t  dwLength;
+  uint32_t  dwSuggestedBufferSize;
+  uint32_t  dwQuality;
+  uint32_t  dwSampleSize;
+} __attribute__((__packed__));
 
-#endif /* AVILIB_H */
+#endif

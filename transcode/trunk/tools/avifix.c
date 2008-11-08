@@ -56,299 +56,271 @@ static void usage(int status)
     printf("    -b bitrate        audio encoder bitrate (kbps)\n");
     printf("    -e r[,b[,c]]      audio stream parameter (samplerate,bits,channels)\n");
     printf("    -a num            audio track number [0]\n");
+    printf("    -d                print debug information\n");
     printf("    -v                print version\n");
     exit(status);
 }
 
-int main(int argc, char *argv[])
+/* read or die! */
+static void hdr_read(const char *tag, int fd, void *hdr, size_t bytes)
 {
-  struct common_struct rtf;
-  struct AVIStreamHeader ash, vsh;
-
-  avi_t *avifile;
-
-  int n, ch, brate=0, bytes, val1=0, val2=1;
-
-  int a_rate, a_chan, a_bits;
-
-  int fd;
-
-  int id=0, aud=0, vid=0, rat=0, cha=0, sam=0, bit=0, fps=0;
-
-  int track_num=0;
-
-  long ah_off, af_off, vh_off, vf_off;
-
-  char *str=NULL;
-
-  char codec[5];
-
-  char *filename=NULL;
-
-  ac_init(AC_ALL);
-
-  if(argc==1) usage(EXIT_FAILURE);
-
-  while ((ch = getopt(argc, argv, "f:i:N:F:vb:e:a:?h")) != -1)
-    {
-
-      switch (ch) {
-
-      case 'N':
-
-	  if(optarg[0]=='-') usage(EXIT_FAILURE);
-	  id = strtol(optarg, NULL, 16);
-
-	  if(id <  0)
-	      fprintf(stderr, "invalid parameter set for option -N");
-
-	  aud = 1;
-	  break;
-
-
-      case 'a':
-
-	if(optarg[0]=='-') usage(EXIT_FAILURE);
-	track_num = atoi(optarg);
-
-	if(track_num<0) usage(EXIT_FAILURE);
-
-	break;
-
-
-      case 'f':
-
-	  if(optarg[0]=='-') usage(EXIT_FAILURE);
-	  n=sscanf(optarg,"%d,%d", &val1, &val2);
-	  if(n!=2 || val1 < 0 || val2 < 0) fprintf(stderr, "invalid parameter set for option -f");
-
-	  fps = 1;
-	  break;
-
-      case 'F':
-
-	  if(optarg[0]=='-') usage(EXIT_FAILURE);
-	  str = optarg;
-
-	  if(strlen(str) > 4 || strlen(str) == 0)
-	      fprintf(stderr, "invalid parameter set for option -F");
-
-	  vid = 1;
-	  break;
-
-      case 'i':
-
-	  if(optarg[0]=='-') usage(EXIT_FAILURE);
-	  filename = optarg;
-	  break;
-
-      case 'b':
-
-	  if(optarg[0]=='-') usage(EXIT_FAILURE);
-	  brate = atoi(optarg);
-	  rat = 1;
-	  break;
-
-      case 'v':
-
-	  version();
-	  exit(0);
-
-      case 'e':
-
-	if(optarg[0]=='-') usage(EXIT_FAILURE);
-
-	n=sscanf(optarg,"%d,%d,%d", &a_rate, &a_bits, &a_chan);
-
-	switch (n) {
-
-	case 3:
-	  cha=1;
-	case 2:
-	  bit=1;
-	case 1:
-	  sam=1;
-	  break;
-	default:
-	  fprintf(stderr, "invalid parameter set for option -e");
-	}
-
-	break;
-
-      case 'h':
-	  usage(EXIT_SUCCESS);
-      default:
-	  usage(EXIT_FAILURE);
-      }
+    ssize_t r = read(fd, hdr, bytes);
+    if (bytes != r) {
+        tc_log_error(EXE, "(%s) error reading AVI-file", tag);
+        exit(1);
     }
-
-
-  if(filename==NULL) usage(EXIT_FAILURE);
-
-  printf("[%s] scanning AVI-file %s for header information\n", EXE, filename);
-
-  // open file
-  if(NULL == (avifile = AVI_open_input_file(filename,1))) {
-      AVI_print_error("AVI open");
-      exit(1);
-  }
-
-  AVI_info(avifile);
-
-  //switch to requested audio_channel
-
-  if(AVI_set_audio_track(avifile, track_num)<0) {
-    fprintf(stderr, "invalid audio track\n");
-  }
-
-  /* -----------------------------------------------
-   *
-   * get header substructure offsets
-   *
-   * -----------------------------------------------*/
-
-  // get audio information structure offset
-  ah_off = AVI_audio_codech_offset(avifile);
-  af_off = AVI_audio_codecf_offset(avifile);
-
-  // get video information structure offset
-  vh_off = AVI_video_codech_offset(avifile);
-  vf_off = AVI_video_codecf_offset(avifile);
-
-  AVI_close(avifile);
-
-  if(0) printf("AH [0x%lx] AF [0x%lx] VH [0x%lx] VF [0x%lx]\n", ah_off, af_off, vh_off, vf_off);
-
-  // open file for writing
-  if((fd = open(filename, O_RDWR))<0) {
-      perror("open");
-      exit(1);
-  }
-
-  // check video codecs
-  lseek(fd,vh_off,SEEK_SET);
-
-  read(fd, codec, 4);
-  codec[4] = 0;
-
-  if(0) printf("found video codec (strh): %s\n", ((strlen(codec)==0)? "RGB": codec));
-
-  lseek(fd,vf_off,SEEK_SET);
-
-  read(fd, codec, 4);
-  codec[4] = 0;
-
-  if(0) printf("found video codec (strf): %s\n", ((strlen(codec)==0)? "RGB": codec));
-
-  //----------------------------
-  //
-  //  VIDEO
-  //
-  //----------------------------
-
-  if(fps) {
-
-      lseek(fd, vh_off-4, SEEK_SET);
-      if((bytes=read(fd, (char*) &vsh, sizeof(vsh))) != sizeof(vsh)) {
-	  fprintf(stderr, "(%s) error reading AVI-file\n", __FILE__);
-	  exit(1);
-    }
-
-      if(fps) {
-	  vsh.dwRate  = (long) val1;
-	  vsh.dwScale = (long) val2;
-      }
-
-      lseek(fd, vh_off-4, SEEK_SET);
-      write(fd, (char*) &vsh, sizeof(vsh));
-  }
-
-
-  // set video codec
-
-  if(vid) {
-      lseek(fd,vh_off,SEEK_SET);
-
-      // video
-      if(strncmp(str,"RGB",3)==0) {
-	  memset(codec,0,4);
-	  write(fd, codec, 4);
-      } else
-	  write(fd, str, 4);
-
-      lseek(fd,vf_off,SEEK_SET);
-
-      // video
-      if(strncmp(str,"RGB",3)==0) {
-	  memset(codec,0,4);
-	  write(fd, codec, 4);
-      } else
-	  write(fd, str, 4);
-  }
-
-  //----------------------------
-  //
-  //  AUDIO
-  //
-  //----------------------------
-
-  if(aud | rat | bit | cha | sam) {
-
-      lseek(fd, ah_off, SEEK_SET);
-      if((bytes=read(fd, (char*) &ash, sizeof(ash))) != sizeof(ash)) {
-	  fprintf(stderr, "(%s) error reading AVI-file\n", __FILE__);
-	  exit(1);
-      }
-
-
-      lseek(fd, af_off, SEEK_SET);
-      if((bytes=read(fd, (char*) &rtf, sizeof(rtf))) != sizeof(rtf)) {
-	  fprintf(stderr, "(%s) error reading AVI-file\n", __FILE__);
-	  exit(1);
-    }
-
-
-      if(aud) rtf.wFormatTag = (unsigned short) id;
-
-      if(rat) {
-	  rtf.dwAvgBytesPerSec = (long) 1000*brate/8;
-	  ash.dwRate = (long) 1000*brate/8;
-	  ash.dwScale = 1;
-      }
-
-      if(cha) rtf.wChannels = (short) a_chan;
-
-      if(bit) rtf.wBitsPerSample = (short) a_bits;
-
-      if(sam) rtf.dwSamplesPerSec = (long) a_rate;
-
-      lseek(fd, ah_off ,SEEK_SET);
-      write(fd, (char*) &ash, sizeof(ash));
-
-      lseek(fd, af_off ,SEEK_SET);
-      write(fd, (char*) &rtf, sizeof(rtf));
-
-  }
-
-  close(fd);
-
-  // verify AVI-file header
-
-  if(NULL == (avifile = AVI_open_input_file(filename,1))) {
-      AVI_print_error("AVI open");
-      exit(1);
-  }
-
-  printf("[%s] successfully updated AVI file %s\n", EXE, filename);
-
-  AVI_info(avifile);
-
-  AVI_close(avifile);
-
-  return(0);
 }
 
-#include "libtcutil/static_tcutil.h"
+/* write or die! */
+static void hdr_write(const char *tag, int fd, const void *hdr, size_t bytes)
+{
+    ssize_t w = write(fd, hdr, bytes);
+    if (bytes != w) {
+        tc_log_error(EXE, "(%s) error writing AVI-file", tag);
+        exit(1);
+    }
+}
+
+
+#define VALIDATE_OPTION if (optarg[0]=='-') usage(EXIT_FAILURE)
+
+enum {
+    /* video in the lower bits */
+    CHANGE_VIDEO_FOURCC = (1UL),
+    CHANGE_VIDEO_FPS    = (1UL << 1),
+    /* audio in the higher bits */
+    CHANGE_AUDIO_FMT    = (1UL << 16),
+    CHANGE_AUDIO_BR     = (1UL << 17),
+    CHANGE_AUDIO_RATE   = (1UL << 18),
+    CHANGE_AUDIO_BITS   = (1UL << 19),
+    CHANGE_AUDIO_CHANS  = (1UL << 20)
+};
+#define CHANGE_NOTHING      (0UL)
+#define NEED_AUDIO_CHANGE(FLAGS)    (FLAGS & 0xFFFF0000)
+#define NEED_VIDEO_CHANGE(FLAGS)    (FLAGS & 0x0000FFFF)
+
+
+
+int main(int argc, char *argv[])
+{
+    struct common_struct rtf;
+    struct AVIStreamHeader ash, vsh;
+    avi_t *avifile;
+    int err, fd, id = 0, track_num = 0, n, ch, debug = TC_FALSE;
+    int brate = 0, val1 = 0, val2 = 1, a_rate, a_chan, a_bits;
+    long ah_off = 0, af_off = 0, vh_off = 0, vf_off = 0;
+    char codec[5], *str = NULL, *filename = NULL;
+    uint32_t change = CHANGE_NOTHING;
+
+    ac_init(AC_ALL);
+
+    if (argc==1) usage(EXIT_FAILURE);
+
+    while ((ch = getopt(argc, argv, "df:i:N:F:vb:e:a:?h")) != -1) {
+        switch (ch) {
+          case 'N':
+            VALIDATE_OPTION;
+            id = strtol(optarg, NULL, 16);
+            if (id <  0) {
+                tc_log_error(EXE, "invalid parameter set for option -N");
+            } else {
+                change |= CHANGE_AUDIO_FMT;
+            }
+            break;
+
+          case 'a':
+            VALIDATE_OPTION;
+            track_num = atoi(optarg);
+            if (track_num < 0)
+                usage(EXIT_FAILURE);
+            break;
+
+          case 'f':
+            VALIDATE_OPTION;
+	        n = sscanf(optarg,"%d,%d", &val1, &val2);
+            if (n != 2 || val1 < 0 || val2 < 0) {
+                tc_log_error(EXE, "invalid parameter set for option -f");
+            } else {
+                change |= CHANGE_VIDEO_FPS;
+            }
+            break;
+
+          case 'F':
+            VALIDATE_OPTION;
+            str = optarg;
+            if(strlen(str) > 4 || strlen(str) == 0) {
+                tc_log_error(EXE, "invalid parameter set for option -F");
+            } else {
+                change |= CHANGE_VIDEO_FOURCC;
+            }
+            break;
+
+          case 'i':
+            VALIDATE_OPTION;
+            filename = optarg;
+            break;
+
+          case 'b':
+            VALIDATE_OPTION;
+            brate = atoi(optarg);
+            change |= CHANGE_AUDIO_BR;
+            break;
+
+          case 'v':
+            version();
+            exit(0);
+
+          case 'e':
+            VALIDATE_OPTION;
+            n = sscanf(optarg,"%d,%d,%d", &a_rate, &a_bits, &a_chan);
+            switch (n) {
+              case 3:
+                change |= CHANGE_AUDIO_RATE;
+              case 2:
+                change |= CHANGE_AUDIO_BITS;
+              case 1:
+                change |= CHANGE_AUDIO_CHANS;
+                break;
+              default:
+                tc_log_error(EXE, "invalid parameter set for option -e");
+            }
+            break;
+
+          case 'd':
+            debug = TC_TRUE;
+            break;
+          case 'h':
+            usage(EXIT_SUCCESS);
+          default:
+            usage(EXIT_FAILURE);
+        }
+    }
+
+    if (!filename)
+        usage(EXIT_FAILURE);
+
+    tc_log_info(EXE, "scanning AVI-file %s for header information", filename);
+
+    avifile = AVI_open_input_file(filename, 1);
+    if (!avifile) {
+        AVI_print_error("AVI open");
+        exit(1);
+    }
+
+    AVI_info(avifile);
+
+    if (AVI_set_audio_track(avifile, track_num) < 0) {
+        tc_log_error(EXE, "invalid audio track");
+    }
+
+    ah_off = AVI_audio_codech_offset(avifile);
+    af_off = AVI_audio_codecf_offset(avifile);
+    vh_off = AVI_video_codech_offset(avifile);
+    vf_off = AVI_video_codecf_offset(avifile);
+
+    if (debug) {
+        tc_log_info(EXE,
+                    "offsets: ah=%li af=%li vh=%li vf=%li",
+                    ah_off, af_off, vh_off, vf_off);
+    }
+
+    AVI_close(avifile);
+
+    fd = open(filename, O_RDWR);
+    if (fd < 0) {
+        perror("open");
+        exit(1);
+    }
+
+    lseek(fd, vh_off, SEEK_SET);
+    hdr_read("video codec [h]", fd, codec, 4);
+    codec[4] = 0;
+
+    lseek(fd, vf_off, SEEK_SET);
+    hdr_read("video codec [f]", fd, codec, 4);
+    codec[4] = 0;
+
+    if (change & CHANGE_VIDEO_FPS) {
+        lseek(fd, vh_off-4, SEEK_SET);
+        hdr_read("video fps", fd, &vsh, sizeof(vsh));
+
+	    vsh.dwRate  = (long)val1;
+	    vsh.dwScale = (long)val2;
+
+        lseek(fd, vh_off-4, SEEK_SET);
+        hdr_write("video fps", fd, &vsh, sizeof(vsh));
+    }
+
+    if (change & CHANGE_VIDEO_FOURCC) {
+        lseek(fd,vh_off,SEEK_SET);
+
+        if (strncmp(str,"RGB",3) == 0) {
+            hdr_write("video 4cc", fd, codec, 4);
+        } else {
+            hdr_write("video 4cc", fd, str, 4);
+        }
+
+        lseek(fd,vf_off,SEEK_SET);
+
+        if(strncmp(str,"RGB",3)==0) {
+	        memset(codec, 0, 4);
+            hdr_write("video 4cc", fd, codec, 4);
+        } else {
+            hdr_write("video 4cc", fd, str, 4);
+        }
+    }
+
+    if (NEED_AUDIO_CHANGE(change)) {
+        lseek(fd, ah_off, SEEK_SET);
+        hdr_read("audio header [h]", fd, &ash, sizeof(ash));
+
+        lseek(fd, af_off, SEEK_SET);
+        hdr_read("audio header [f]", fd, &rtf, sizeof(rtf));
+
+        if (change & CHANGE_AUDIO_FMT) {
+            rtf.wFormatTag = (unsigned short) id;
+        }
+        if (change & CHANGE_AUDIO_BR) {
+	        rtf.dwAvgBytesPerSec = (long) 1000*brate/8;
+        	ash.dwRate = (long) 1000*brate/8;
+	        ash.dwScale = 1;
+        }
+        if (change & CHANGE_AUDIO_CHANS) {
+            rtf.wChannels = (short) a_chan;
+        }
+        if (change & CHANGE_AUDIO_BITS) {
+            rtf.wBitsPerSample = (short) a_bits;
+        }
+        if (change & CHANGE_AUDIO_RATE) {
+            rtf.dwSamplesPerSec = (long) a_rate;
+        }
+
+        lseek(fd, ah_off ,SEEK_SET);
+        hdr_write("audio header [h]", fd, &ash, sizeof(ash));
+        lseek(fd, af_off ,SEEK_SET);
+        hdr_write("audio header [f]", fd, &rtf, sizeof(rtf));
+    }
+
+    err = close(fd);
+    if (err) {
+        perror("close");
+        exit(1);
+    }
+
+    avifile = AVI_open_input_file(filename, 1);
+    if (!avifile) {
+        AVI_print_error("AVI open");
+        exit(1);
+    }
+
+    tc_log_info(EXE, "updated AVI file %s", filename);
+
+    AVI_info(avifile);
+
+    AVI_close(avifile);
+
+    return 0;
+}
 
 /*************************************************************************/
 
