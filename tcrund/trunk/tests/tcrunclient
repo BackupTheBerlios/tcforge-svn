@@ -8,12 +8,13 @@ import httplib
 
 if len(sys.argv) != 3:
     print "usage: %s host port" %(sys.argv[0])
+    sys.exit(1)
 
 host, port = sys.argv[1:]
+port = int(port)
 
 server = xmlrpclib.ServerProxy("http://%s:%i" %(host, port)) 
 
-print server
-print dir(server)
+print server.TC.version()
 
 
