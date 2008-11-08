@@ -128,7 +128,12 @@ struct tcrruncounters_ {
 static int parse_tc_status_string(const char *statstr,
                                   TCRRunCounters *counters)
 {
-    return -1;
+    int ret = -1;
+    if (statstr && counters) {
+        memset(counters, 0, sizeof(TCRRunCounters));
+        ret = 0;
+    }
+    return ret;
 }
 
 /*************************************************************************/
@@ -170,13 +175,6 @@ static xmlrpc_value *tcr_server_version(xmlrpc_env *env,
                               "server",   TCRUND_SERVER_VERSION);
 }
 
-/*
-    TCR_OPERATION_UNKNOWN      =  1, 
-    TCR_OPERATION_OK           =  0,
-    TCR_OPERATION_ERROR        = -1,
-    TCR_OPERATION_ALLOC_FAILED = -100,
-*/
-
 static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
                                       xmlrpc_value *params,
                                       void * const userdata)
@@ -202,14 +200,23 @@ static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
                                           sessionid,
                                           &err);
         if (err) {
+            tc_log(TC_LOG_ERR, PACKAGE,
+                   "(%s) cannot create session for user [%s]",
+                   __func__, username);
             tc_free(client);
         } else {
             err = tc_list_append(&(tcs->clients), client);
             if (err) {
+                tc_log(TC_LOG_ERR, PACKAGE,
+                       "(%s) resource allocation error for user [%s]",
+                       __func__, username);
                 tcr_auth_session_del(client->as, sessionid);
                 tc_free(client)
                 result =  TCR_OPERATION_ALLOC_FAILED;
             } else {
+                tc_log(TC_LOG_MSG, PACKAGE,
+                       "(%s) session [%s] starts for user [%s]",
+                       __func__, sessionid, username);
                 strlcpy(client->sessionid, sessionid, sizeof(sessionid));
                 result = TCR_OPERATION_OK;
             }
@@ -253,6 +260,9 @@ static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
                        "(%s) ayeeee, lost client!! (expected @%i)",
                        __func__, pos);
             } else {
+                tc_log(TC_LOG_MSG, PACKAGE,
+                       "(%s) session [%s] ends",
+                       __func__, sessionid);
                 result = TCR_OPERATION_OK;
             }
         }
