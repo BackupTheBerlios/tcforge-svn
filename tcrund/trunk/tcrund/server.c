@@ -437,7 +437,7 @@ static void tcr_server_post_handler(struct evhttp_request *req, void *userdata)
         } else {
             char *rawres = XMLRPC_TYPED_MEM_BLOCK_CONTENTS(char, xmlres);
 
-        	evbuffer_add(evb, rawres, strlen(rawres) + 1);
+        	evbuffer_add(evb, rawres, strlen(rawres));
             /* send the terminator too */
 
     	    evhttp_send_reply(req, HTTP_OK, "XML response follows", evb);
@@ -516,6 +516,7 @@ static int tcr_server_setup(TCRServer *tcs)
                                tcs);
 
     evhttp_set_cb(tcs->http, "/XML-RPC", tcr_server_post_handler, tcs);
+    evhttp_set_cb(tcs->http, "/RPC2",    tcr_server_post_handler, tcs);
     evhttp_set_cb(tcs->http, "/",        tcr_server_base_handler, tcs);
 
     return TC_OK;
