@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+import sys
+import os
+import getopt
+import xmlrpclib
+import httplib
+
+if len(sys.argv) != 3:
+    print "usage: %s host port" %(sys.argv[0])
+
+host, port = sys.argv[1:]
+
+server = xmlrpclib.ServerProxy("http://%s:%i" %(host, port)) 
+
+print server
+print dir(server)
+
+
