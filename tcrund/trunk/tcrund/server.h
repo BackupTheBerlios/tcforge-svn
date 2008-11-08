@@ -22,6 +22,13 @@
 
 typedef struct tcrserver_ TCRServer;
 
+typedef enum tcroperationresult_ TCROperationResult;
+enum tcroperationresult_ {
+    TCR_OPERATION_UNKNOWN      =  1, 
+    TCR_OPERATION_OK           =  0,
+    TCR_OPERATION_ERROR        = -1, /* polymorphic error code :^) */
+    TCR_OPERATION_ALLOC_FAILED = -100,
+};
 
 
 int tcr_server_new(TCRServer **tcs, TCRConfig *config);

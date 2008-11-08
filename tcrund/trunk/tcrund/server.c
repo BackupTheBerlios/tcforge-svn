@@ -53,14 +53,14 @@ typedef struct tcrclient_ TCRClient;
 struct tcrclient_ {
     char             sessionid[TCR_AUTH_TOKEN_LEN];
     TCRAuthSession  *as;
-    TCRProcess      *current;
+    TCRProcess      *proc;
 };
 
 /*************************************************************************/
 
 enum {
     TC_SERVER_IDLE = 0,
-    TC_SERVER_RECORDING
+    TC_SERVER_RUNNING
 };
 
 struct tcrserver_ {
@@ -83,6 +83,7 @@ struct tcrserver_ {
 struct find_data {
     const char *sessionid;
     TCRClient  *client;
+    int         pos;
 };
 
 static int client_finder(TCListItem *item, void *userdata)
@@ -93,65 +94,127 @@ static int client_finder(TCListItem *item, void *userdata)
         FD->client = c;
         return 1;
     }
+    FD->pos++;
     return 0;
 }
 
 static TCRClient *find_client_by_sessionid(TCRServer *tcs, 
-                                           const char *sessionid)
+                                           const char *sessionid,
+                                           int *pos)
 {
     struct find_data FD = {
         .sessionid = sessionid,
         .client    = NULL,
+        .pos       = 0
     };
     if (tcs && sessionid) {
         tc_list_foreach(&(tcs->clients), client_finder, &FD);
     }
+    if (pos) {
+        *pos = (FD.client) ?FD.pos :-1;
+    }
     return FD.client;
+}
+
+typedef struct tcrruncounters_ TCRRunCounters;
+struct tcrruncounters_ {
+    int encoded;
+    int dropped;
+    int import;
+    int filter;
+    int export;
+};
+
+static int parse_tc_status_string(const char *statstr,
+                                  TCRRunCounters *counters)
+{
+    return -1;
 }
 
 /*************************************************************************/
 
 static TCRClient *tcr_server_validate_request(TCRServer *tcs,
-                                              const char *sessionid)
+                                              const char *sessionid,
+                                              int *pos)
 {
-    TCRClient *client = find_client_by_sessionid(tcs, sessionid);
-    if (client) {
+    TCRClient *client = find_client_by_sessionid(tcs, sessionid, pos);
+    if (!client) {
+        tc_log(TC_LOG_WARN, PACKAGE,
+               "(%s) request validation failed: missing client for sessionid=[%s]",
+               __func__, sessionid);
+    } else {
         int res = tcr_auth_message_new(client->as, sessionid,
                                        NULL, NULL);
         if (res != TCR_AUTH_OK) {
+            tc_log(TC_LOG_WARN, PACKAGE,
+                   "(%s) request validation failed:"
+                   " bad message for sessionid=[%s] result=[%i]",
+                   __func__, sessionid, res);
             client = NULL;
         }
     }
     return client;
 }
 
-
 /*************************************************************************/
 
 static xmlrpc_value *tcr_server_version(xmlrpc_env *env,
-                                        xmlrpc_value *paramArray,
-                                        void * const userData)
+                                        xmlrpc_value *params,
+                                        void * const userdata)
 {
+    tc_log(TC_LOG_MSG, PACKAGE, "(%s) processing request", __func__);
+
     return xmlrpc_build_value(env,
                               "{s:i,s:i}",
                               "protocol", TCRUND_PROTOCOL_VERSION,
                               "server",   TCRUND_SERVER_VERSION);
 }
 
+/*
+    TCR_OPERATION_UNKNOWN      =  1, 
+    TCR_OPERATION_OK           =  0,
+    TCR_OPERATION_ERROR        = -1,
+    TCR_OPERATION_ALLOC_FAILED = -100,
+*/
 
 static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
-                                      xmlrpc_value *paramArray,
-                                      void * const userData)
+                                      xmlrpc_value *params,
+                                      void * const userdata)
 {
     char sessionid[TCR_AUTH_TOKEN_LEN] = { '\0' };
-//    TCRServer *tcs = userData;
-//    TCRClient *client = NULL;
+    TCRServer *tcs = userdata;
+    TCRClient *client = NULL;
     const char *username = NULL;
     const char *password = NULL;
-    int result = -1;
+    int result = TCR_OPERATION_ERROR;
 
-    xmlrpc_decompose_value(env, paramArray,
+    tc_log(TC_LOG_MSG, PACKAGE, "(%s) processing request", __func__);
+
+    xmlrpc_decompose_value(env, params,
                            "ss", &username, &password);
+
+    client = tc_zalloc(sizeof(TCRClient));
+    if (!client) {
+        result =  TCR_OPERATION_ALLOC_FAILED;
+    } else {
+        int err = 0;
+        client->as = tcr_auth_session_new(username, password,
+                                          sessionid,
+                                          &err);
+        if (err) {
+            tc_free(client);
+        } else {
+            err = tc_list_append(&(tcs->clients), client);
+            if (err) {
+                tcr_auth_session_del(client->as, sessionid);
+                tc_free(client)
+                result =  TCR_OPERATION_ALLOC_FAILED;
+            } else {
+                strlcpy(client->sessionid, sessionid, sizeof(sessionid));
+                result = TCR_OPERATION_OK;
+            }
+        }
+    }
 
     return xmlrpc_build_value(env,
                               "{s:i,s:s}",
@@ -160,82 +223,153 @@ static xmlrpc_value *tcr_server_login(xmlrpc_env *env,
 }
 
 static xmlrpc_value *tcr_server_logout(xmlrpc_env *env,
-                                       xmlrpc_value *paramArray,
-                                       void * const userData)
+                                       xmlrpc_value *params,
+                                       void * const userdata)
 {
-    TCRServer *tcs = userData;
+    TCRServer *tcs = userdata;
     TCRClient *client = NULL;
+    int pos = -1, result = TCR_OPERATION_ERROR;
     const char *sessionid = NULL;
-    const char *instanceid = NULL;
-    int result = -1;
 
-    xmlrpc_decompose_value(env, paramArray,
-                           "ss", &sessionid, &instanceid);
+    tc_log(TC_LOG_MSG, PACKAGE, "(%s) processing request", __func__);
 
-    client = tcr_server_validate_request(tcs, sessionid);
+    xmlrpc_decompose_value(env, params, "s", &sessionid);
+
+    client = tcr_server_validate_request(tcs, sessionid, &pos);
+    if (!client->proc) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) transcode instance object not destroyed",
+               __func__);
+    } else {
+        int err = tcr_auth_session_del(client->as, sessionid);
+        if (err) {
+            tc_log(TC_LOG_ERR, PACKAGE,
+                   "(%s) cannot destroy user session",
+                   __func__);
+        } else {
+            TCRClient *c = tc_list_pop(&(tcs->clients), pos);
+            if (!c) {
+                tc_log(TC_LOG_ERR, PACKAGE,
+                       "(%s) ayeeee, lost client!! (expected @%i)",
+                       __func__, pos);
+            } else {
+                result = TCR_OPERATION_OK;
+            }
+        }
+    }
 
     return xmlrpc_build_value(env, "i", result);
 }
 
 static xmlrpc_value *tcr_server_process_status(xmlrpc_env *env,
-                                               xmlrpc_value *paramArray,
-                                               void * const userData)
+                                               xmlrpc_value *params,
+                                               void * const userdata)
 {
-    TCRServer *tcs = userData;
+    TCRServer *tcs = userdata;
     TCRClient *client = NULL;
     const char *sessionid = NULL;
     const char *instanceid = NULL;
-    int result = -1;
+    int status = -1, result = -1;
+    TCRRunCounters counters;
 
-    xmlrpc_decompose_value(env, paramArray,
+    tc_log(TC_LOG_MSG, PACKAGE, "(%s) processing request", __func__);
+
+    memset(&counters, 0, sizeof(counters));
+    xmlrpc_decompose_value(env, params,
                            "ss", &sessionid, &instanceid);
 
-    client = tcr_server_validate_request(tcs, sessionid);
+    client = tcr_server_validate_request(tcs, sessionid, NULL);
+    if (!client ||  !client->proc) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) no client data found."
+               " client=[%p] sessionid=[%s]",
+               __func__, client, sessionid);
+    } else {
+        char outbuf[TCR_PROC_CMD_OUT_BUF_LEN] = { '\0' };
+        char *args[] = { NULL };
+        int err = 0;
+
+        status = tcr_process_status(client->proc);
+
+        err = tcr_process_send_command(client->proc,
+                                       TCR_COMMAND_CODE_STATUS,
+                                       args,
+                                       outbuf);
+
+        err = parse_tc_status_string(outbuf, &counters);
+    }
 
     return xmlrpc_build_value(env,
                               "{s:i,s:i,s:i,s:i,s:i,s:i,s:i}",
                               "result",  result,
-                              "status",  -1,
-                              "encoded", 0, 
-                              "dropped", 0,
-                              "import",  0,
-                              "filter",  0,
-                              "export",  0);
+                              "status",  status,
+                              "encoded", counters.encoded, 
+                              "dropped", counters.dropped,
+                              "import",  counters.import,
+                              "filter",  counters.filter,
+                              "export",  counters.export);
 
 }
 
 static xmlrpc_value *tcr_server_process_start(xmlrpc_env *env,
-                                              xmlrpc_value *paramArray,
-                                              void * const userData)
+                                              xmlrpc_value *params,
+                                              void * const userdata)
 {
-    TCRServer *tcs = userData;
+    TCRServer *tcs = userdata;
     TCRClient *client = NULL;
     const char *sessionid = NULL;
     const char *instanceid = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(env, paramArray,
+    tc_log(TC_LOG_MSG, PACKAGE, "(%s) processing request", __func__);
+
+    xmlrpc_decompose_value(env, params,
                            "ss", &sessionid, &instanceid);
 
-    client = tcr_server_validate_request(tcs, sessionid);
+    client = tcr_server_validate_request(tcs, sessionid, NULL);
 
     return xmlrpc_build_value(env, "i", result);
 }
 
 static xmlrpc_value *tcr_server_process_stop(xmlrpc_env *env,
-                                             xmlrpc_value *paramArray,
-                                             void * const userData)
+                                             xmlrpc_value *params,
+                                             void * const userdata)
 {
-    TCRServer *tcs = userData;
+    TCRServer *tcs = userdata;
     TCRClient *client = NULL;
     const char *sessionid = NULL;
     const char *instanceid = NULL;
     int result = -1;
 
-    xmlrpc_decompose_value(env, paramArray,
+    tc_log(TC_LOG_MSG, PACKAGE, "(%s) processing request", __func__);
+
+    xmlrpc_decompose_value(env, params,
                            "ss", &sessionid, &instanceid);
 
-    client = tcr_server_validate_request(tcs, sessionid);
+    client = tcr_server_validate_request(tcs, sessionid, NULL);
+    if (!client || !client->proc) {
+        tc_log(TC_LOG_ERR, PACKAGE,
+               "(%s) no client data found."
+               " client=[%p] sessionid=[%s]",
+               __func__, client, sessionid);
+    } else {
+        char outbuf[TCR_PROC_CMD_OUT_BUF_LEN] = { '\0' };
+        char *args[] = { NULL };
+        int err = 0;
+
+        err = tcr_process_send_command(client->proc,
+                                       TCR_COMMAND_CODE_STOP,
+                                       args,
+                                       outbuf);
+
+        err = tcr_process_del(client->proc);
+        if (!err) {
+            client->proc = NULL;
+            result = 0;
+        } else {
+            ;
+        }
+    }
 
     return xmlrpc_build_value(env, "i", result);
 
