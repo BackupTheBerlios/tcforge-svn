@@ -2,16 +2,16 @@ Transcode compiles even if you do not have all additional libs
 installed. You do not *need* to have a "yes" on every configure check.
 
 You will need to have libavcodec (also known as ffmpeg libraries)
-installed somewhere on your computer. Without libavcodec transcode
-doesn't compile. The best way to accomplish this is to get FFmpeg from
-cvs (www.ffmpeg.org), configure it with at least --enable-shared
+installed somewhere on your computer. Without libavcodec and libavformat
+transcode doesn't compile. The best way to accomplish this is to get FFmpeg 
+from svn (ffmpeg.mplayerhq.hu), configure it with at least --enable-shared
 and --enable-pthreads compile and install it. (Also see the notes below
 about libpostproc if you plan to use filter_pp.) A package of some kind
 that includes libavcodec.so and the headers will do as well. If the
 files are installed in a non-default location (transcode assumes prefix:
 /usr), then you will need to tell transcode where they live. Very
-important: you _need_ both the header files _and_ libavcodec.so files.
-The libavcodec.a file won't do!
+important: you _need_ both the header files _and_ shared libraries files.
+The static libraries won't do!
 
 Depending on what you want to do with transcode you may need additional
 packages installed. In particular, a recent version of lame is needed
@@ -115,7 +115,7 @@ Mandatory packages:
   pkg-config
     (these generally come with any and all OSes)
 
-  libavcodec from FFmpeg (SVN snapshot >= 20080705)  http://ffmpeg.mplayerhq.hu/
+  libavcodec from FFmpeg SVN (snapshot >= 20080706)  http://ffmpeg.mplayerhq.hu/
     related options:
       --with-libavcodec-prefix=PFX (/usr)
           prefix where libavcodec is installed
@@ -123,11 +123,15 @@ Mandatory packages:
           directory where libavcodec headers [ffmpeg/avcodec.h] are installed
       --with-libavcodec-libs=DIR (/usr/lib)
           prefix where libavcodec libraries [libavcodec.so] are installed
-      --enable-libavcodec-static (disabled)
-          link binaries and modules statically to libavcodec
-          WARNING: creates huge binaries
-          WARNING: only tested on linux x86
-          WARNING: not supported at all, don't complain
+
+  libavformat from FFmpeg >= 20080706 (SVN)  http://ffmpeg.mplayerhq.hu/
+    related options:
+      --with-libavformat-prefix=PFX (/usr)
+          prefix where libavformat is installed
+      --with-libavformat-includes=DIR (/usr/include)
+          directory where libavformat headers [ffmpeg/avformat.h] are installed
+      --with-libavformat-libs=DIR (/usr/lib)
+          prefix where libavformat libraries [libavformat.so] are installed
 
   libmpeg2 from mpeg2dec >= 0.4.0b  http://libmpeg2.sourceforge.net/
   libmpeg2convert is needed as well (shipped in the same package of libmpeg2)

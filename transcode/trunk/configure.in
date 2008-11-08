@@ -575,31 +575,17 @@ AC_CHECK_LIB(m, sin,
 TC_PKG_INIT
 
 dnl
-dnl ffmpeg includes layout
-dnl
-ffmpeg_headers_layout="old"
-
-dnl
 dnl libavcodec
 dnl
-ffmpeg_lavc_inc="ffmpeg"
 LIBAVCODEC_EXTRA_LIBS="$LIBAVCODEC_EXTRA_LIBS $($PKG_CONFIG --libs libavcodec)"
 TC_PKG_CHECK(libavcodec, optional, LIBAVCODEC, no, [libavcodec/avcodec.h],
  avcodec, avcodec_thread_init, libavcodec, [http://www.ffmpeg.org/])
-if test x"$have_libavcodec" = x"yes" ; then
-  ffmpeg_headers_layout="new"
-  ffmpeg_lavc_inc="libavcodec"
-else
-# second try, old include path
-  TC_PKG_CHECK(libavcodec, required, LIBAVCODEC, no, [ffmpeg/avcodec.h],
-    avcodec, avcodec_thread_init, libavcodec, [http://www.ffmpeg.org/])
-fi
 if test x"$have_libavcodec" = x"yes" ; then
   save_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $LIBAVCODEC_CFLAGS"
   AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <stdio.h>
-#include <$ffmpeg_lavc_inc/avcodec.h>
+#include <libavcodec/avcodec.h>
 int
 main()
 {
@@ -633,25 +619,16 @@ AC_SUBST(LIBAVCODEC_LIBS)
 dnl
 dnl libavformat
 dnl
-ffmpeg_lavf_inc="ffmpeg"
 LIBAVFORMAT_EXTRA_LIBS="$LIBAVFORMAT_EXTRA_LIBS $($PKG_CONFIG --libs libavformat)"
-TC_PKG_CHECK(libavformat, optional, LIBAVFORMAT, no, [libavformat/avformat.h],
+TC_PKG_CHECK(libavformat, required, LIBAVFORMAT, no, [libavformat/avformat.h],
  avformat, av_register_all, libavformat, [http://www.ffmpeg.org/])
-if test x"$have_libavformat" = x"yes" ; then
-  ffmpeg_headers_layout="new"
-  ffmpeg_lavf_inc="libavformat"
-else
-# second try, old include path
-  TC_PKG_CHECK(libavformat, required, LIBAVFORMAT, no, [ffmpeg/avformat.h],
-   avformat, av_register_all, libavformat, [http://www.ffmpeg.org/])
-fi
 if test x"$have_libavformat" = x"yes" ; then
   save_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $LIBAVFORMAT_CFLAGS"
   AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <stdio.h>
-#include <$ffmpeg_lavf_inc/avformat.h>
-#include <$ffmpeg_lavc_inc/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 int
 main()
 {
@@ -670,8 +647,8 @@ main()
     [LIBAVFORMAT_VERSION="`./conftest$ac_exeext | sed -ne 's,VER=\(.*\),\1,p'`"
       LIBAVFORMAT_BUILD="`./conftest$ac_exeext | sed -ne 's,BUILD=\(.*\),\1,p'`"],
     [AC_MSG_RESULT([failed])
-     TC_PKG_ERROR(libavformat, ffmpeg/avformat.h, required, FFmpeg, [http://www.ffmpeg.org],
-      [cannot compile ffmpeg/avformat.h])],
+     TC_PKG_ERROR(libavformat, avformat.h, required, FFmpeg, [http://www.ffmpeg.org],
+      [cannot compile avformat.h])],
     [AC_MSG_RESULT([cross compiling; assumed OK...])
       LIBAVCODEC_VERSION=""
       LIBAVCODEC_BUILD=""])
@@ -686,9 +663,6 @@ AC_SUBST(LIBAVFORMAT_LIBS)
 dnl
 dnl setup layout define once
 dnl
-if test x"$ffmpeg_headers_layout" = x"new" ; then
-  AC_DEFINE([HAVE_LIBAVHEADERS], 1, [Use new layout for ffmpeg headers])
-fi
 
 
 dnl
@@ -1472,7 +1446,6 @@ A52 default decoder            $enable_a52_default_decoder
 
 ffmpeg libraries
 ----------------------------------------
-headers layout                 $ffmpeg_headers_layout
 libavcodec  build              $LIBAVCODEC_BUILD
 libavcodec  version            $LIBAVCODEC_VERSION
 libavformat build              $LIBAVFORMAT_BUILD

@@ -32,7 +32,7 @@ libtcutil_la_SOURCES = \
 	$(TIMER_FILES) \
 	$(XIO_FILES)
 
-EXTRA_DIST = \
+DEVKIT_HEADERS = \
 	cfgfile.h \
 	common.h \
 	getopt.h \
@@ -50,4 +50,7 @@ EXTRA_DIST = \
 	tcutil.h \
 	tctimer.h \
 	xio.h
+
+EXTRA_DIST = \
+	$(DEVKIT_HEADERS)
 

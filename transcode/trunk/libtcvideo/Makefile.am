@@ -8,6 +8,10 @@ libtcvideo_la_SOURCES = \
 	tcvideo.c \
 	zoom.c
 
-EXTRA_DIST = \
+DEVKIT_HEADERS = \
 	tcvideo.h \
 	zoom.h
+
+EXTRA_DIST = \
+	$(DEVKIT_HEADERS)
+

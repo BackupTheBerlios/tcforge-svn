@@ -224,6 +224,8 @@ import_yuv4mpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(MJPEGTOOLS_CFLAGS)
 import_yuv4mpeg_la_LDFLAGS = -module -avoid-version
 import_yuv4mpeg_la_LIBADD = $(MJPEGTOOLS_LIBS)
 
+DEVKIT_HEADERS = \
+	import_def.h
 
 EXTRA_DIST = \
 	ac3scan.h \
@@ -232,7 +234,7 @@ EXTRA_DIST = \
 	demuxer.h \
 	dvd_reader.h \
 	frame_info.h \
-	import_def.h \
+	$(DEVKIT_HEADERS) \
 	ioaux.h \
 	ioxml.h \
 	ivtc.h \

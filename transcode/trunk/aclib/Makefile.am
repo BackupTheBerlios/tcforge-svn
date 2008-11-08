@@ -18,10 +18,13 @@ libac_la_SOURCES = \
         memcpy.c \
         rescale.c
 
+DEVKIT_HEADERS = \
+	ac.h \
+	imgconvert.h
+
 EXTRA_DIST = \
-        ac.h \
+	$(DEVKIT_HEADERS) \
         ac_internal.h \
-        imgconvert.h \
         img_internal.h \
         img_x86_common.h \
         rgb-yuv-conv.pl 

@@ -20,12 +20,14 @@ libtc_la_SOURCES = \
 	tcformats.c \
 	tcframes.c 
 
-EXTRA_DIST = \
+DEVKIT_HEADERS = \
 	framecode.h \
 	libtc.h \
 	ratiocodes.h \
 	tccodecs.h \
 	tcformats.h \
-	tcframes.h \
-	xio.h
+	tcframes.h
+
+EXTRA_DIST = \
+	$(DEVKIT_HEADERS)
 

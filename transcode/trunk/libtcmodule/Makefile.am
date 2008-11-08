@@ -12,9 +12,12 @@ libtcmodule_la_SOURCES = \
 	tcmodule.c \
 	tcmoduleinfo.c
 
-EXTRA_DIST = \
+DEVKIT_HEADERS = \
 	tcmodule-core.h \
 	tcmodule-data.h \
 	tcmodule-info.h \
 	tcmodule-plugin.h
+
+EXTRA_DIST = \
+	$(DEVKIT_HEADERS)
 

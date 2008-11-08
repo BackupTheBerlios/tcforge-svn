@@ -34,6 +34,12 @@ transcode_LDADD = \
 	$(TC_X_LIBS) \
 	-lm
 
+DEVKIT_HEADERS = \
+	framebuffer.h \
+	tc_defaults.h \
+	tcinfo.h \
+	transcode.h
+
 EXTRA_DIST = \
 	audio_trans.h \
 	cmdline.h \
@@ -45,13 +51,10 @@ EXTRA_DIST = \
 	encoder-common.h \
 	filter.h \
 	frame_threads.h \
-	framebuffer.h \
 	probe.h \
 	socket.h \
 	split.h \
 	synchronizer.h \
-	tc_defaults.h \
-	transcode.h \
 	video_trans.h 
 
 transcode_SOURCES = \
@@ -72,3 +75,8 @@ transcode_SOURCES = \
 	synchronizer.c \
 	split.c \
 	video_trans.c
+
+devkit:
+	mkdir -p $(tcincludedir)/src
+	cp $(DEVKIT_HEADERS) $(tcincludedir)/src
+

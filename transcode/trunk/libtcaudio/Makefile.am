@@ -7,5 +7,8 @@ noinst_LTLIBRARIES = libtcaudio.la
 libtcaudio_la_SOURCES = \
 	tcaudio.c
 
-EXTRA_DIST = \
+DEVKIT_HEADERS = \
 	tcaudio.h
+
+EXTRA_DIST = \
+	$(DEVKIT_HEADERS)

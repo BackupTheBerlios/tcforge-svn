@@ -17,6 +17,10 @@ else
 PLATFORM = platform_posix.c
 endif
 
+DEVKIT_HEADERS = \
+	avilib.h \
+	wavlib.h
+
 libavi_la_SOURCES = \
 	$(PLATFORM) \
 	avidump.c \
