@@ -1,0 +1,98 @@
+#! /bin/sh
+# /etc/init.d/tcrund: start the transcode control daemon.
+
+### BEGIN INIT INFO
+# Provides:             tcrund
+# Required-Start:       $network
+# Required-Stop:        $network
+# Should-Start:         $network
+# Should-Stop:          $network
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    Transcode remote control daemon
+### END INIT INFO
+
+PATH=/bin:/usr/bin
+
+pidfile=/var/run/tcrund.pid
+binpath=/usr/bin/tcrund
+
+test -x $binpath || exit 0
+
+. /lib/lsb/init-functions
+
+running()
+{
+    # No pidfile, probably no daemon present
+    #
+    if [ ! -f $pidfile ]
+    then
+	return 1
+    fi
+
+    pid=`cat $pidfile`
+
+    # No pid, probably no daemon present
+    #
+    if [ -z "$pid" ]
+    then
+	return 1
+    fi
+
+    if [ ! -d /proc/$pid ]
+    then
+	return 1
+    fi
+
+    cmd=`cat /proc/$pid/cmdline | tr "\000" "\n"|head -n 1`
+
+    # No tcrund?
+    #
+    if [ "$cmd" != "$binpath" ]
+    then
+	return 1
+    fi
+
+    return 0
+}
+
+case "$1" in
+  start)
+    log_begin_msg "Starting transcode control daemon..."
+    create_xconsole
+    start-stop-daemon --start --quiet --pidfile $pidfile --name tcrund --startas $binpath -- tcrund
+    log_end_msg $?
+    test -d /lib/init/rw/sendsigs.omit.d || mkdir -p /lib/init/rw/sendsigs.omit.d
+    test ! -f /lib/init/rw/sendsigs.omit.d/tcrund || rm -f /lib/init/rw/sendsigs.omit.d/tcrund
+    ln -s $pidfile /lib/init/rw/sendsigs.omit.d/tcrund
+    ;;
+  stop)
+    log_begin_msg "Stopping transcode control daemon..."
+    start-stop-daemon --stop --quiet --pidfile $pidfile --name tcrund
+    log_end_msg $?
+    ;;
+  reload|force-reload)
+    log_begin_msg "Reloading transcode control daemon..."
+    start-stop-daemon --stop --quiet --signal 1 --pidfile $pidfile --name tcrund
+    log_end_msg $?
+    ;;
+  restart)
+    log_begin_msg "Restarting transcode control daemon..."
+    start-stop-daemon --stop --retry 5 --quiet --pidfile $pidfile --name tcrund
+    start-stop-daemon --start --quiet --pidfile $pidfile --name tcrund --startas $binpath -- tcrund
+    log_end_msg $?
+    ;;
+  reload-or-restart)
+    if running
+    then
+	$0 reload
+    else
+	$0 start
+    fi
+    ;;
+  *)
+    log_success_msg "Usage: /etc/init.d/tcrund {start|stop|reload|restart|force-reload|reload-or-restart}"
+    exit 1
+esac
+
+exit 0
