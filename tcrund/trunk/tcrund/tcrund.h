@@ -40,7 +40,9 @@
 
 #define TCRUND_CONFIG_FILE_MAIN		"general"
 
+#define TCRUND_DEFAULT_CONFIG_PATH      "/etc/tcrund/tcrund.cfg"
 #define TCRUND_DEFAULT_ACCOUNT_PATH     "/etc/tcrund/users.cfg"
+#define TCRUND_DEFAULT_LOG_PATH         "/var/log/tcrund.log"
 
 
 typedef struct tcrconfig_ TCRConfig;
@@ -77,8 +79,12 @@ enum tcrunderrorcode_ {
     TCRUND_ERR_SERVER_RUN,
 };
 
+/* logging */
 
 int tcr_log_register_methods(void);
+int tcr_log_open(const char *logfile,
+                 TCLogTarget target, TCVerboseLevel verbose);
+
 
 #endif /* TCRUND_H */
 

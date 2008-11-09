@@ -101,7 +101,7 @@ static int tcr_log_file_send(TCLogContext *ctx, TCLogType type,
     tag = (type == TC_LOG_MARK) ?"" :tag; 
     
     now = time(NULL);
-    strftime(tsbuf, sizeof(tsbuf), "%a %b %d %T %Y", localtime(&now));
+    strftime(tsbuf, sizeof(tsbuf), "%b %d %T", localtime(&now));
 
     size = strlen(tstr) + strlen(tsbuf)
                   + strlen(tag) + strlen(fmt) + 1;
@@ -128,7 +128,7 @@ static int tcr_log_file_send(TCLogContext *ctx, TCLogType type,
     }
 
     /* construct real format string */
-    tc_snprintf(msg, size, "%s %s %s %s",
+    tc_snprintf(msg, size, "%s %s %s %s\n",
                 tsbuf, tag, tstr, fmt);
 
     ret = vfprintf(ctx->f, msg, ap);
@@ -173,10 +173,9 @@ static int tcr_log_file_open(TCLogContext *ctx, int *argc, char ***argv)
     const char *logpath = NULL;
     int err = 0, ret = TC_ERROR;
 
-    if (ctx) {
+    if (!ctx) {
         return TC_ERROR;
     }
-
     err = tc_mangle_cmdline(argc, argv, TCR_LOG_FILE_OPTION, &logpath);
     if (err) {
         logpath = getenv(TCR_LOG_FILE_ENVVAR);
@@ -201,6 +200,25 @@ int tcr_log_register_methods(void)
     tc_log_register_method(TCR_LOG_FILE, tcr_log_file_open);
     tc_log_register_method(TCR_LOG_NULL, tcr_log_null_open);
     return TC_OK;
+}
+
+int tcr_log_open(const char *logfile,
+                 TCLogTarget target, TCVerboseLevel verbose)
+{
+    int ret = TC_ERROR;
+    if (logfile) {
+        /* ...Can you hear it? It's the sound of the UGLYNESS! */
+        char argkey[TC_BUF_MIN] = { '\0' };
+        char argval[PATH_MAX] = { '\0' };
+        char *args[] = { NULL, argkey, argval, NULL };
+        char **argv = args;
+        int argc = 3;
+ 
+        strlcpy(argkey, TCR_LOG_FILE_OPTION, sizeof(argkey));
+        strlcpy(argval, logfile, sizeof(argval));
+        ret = tc_log_open(target, verbose, &argc, &argv);
+    }
+    return ret;
 }
 
 /*************************************************************************/

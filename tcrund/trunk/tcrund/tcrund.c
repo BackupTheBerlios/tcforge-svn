@@ -42,6 +42,7 @@ struct tcrcontext_ {
 
     TCLogTarget     log_target;
     TCVerboseLevel  log_level;
+    const char      *log_file;
     const char      *cfg_file;
     const char      *account_file;
     int              banner_only; /* flag */
@@ -50,6 +51,7 @@ struct tcrcontext_ {
 static TCRContext TCRunD = {
 /*  .config       intentionally left out */
     .server       = NULL,
+    .log_file     = NULL,
     .cfg_file     = NULL,
     .account_file = NULL,
     .log_level    = TC_INFO,
@@ -154,9 +156,10 @@ static void usage(void)
 {
     version();
 
-    fprintf(stderr,"\nUsage: %s -f conf [options]\n", PACKAGE);
+    fprintf(stderr,"\nUsage: %s [options]\n", PACKAGE);
     fprintf(stderr,"    -f conf     select configuration file to use\n");
     fprintf(stderr,"    -p file     select user account data file to use\n");
+    fprintf(stderr,"    -l log      select daemon log file to use\n");
     fprintf(stderr,"    -D          run in debug mode "
                                    "(don't detach from terminal)\n");
     fprintf(stderr,"    -q level    select log level\n");
@@ -195,7 +198,7 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
 {
     int ch = -1, debug_mode = TC_FALSE;
 
-    while ((ch = getopt(argc, argv, "Df:p:q:vh?")) != -1) {
+    while ((ch = getopt(argc, argv, "Df:l:p:q:vh?")) != -1) {
         switch (ch) {
           case 'f':
             VALIDATE_OPTION;
@@ -204,6 +207,10 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
           case 'p':
             VALIDATE_OPTION;
             ctx->account_file = optarg;
+            break;
+          case 'l':
+            VALIDATE_OPTION;
+            ctx->log_file = optarg;
             break;
           case 'q':
             VALIDATE_OPTION;
@@ -264,24 +271,27 @@ int main(int argc, char *argv[])
     }
     if (!TCRunD.banner_only) {
         /* some validation... */
-        if (!TCRunD.cfg_file) {
-            fprintf(stderr, "[%s] missing configuration file\n", PACKAGE);
-            fprintf(stderr, "[%s] option -f is MANDATORY!\n", PACKAGE);
-            return TCRUND_ERR_NO_CONFIG_FILE;
-        }
-
-        if (!TCRunD.account_file) {
-            fprintf(stderr, "[%s] missing users account data file\n", PACKAGE);
-            fprintf(stderr, "[%s] option -p is MANDATORY!\n", PACKAGE);
-            return TCRUND_ERR_NO_CONFIG_FILE;
-        }
-
-        err = tc_log_open(TCRunD.log_target, TCRunD.log_level, &argc, &argv);
+        err = tcr_log_open(TCRunD.log_file,
+                           TCRunD.log_target, TCRunD.log_level);
         if (err) {
             fprintf(stderr, "[%s] error opening log\n", PACKAGE);
             return TCRUND_ERR_NO_LOG;
         }
         /* now we can tc_log() safely and happily */
+       
+        if (!TCRunD.cfg_file) {
+            TCRunD.cfg_file = TCRUND_DEFAULT_CONFIG_PATH;
+            tc_log(TC_LOG_INFO, PACKAGE,
+                   "using default configuration file `%s'",
+                   TCRunD.cfg_file);
+        }
+
+        if (!TCRunD.account_file) {
+            TCRunD.account_file = TCRUND_DEFAULT_ACCOUNT_PATH;
+            tc_log(TC_LOG_INFO, PACKAGE,
+                   "using default user account file `%s'",
+                   TCRunD.account_file);
+        }
 
         signal(SIGHUP,  sig_reload_handler);
         signal(SIGINT,  sig_exit_handler);
