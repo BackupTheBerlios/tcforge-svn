@@ -1,0 +1,15 @@
+
+MPEGlib modules for Transcode
+=============================
+
+Designing and implementing MPEGlib, a special care was taken in order to make
+it's behaviour as closer as possible to transcode (and, in second chance, to
+mplayer/mencoder), while still remaining standard-compliant and correct.
+
+To test, and improve, such capabilities, we provide some sample modules,
+and some tools which aims to be very close to the more generic 
+transcode ones. See ../tools/mp{probe, extract, ...}
+
+
+TODO:
+- add audio capabilities to import_mpeg: mp2/3, pcm, ac3
