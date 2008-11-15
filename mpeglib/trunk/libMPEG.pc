@@ -1,0 +1,14 @@
+# MPEGlib pkg-config source file
+
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: MPEG
+Description: MPEGlib provides only MPEG muxing/demuxing facilities
+Version: 0.2.3
+Requires:
+Conflicts:
+Libs: -L${libdir} -lMPEG
+Cflags: -I${includedir}

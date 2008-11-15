@@ -1,0 +1,8 @@
+PREFIX = /usr/local
+TCPREFIX = /usr/local/transcode
+VERSION = 0.2.3
+LIBVERSION = 0.2
+TARGETS +=  build-tools
+INSTALL_TARGETS += 
+UNINSTALL_TARGETS += 
+DEFINES += -DMPEG_LITTLE_ENDIAN=1

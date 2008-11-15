@@ -1,0 +1,47 @@
+INSTALL INSTRUCTIONS FOR MPEGlib
+=============================================================================
+
+PREREQUISITES:
+-----------------------------------------------------------------------------
+A standard POSIX essential environment. You need:
+- a bourne compatible shell (bash to run regression test)
+- the GNU coreutils or equivalent package
+- GNU make, but BSD make should also work (untested, yet)
+- GCC >= 3.3.x. GCC >= 2.95.x should work too, but is untested
+  and unsupported
+
+DEPENDENCIES:
+-----------------------------------------------------------------------------
+None. Just libc and development packages.
+
+HOW TO BUILD:
+-----------------------------------------------------------------------------
+I'ts straightforward: run ./configure, and then run make.
+Giving options to ./configure you can tune various aspect
+of MPEGlib. If you want a shared version of MPEGlib (disabled by default),
+use the option --enable-shared at ./configure.
+To enable the build of example programs (disabled by default,
+but recommended and needed for regression tests), use --enable-tools.
+Default install prefix is '/usr/local', you can override it
+using (surprise! :) ) the --prefix option.
+You can get the full list of configuration options using ./configure --help.
+When you are satisfied with the configuration options, you can build
+the library simply giving "make".
+
+HOW TO INSTALL:
+-----------------------------------------------------------------------------
+If make ends succesfully (aka if you do not see any errors on the "make"
+output), you can install the library (and the header files, and the .pc file
+and so on...) using "make install".
+To uninstall library (and the header files, and...), you can use 
+"make uninstall".
+WARNING: if you use "make clean" between "make install" and "make uninstall",
+or if you wipe out the source code directory, or so, you *MUST* redo an
+"./configure" using the SAME parameters of previous time. 
+Otherwise make uninstall will not work.
+
+If you enable shared library support, do not forget to do
+/sbin/ldconfig -v as root to update the dynamic linker cache, after
+'make install' or 'make uninstall'.
+Actually, Makefile does not do this automatically. 
+This should change in fututure releases.
