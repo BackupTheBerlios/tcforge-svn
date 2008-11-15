@@ -32,6 +32,7 @@ enum {
 typedef enum tcrauthstatus_ {
     TCR_AUTH_OK = 0,
     TCR_AUTH_ERR_METHOD,
+    TCR_AUTH_ERR_PARAMS,
     TCR_AUTH_ERR_CONFIG,
     TCR_AUTH_ERR_USER,
     TCR_AUTH_ERR_SESSION_BAD,	/* invalid session identification */
@@ -44,6 +45,7 @@ typedef enum tcrauthmethod_ {
     TCR_AUTH_NONE,      /* accept everything to everyone */
     TCR_AUTH_PLAINPASS, /* plaintext session authentication */
 } TCRAuthMethod;
+
 
 int tcr_auth_init(TCRAuthMethod authmethod, const char *cfgfile);
 
