@@ -34,6 +34,8 @@
 
 #include <assert.h>
 
+#include "config.h"
+
 /*
  * Yeah, almost arbitrary. Should be fixed in future.
  * See table on mpeg-core.c for corrispondence
