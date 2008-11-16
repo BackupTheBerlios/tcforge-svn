@@ -44,4 +44,5 @@ configure_file(${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 add_subdirectory(tclibs)
 add_subdirectory(tcrund)
+add_subdirectory(tests)
 
