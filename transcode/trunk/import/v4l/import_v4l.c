@@ -21,9 +21,9 @@
  *
  */
 
-#include "src/transcode.h"
+#include "transcode.h"
 #include "libtc/libtc.h"
-#include "libtcutil/optstr.h"
+#include "libtc/optstr.h"
 #include "aclib/imgconvert.h"
 
 #include <sys/ioctl.h>
@@ -43,6 +43,7 @@ static int capability_flag = TC_CAP_RGB|TC_CAP_YUV;
 
 /*************************************************************************/
 
+/*#define MMAP_DEBUG  1*/
 
 #define MAX_BUFFER 32
 
@@ -175,7 +176,9 @@ static int v4lsource_mmap_init(V4LSource *vs)
         return TC_ERROR;
     }
 #ifdef MMAP_DEBUG
-    tc_log_msg(MOD_NAME, "(mmap_init) video_mem base address=%p size=%li", vs->video_mem, (long)vs->vid_mbuf.size);
+    tc_log_msg(MOD_NAME,
+               "(mmap_init) video_mem base address=%p size=%li",
+               vs->video_mem, (long)vs->vid_mbuf.size);
 #endif
 
     for (i = 0; i < vs->grab_buf_max; i++) {
@@ -184,7 +187,8 @@ static int v4lsource_mmap_init(V4LSource *vs)
         vs->vid_mmap[i].width  = vs->width;
         vs->vid_mmap[i].height = vs->height;
 #ifdef MMAP_DEBUG
-        tc_log_msg(MOD_NAME, "(mmap_init) setup: mmap buf #%i: %ix%i@0x%x",
+        tc_log_msg(MOD_NAME,
+                   "(mmap_init) setup: mmap buf #%i: %ix%i@0x%x",
                    vs->vid_mmap[i].frame,
                    vs->vid_mmap[i].width, vs->vid_mmap[i].height,
                    vs->vid_mmap[i].format);
@@ -195,7 +199,9 @@ static int v4lsource_mmap_init(V4LSource *vs)
         ret = ioctl(vs->video_dev, VIDIOCMCAPTURE, &vs->vid_mmap[i % vs->grab_buf_max]);
         RETURN_IF_ERROR(ret, "error setting up a capture buffer");
 #ifdef MMAP_DEBUG
-        tc_log_msg(MOD_NAME, "(mmap_init) enqueue: mmap buf #%i", i % vs->grab_buf_max);
+        tc_log_msg(MOD_NAME,
+                   "(mmap_init) enqueue: mmap buf #%i",
+                   i % vs->grab_buf_max);
 #endif
     }
 
@@ -219,7 +225,9 @@ static int v4lsource_mmap_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize)
 
     vs->grab_buf_idx = ((vs->grab_buf_idx + 1) % vs->grab_buf_max);
 #ifdef MMAP_DEBUG
-    tc_log_msg(MOD_NAME, "(mmap_grab) querying for buffer #%i", vs->grab_buf_idx);
+    tc_log_msg(MOD_NAME,
+               "(mmap_grab) querying for buffer #%i",
+               vs->grab_buf_idx);
 #endif
 
     // wait for next image in the sequence to complete grabbing
@@ -230,7 +238,9 @@ static int v4lsource_mmap_grab(V4LSource *vs, uint8_t *buffer, size_t bufsize)
     offset = vs->vid_mbuf.offsets[vs->grab_buf_idx];
     p = vs->video_mem + offset;
 #ifdef MMAP_DEBUG
-    tc_log_msg(MOD_NAME, "(mmap_grab) got offset=%i frame pointer=%p", offset, p);
+    tc_log_msg(MOD_NAME,
+               "(mmap_grab) got offset=%i frame pointer=%p",
+               offset, p);
 #endif
 
     switch (vs->format) {
