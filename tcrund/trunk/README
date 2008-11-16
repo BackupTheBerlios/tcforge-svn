@@ -31,6 +31,11 @@ Use tcrund *ONLY* in private, trusted networks.
 *DO* *NOT* *USE* *IT* across the internet or any public network.
 'Nuff said.
 
+Testsuite
+~~~~~~~~~
+
+run cmake adding `-DENABLE_TEST=Yes'
+
 Author
 ~~~~~~
 
