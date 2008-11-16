@@ -35,11 +35,44 @@
 
 /*************************************************************************/
 
+START_TEST(test_none_init_fini)
+{
+    int ret = tcr_auth_init(TCR_AUTH_NONE, NULL);
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`None' auth engine can't fail");
+    tcr_auth_fini();
+}
+END_TEST
+
+/*************************************************************************/
+
+static Suite *tcrauth_suite(void)
+{
+    Suite *s = suite_create("tcrauth");
+
+    TCase *tc_none = tcase_create("none");
+    tcase_add_test(tc_none, test_none_init_fini);
+    suite_add_tcase(s, tc_none);
+
+    TCase *tc_plainpass = tcase_create ("plainpass");
+    suite_add_tcase(s, tc_plainpass);
+
+    return s;
+}
+
+/*************************************************************************/
+
 int main(int argc, char *argv[])
 {
-    tcr_auth_init(TCR_AUTH_NONE, NULL);
-    tcr_auth_fini();
-    return 0;
+    int number_failed = 0;
+
+    Suite *s = tcrauth_suite();
+    SRunner *sr = srunner_create(s);
+
+    srunner_run_all(sr, CK_ENV);
+    number_failed = srunner_ntests_failed(sr);
+    srunner_free(sr);
+    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 /*************************************************************************/

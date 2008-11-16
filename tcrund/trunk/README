@@ -36,6 +36,15 @@ Testsuite
 
 run cmake adding `-DENABLE_TEST=Yes'
 
+Use the environment variable CK_VERBOSITY, which can have the values "silent", "minimal", "normal", "verbose".
+
+silent: no output will be generated.
+minimal: only a summary of the test run will be printed.
+normal: will prints the summary of the run, and prints one message per failed test.
+verbose: will print the summary, and one message per test (passed or failed).
+
+If the variable is not found or the value is not recognized, the print mode is set to "normal". 
+
 Author
 ~~~~~~
 

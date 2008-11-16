@@ -15,8 +15,8 @@ if(ENABLE_TEST)
 
     link_directories(${tcrund_BINARY_DIR}/tclibs)
 
-    add_executable(test_tcrauth test_tcrauth.c ../tcrund/tcrauth.c)
-    target_link_libraries(test_tcrauth ${LIBCHECK_LIBRARY} tcutil)
-    set_target_properties(test_tcrauth PROPERTIES COMPILE_FLAGS "-g -Os -Wall -Werror")
+    add_executable(check_tcrauth check_tcrauth.c ../tcrund/tcrauth.c)
+    target_link_libraries(check_tcrauth ${LIBCHECK_LIBRARY} tcutil)
+    set_target_properties(check_tcrauth PROPERTIES COMPILE_FLAGS "-g -Os -Wall -Werror")
 endif(ENABLE_TEST)
 
