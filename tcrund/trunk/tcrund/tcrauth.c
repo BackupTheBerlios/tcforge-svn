@@ -200,12 +200,16 @@ int tcr_auth_fini(void)
 TCRAuthSession *tcr_auth_session_new(const char *username, const char *token,
                                      char *reply, int *error)
 {
-    TCRAuthSession *as = tc_zalloc(sizeof(TCRAuthSession));
-    if (as) {
-        as->privdata = TCRAuth.new_session(username, token, reply, error);
-        if (*error != TCR_AUTH_OK) {
-            tc_free(as);
-            as = NULL;
+    TCRAuthSession *as = NULL;
+
+    if (error) {
+        as = tc_zalloc(sizeof(TCRAuthSession));
+        if (as) {
+            as->privdata = TCRAuth.new_session(username, token, reply, error);
+            if (*error != TCR_AUTH_OK) {
+                tc_free(as);
+                as = NULL;
+            }
         }
     }
     return as;
