@@ -40,8 +40,8 @@ START_TEST(test_none_init_null)
     int ret;
     
     ret = tcr_auth_init(TCR_AUTH_NONE, NULL);
-    fail_if(ret != TCR_AUTH_OK, 
-	        "`None' auth engine can't fail");
+    fail_if(ret != TCR_AUTH_ERR_CONFIG, 
+	        "`None' auth engine should fail with null usersfile");
 
     tcr_auth_fini();
 }
@@ -54,6 +54,19 @@ START_TEST(test_none_init_passfile)
     ret = tcr_auth_init(TCR_AUTH_NONE, "samplepass.cfg");
     fail_if(ret != TCR_AUTH_OK, 
 	        "`None' auth engine can't fail");
+
+    tcr_auth_fini();
+}
+END_TEST
+
+
+START_TEST(test_none_init_passfile_wrong)
+{
+    int ret;
+    
+    ret = tcr_auth_init(TCR_AUTH_NONE, "inexistent.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`None' auth engine can't fail with invalid passfile");
 
     tcr_auth_fini();
 }
@@ -202,7 +215,188 @@ START_TEST(test_none_session_valid_user_valid_pass)
 }
 END_TEST
 
+/*************************************************************************/
 
+START_TEST(test_plainpass_init_null)
+{
+    int ret;
+
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, NULL);
+    fail_if(ret == TCR_AUTH_OK, 
+	        "`Plainpass' auth engine must fail with null passfile (ret=%i)",
+            ret);
+
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_init_passfile)
+{
+    int ret;
+    
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail with valid passfile");
+
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_init_passfile_wrong)
+{
+    int ret;
+    
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "inexistent.cfg");
+    fail_if(ret != TCR_AUTH_ERR_CONFIG, 
+	        "`Plainpass' auth engine should fail with invalid passfile");
+
+    tcr_auth_fini();
+}
+END_TEST
+
+
+START_TEST(test_plainpass_session_nulls)
+{
+    TCRAuthSession *as = NULL;
+    int ret = 0;
+    
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail with valid passfile");
+
+    as = tcr_auth_session_new(NULL, NULL, NULL, NULL);
+    fail_if(as != NULL,
+            "NULL parameters should lead to session failure");
+
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_session_nulls_errparams)
+{
+    TCRAuthSession *as = NULL;
+    int ret, error = 0;
+    
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail with valid passfile");
+
+    as = tcr_auth_session_new(NULL, NULL, NULL, &error);
+    fail_if(as != NULL,
+            "NULL parameters should lead to session failure");
+    fail_if(error != TCR_AUTH_ERR_PARAMS,
+            "NULL parameters given wrong error");
+
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_session_all_empty_bad)
+{
+    TCRAuthSession *as = NULL;
+    char reply[TCR_AUTH_REPLY_LEN] = { '\0' };
+    int ret, error = 0;
+
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine should not fail");
+
+    as = tcr_auth_session_new("", "", reply, &error);
+    fail_if(as != NULL,
+            "empty user/pass should NOT succeed!!!");
+    fail_if(error != TCR_AUTH_ERR_USER,
+            "returned wrong error (error=%i)", error);
+
+    tcr_auth_session_del(as, reply);
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_session_unknown_user)
+{
+    TCRAuthSession *as = NULL;
+    char reply[TCR_AUTH_REPLY_LEN] = { '\0' };
+    int ret, error = 0;
+
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail");
+
+    as = tcr_auth_session_new("EVIL", "AreYouScared?", reply, &error);
+    fail_if(as != NULL,
+            "unknown user/any pass should fail");
+    fail_if(error != TCR_AUTH_ERR_USER,
+            "returned wrong error (error=%i)", error);
+
+    tcr_auth_session_del(as, reply);
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_session_valid_user_no_pass)
+{
+    TCRAuthSession *as = NULL;
+    char reply[TCR_AUTH_REPLY_LEN] = { '\0' };
+    int ret, error = 0;
+
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail");
+
+    as = tcr_auth_session_new("foo", "", reply, &error);
+    fail_if(as != NULL,
+            "valid user/empty pass should fail");
+    fail_if(error != TCR_AUTH_ERR_USER,
+            "returned wrong error (error=%i)", error);
+
+    tcr_auth_session_del(as, reply);
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_session_valid_user_wrong_pass)
+{
+    TCRAuthSession *as = NULL;
+    char reply[TCR_AUTH_REPLY_LEN] = { '\0' };
+    int ret, error = 0;
+
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail");
+
+    as = tcr_auth_session_new("foo", "WRONG!", reply, &error);
+    fail_if(as != NULL,
+            "valid user/empty pass should fail");
+    fail_if(error != TCR_AUTH_ERR_USER,
+            "returned wrong error (error=%i)", error);
+
+    tcr_auth_session_del(as, reply);
+    tcr_auth_fini();
+}
+END_TEST
+
+START_TEST(test_plainpass_session_valid_user_valid_pass)
+{
+    TCRAuthSession *as = NULL;
+    char reply[TCR_AUTH_REPLY_LEN] = { '\0' };
+    int ret, error = 0;
+
+    ret = tcr_auth_init(TCR_AUTH_PLAINPASS, "samplepass.cfg");
+    fail_if(ret != TCR_AUTH_OK, 
+	        "`Plainpass' auth engine can't fail");
+
+    as = tcr_auth_session_new("foo", "bar", reply, &error);
+    fail_if(as == NULL,
+            "valid user/valid pass should succeed");
+    fail_if(error != TCR_AUTH_OK,
+            "returned error with valid session");
+
+    ret = tcr_auth_session_del(as, reply);
+    fail_if(ret != TCR_AUTH_OK,
+            "valid session destruction failed");
+    tcr_auth_fini();
+}
+END_TEST
 
 /*************************************************************************/
 
@@ -213,6 +407,7 @@ static Suite *tcrauth_suite(void)
     TCase *tc_none = tcase_create("none");
     tcase_add_test(tc_none, test_none_init_null);
     tcase_add_test(tc_none, test_none_init_passfile);
+    tcase_add_test(tc_none, test_none_init_passfile_wrong);
     tcase_add_test(tc_none, test_none_session_nulls);
     tcase_add_test(tc_none, test_none_session_nulls_errparams);
     tcase_add_test(tc_none, test_none_session_all_empty_ok);
@@ -224,6 +419,18 @@ static Suite *tcrauth_suite(void)
     suite_add_tcase(s, tc_none);
 
     TCase *tc_plainpass = tcase_create ("plainpass");
+    tcase_add_test(tc_none, test_plainpass_init_null);
+    tcase_add_test(tc_none, test_plainpass_init_passfile);
+    tcase_add_test(tc_none, test_plainpass_init_passfile_wrong);
+    tcase_add_test(tc_none, test_plainpass_session_nulls);
+    tcase_add_test(tc_none, test_plainpass_session_nulls_errparams);
+    tcase_add_test(tc_none, test_plainpass_session_all_empty_bad);
+    tcase_add_test(tc_none, test_plainpass_session_unknown_user);
+    tcase_add_test(tc_none, test_plainpass_session_valid_user_no_pass);
+    tcase_add_test(tc_none, test_plainpass_session_valid_user_wrong_pass);
+    tcase_add_test(tc_none, test_plainpass_session_valid_user_valid_pass);
+
+
     suite_add_tcase(s, tc_plainpass);
 
     return s;
