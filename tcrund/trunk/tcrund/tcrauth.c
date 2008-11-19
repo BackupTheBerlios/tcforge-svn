@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <unistd.h>
+
 #include "libtcutil/tcutil.h"
 
 #include "tcrauth.h"
@@ -92,13 +94,14 @@ static void *tcr_auth_none_new_session(const char *username,
     RETURN_SESSION(TCR_AUTH_NONE_TAG, TCR_AUTH_OK);
 }
 
-static int tcr_auth_none_init(TCRAuthContext *ctx)
+static int tcr_auth_none_init(TCRAuthContext *ctx, const char *usersfile)
 {
     int ret = TCR_AUTH_ERR_PARAMS;
     if (ctx) {
         ctx->new_session = tcr_auth_none_new_session;
         ctx->del_session = tcr_auth_none_del_session;
         ctx->new_message = tcr_auth_none_new_message;
+        ret = TCR_AUTH_OK;
     }
     return ret;
 }
@@ -136,13 +139,20 @@ static void *tcr_auth_plainpass_new_session(const char *username,
 }
 
 
-static int tcr_auth_plainpass_init(TCRAuthContext *ctx)
+static int tcr_auth_plainpass_init(TCRAuthContext *ctx, const char *usersfile)
 {
     int ret = TCR_AUTH_ERR_PARAMS;
-    if (ctx) {
-        ctx->new_session = tcr_auth_plainpass_new_session;
-        ctx->del_session = tcr_auth_none_del_session;
-        ctx->new_message = tcr_auth_none_new_message;
+
+    if (ctx && usersfile) {
+        int err = access(usersfile, R_OK);
+        if (err) {
+            ret = TCR_AUTH_ERR_CONFIG;
+        } else {
+            ctx->new_session = tcr_auth_plainpass_new_session;
+            ctx->del_session = tcr_auth_none_del_session;
+            ctx->new_message = tcr_auth_none_new_message;
+            ret = TCR_AUTH_OK;
+        }
     }
     return ret;
 }
@@ -152,7 +162,8 @@ static int tcr_auth_plainpass_init(TCRAuthContext *ctx)
 /* API helpers                                                            */
 /**************************************************************************/
 
-typedef int (*TCRAuthInitContext)(TCRAuthContext *ctx);
+typedef int (*TCRAuthInitContext)(TCRAuthContext *ctx,
+                                  const char *usersfile);
 
 struct auth_data {
     TCRAuthMethod      auth;
@@ -172,26 +183,28 @@ static struct auth_data auth_methods[] = {
 
 int tcr_auth_init(TCRAuthMethod authmethod, const char *usersfile)
 {
-    int ret = TCR_AUTH_ERR_METHOD;
+    int ret = TCR_AUTH_ERR_CONFIG;
 
     if (usersfile) {
         int i;
 
         TCRAuth.usersfile = usersfile;
 
+        ret = TCR_AUTH_ERR_METHOD;
         for (i = 0; auth_methods[i].auth != TCR_AUTH_NULL; i++) {
             if (auth_methods[i].auth == authmethod) {
-                ret = auth_methods[i].init(&TCRAuth);
+                ret = auth_methods[i].init(&TCRAuth, usersfile);
                 break;
             }
         }
     }
 
-    return TC_OK;
+    return ret;
 }
 
 int tcr_auth_fini(void)
 {
+    TCRAuth.usersfile = NULL;
     return TCR_AUTH_OK;
 }
 
