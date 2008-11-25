@@ -1,0 +1,18 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+datadir=@datarootdir@
+includedir=@includedir@/transcode-@VERSION@
+toolsdir=${prefix}/bin
+
+moduledir=@MOD_PATH@
+profiledir=@PROF_PATH@
+
+
+Name: transcode-@VERSION@
+Description: modular audio/video transcoder
+Requires: 
+Version: @VERSION@
+Libs: 
+Cflags: -I${includedir} @CFLAGS@
+
