@@ -173,7 +173,7 @@ export_yuv4mpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(MJPEGTOOLS_CFLAGS) $(LIBAVCODEC_C
 export_yuv4mpeg_la_LDFLAGS = -module -avoid-version
 export_yuv4mpeg_la_LIBADD = $(MJPEGTOOLS_LIBS) $(LIBAVCODEC_LIBS) $(LAME_LIBS)
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	export_def.h
 
 EXTRA_DIST = \

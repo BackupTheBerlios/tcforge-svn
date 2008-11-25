@@ -12,7 +12,7 @@ libtcmodule_la_SOURCES = \
 	tcmodule.c \
 	tcmoduleinfo.c
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	tcmodule-core.h \
 	tcmodule-data.h \
 	tcmodule-info.h \

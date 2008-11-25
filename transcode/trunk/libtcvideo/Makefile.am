@@ -8,7 +8,7 @@ libtcvideo_la_SOURCES = \
 	tcvideo.c \
 	zoom.c
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	tcvideo.h \
 	zoom.h
 

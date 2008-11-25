@@ -34,7 +34,7 @@ transcode_LDADD = \
 	$(TC_X_LIBS) \
 	-lm
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	framebuffer.h \
 	tc_defaults.h \
 	tcinfo.h \
@@ -78,5 +78,5 @@ transcode_SOURCES = \
 
 devkit:
 	mkdir -p $(tcincludedir)/src
-	cp $(DEVKIT_HEADERS) $(tcincludedir)/src
+	cp $(transcode_HEADERS) $(tcincludedir)/src
 

@@ -17,7 +17,7 @@ else
 PLATFORM = platform_posix.c
 endif
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	avilib.h \
 	wavlib.h
 

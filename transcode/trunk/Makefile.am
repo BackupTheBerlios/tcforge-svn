@@ -36,9 +36,7 @@ EXTRA_DIST = STYLE transcode.spec
 docsdir = $(datadir)/doc/transcode
 docs_DATA = ChangeLog
 
-tcincludedir = $(includedir)/schroedinger-$(VERSION)
-
-DEVKIT_PKGCONFIG = transcode-$(VERSION).pc
+tcincludedir = $(includedir)/transcode-$(VERSION)
 
 transcode-$(VERSION).pc: transcode.pc
 	cp transcode.pc transcode-$(VERSION).pc

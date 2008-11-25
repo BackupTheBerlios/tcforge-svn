@@ -224,7 +224,7 @@ import_yuv4mpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(MJPEGTOOLS_CFLAGS)
 import_yuv4mpeg_la_LDFLAGS = -module -avoid-version
 import_yuv4mpeg_la_LIBADD = $(MJPEGTOOLS_LIBS)
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	import_def.h
 
 EXTRA_DIST = \

@@ -20,7 +20,7 @@ libtc_la_SOURCES = \
 	tcformats.c \
 	tcframes.c 
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	framecode.h \
 	libtc.h \
 	ratiocodes.h \

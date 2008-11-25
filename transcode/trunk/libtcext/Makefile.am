@@ -11,7 +11,7 @@ noinst_LTLIBRARIES = libtcext.la
 
 libtcext_la_SOURCES = ext.c
 
-DEVKIT_HEADERS = \
+noinst_HEADERS = \
 	tc_avcodec.h \
 	tc_lzo.h \
 	tc_ogg.h
