@@ -94,7 +94,7 @@ static int tc_mplayer_open_video(vob_t *vob, transfer_t *param)
     videopipefd = popen(import_cmd_buf, "w");
     RETURN_IF_OPEN_FAILED(videopipefd, "popen videopipe failed");
 
-    if (vob->im_v_codec == CODEC_YUV) {
+    if (vob->im_v_codec == TC_CODEC_YUV420P) {
         sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
                            "tcextract -i %s -x yuv420p -t yuv4mpeg", videopipe);
         RETURN_IF_BAD_SRET(sret, videopipe);

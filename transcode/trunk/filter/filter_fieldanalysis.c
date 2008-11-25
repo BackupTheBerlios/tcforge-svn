@@ -421,13 +421,14 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
 	/* video parameters */
 	switch (vob->im_v_codec) {
-	case CODEC_YUY2:
-	case CODEC_YUV:
-	case CODEC_YUV422:
-	case CODEC_RGB:
+	case TC_CODEC_YUY2:
+	case TC_CODEC_YUV420P:
+	case TC_CODEC_YUV422P:
+	case TC_CODEC_RGB24:
 	    break;
 	default:
-	    tc_log_error (MOD_NAME, "Unsupported codec - need one of RGB YUV YUY2 YUV422");
+	    tc_log_error(MOD_NAME,
+                     "Unsupported codec - need one of RGB24 YUV420P YUY2 YUV422P");
 	    return -1;
 	}
 	myf->codec     = vob->im_v_codec;
@@ -594,19 +595,19 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
 	/* Convert / Copy to luminance only */
 	switch (myf->codec) {
-	case CODEC_RGB:
+	case TC_CODEC_RGB24:
 	    tcv_convert(myf->tcvhandle, ptr->video_buf, myf->lumIn,
 			myf->width, myf->height, IMG_RGB_DEFAULT, IMG_Y8);
 	    break;
-	case CODEC_YUY2:
+	case TC_CODEC_YUY2:
 	    tcv_convert(myf->tcvhandle, ptr->video_buf, myf->lumIn,
 			myf->width, myf->height, IMG_YUY2, IMG_Y8);
 	    break;
-	case CODEC_YUV:
+	case TC_CODEC_YUV420P:
 	    tcv_convert(myf->tcvhandle, ptr->video_buf, myf->lumIn,
 			myf->width, myf->height, IMG_YUV_DEFAULT, IMG_Y8);
 	    break;
-	case CODEC_YUV422:
+	case TC_CODEC_YUV422P:
 	    tcv_convert(myf->tcvhandle, ptr->video_buf, myf->lumIn,
 			myf->width, myf->height, IMG_YUV422P, IMG_Y8);
 	    break;

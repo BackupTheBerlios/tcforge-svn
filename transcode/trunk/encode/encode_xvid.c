@@ -235,7 +235,7 @@ static int tc_xvid_init(TCModuleInstance *self, uint32_t features)
      * encoder, so if it fails delivering smaller frames than original
      * ones, something really odd occurs somewhere and i prefer the
      * application crash */
-    if (vob->im_v_codec == CODEC_RGB || vob->im_v_codec == CODEC_YUV422) {
+    if (vob->im_v_codec != TC_CODEC_YUV420P) {
         pd->tcvhandle = tcv_init();
         if (!pd->tcvhandle) {
             tc_log_warn(MOD_NAME, "init: tcv_init failed");
@@ -329,11 +329,11 @@ static int tc_xvid_encode_video(TCModuleInstance *self,
     memset(&xvid_enc_stats, 0, sizeof(xvid_enc_stats_t));
     xvid_enc_stats.version = XVID_VERSION;
 
-    if(vob->im_v_codec == CODEC_YUV422) {
+    if(vob->im_v_codec == TC_CODEC_YUV422P) {
         /* Convert to UYVY */
         tcv_convert(pd->tcvhandle, inframe->video_buf, inframe->video_buf,
                     vob->ex_v_width, vob->ex_v_height, IMG_YUV422P, IMG_UYVY);
-    } else if (vob->im_v_codec == CODEC_RGB) {
+    } else if (vob->im_v_codec == TC_CODEC_RGB24) {
         /* Convert to BGR (why isn't RGB supported??) */
         tcv_convert(pd->tcvhandle, inframe->video_buf, inframe->video_buf,
                     vob->ex_v_width, vob->ex_v_height, IMG_RGB24, IMG_BGR24);
@@ -456,7 +456,7 @@ static int tc_xvid_fini(TCModuleInstance *self)
 /*************************************************************************/
 
 static const TCCodecID tc_xvid_codecs_in[] = {
-    TC_CODEC_RGB, TC_CODEC_YUV422P, TC_CODEC_YUV420P,
+    TC_CODEC_RGB24, TC_CODEC_YUV422P, TC_CODEC_YUV420P,
     TC_CODEC_ERROR
 };
 
@@ -990,10 +990,10 @@ static void set_frame_struct(XviDPrivateData *mod, vob_t *vob,
 
         /* Bind source frame */
         x->input.plane[0] = inframe->video_buf;
-        if (vob->im_v_codec == CODEC_RGB) {
+        if (vob->im_v_codec == TC_CODEC_RGB24) {
             x->input.csp       = XVID_CSP_BGR;
             x->input.stride[0] = vob->ex_v_width*3;
-        } else if (vob->im_v_codec == CODEC_YUV422) {
+        } else if (vob->im_v_codec == TC_CODEC_YUV422P) {
             x->input.csp       = XVID_CSP_UYVY;
             x->input.stride[0] = vob->ex_v_width*2;
         } else {

@@ -353,28 +353,28 @@ static void stats_audio_attributes(audio_attr_t *attr, int track, ProbeInfo *pro
   switch(attr->audio_format) {
   case 0:
     format = "ac3 ";
-    probe_info->track[track].format = CODEC_AC3;
+    probe_info->track[track].format = TC_CODEC_AC3;
     break;
   case 1:
     format = "(please send a bug report) ";
     break;
   case 2:
     format = "mpeg1 ";
-    probe_info->track[track].format = CODEC_MP2;
+    probe_info->track[track].format = TC_CODEC_MP2;
     break;
   case 3:
     format = "mpeg2ext ";
     break;
   case 4:
     format = "lpcm ";
-    probe_info->track[track].format = CODEC_LPCM;
+    probe_info->track[track].format = TC_CODEC_LPCM;
     break;
   case 5:
     format = "(please send a bug report) ";
     break;
   case 6:
     format = "dts ";
-    probe_info->track[track].format = CODEC_DTS;
+    probe_info->track[track].format = TC_CODEC_DTS;
     break;
   default:
     format = "(please send a bug report) ";

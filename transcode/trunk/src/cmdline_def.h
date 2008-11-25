@@ -1236,11 +1236,11 @@ TC_OPTION(video_format,       'V', "fmt",
                 if (strcmp(optarg, "yuv420p") == 0) {
                     tc_info("yuv420p is already the default for -V");
                     /* anyway... */
-                    vob->im_v_codec = CODEC_YUV;
+                    vob->im_v_codec = TC_CODEC_YUV420P;
                 } else if (strcmp(optarg, "yuv422p") == 0) {
-                    vob->im_v_codec = CODEC_YUV422;
+                    vob->im_v_codec = TC_CODEC_YUV422P;
                 } else if (strcmp(optarg, "rgb24") == 0) {
-                    vob->im_v_codec = CODEC_RGB;
+                    vob->im_v_codec = TC_CODEC_RGB24;
                 } else {
                     tc_error("bad argument for -V/--video_format, should"
                              " be one of: yuv420p (default), yuv422p, rgb24");
@@ -1275,7 +1275,7 @@ TC_OPTION(audio_scale,        's', "g[,c,f,r]",
 )
 TC_OPTION(audio_use_ac3,      'A', 0,
                 "use AC3 as internal audio codec [off]",
-                vob->im_a_codec = CODEC_AC3;
+                vob->im_a_codec = TC_CODEC_AC3;
 )
 
 /********/ TC_HEADER("Other processing options") /********/

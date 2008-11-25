@@ -92,7 +92,7 @@ MOD_encode
     vframe.video_buf = param->buffer;
     vframe.video_len = param->size;
     if (!vframe.v_codec)
-        vframe.v_codec = CODEC_RGB;  // assume it's correct
+        vframe.v_codec = TC_CODEC_RGB24;  // assume it's correct
     if (vob->decolor) {
         // Assume the data is already decolored and just take every third byte
         int i;

@@ -59,11 +59,11 @@ MOD_open
         char *magic = NULL;
 
         switch (vob->im_v_codec) {
-          case CODEC_RGB:
+          case TC_CODEC_RGB24:
             color = "rgb";
             break;
           
-          case CODEC_YUV:
+          case TC_CODEC_YUV420P:
             color = "yuv420p";
             break;
           
@@ -86,7 +86,7 @@ MOD_open
             magic = "";
             break;
 
-          case TC_CODEC_RGB:
+          case TC_CODEC_RGB24:
           case TC_CODEC_YUV420P:
           default:
             codec = "raw";
@@ -108,16 +108,16 @@ MOD_open
 
     if (param->flag == TC_AUDIO) {
         switch (vob->a_codec_flag) {
-          case CODEC_MP3:
-          case CODEC_MP2:
+          case TC_CODEC_MP3:
+          case TC_CODEC_MP2:
             codec = "mp3";
             break;
 
-          case CODEC_VORBIS:
+          case TC_CODEC_VORBIS:
             codec = "ogg";
             break;
 
-          case CODEC_PCM:
+          case TC_CODEC_PCM:
             codec = "pcm";
             break;
 
@@ -133,7 +133,7 @@ MOD_open
             tc_log_perror(MOD_NAME, "command buffer overflow");
             return TC_ERROR;
 
-            if (vob->a_codec_flag != CODEC_PCM) {
+            if (vob->a_codec_flag != TC_CODEC_PCM) {
                 char buf[TC_BUF_MAX];
                 if (tc_snprintf(buf, sizeof(buf), " | tcdecode -x %s -d %i",
                                 codec, vob->verbose) < 0) {

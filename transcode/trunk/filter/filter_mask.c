@@ -290,19 +290,19 @@ int tc_filter(frame_list_t *ptr_, char *options)
   //    ac_memcpy(buffer, ptr->video_buf, SIZE_RGB_FRAME);
   //    ac_memcpy(ptr->video_buf, buffer, SIZE_RGB_FRAME);
 
-      if (vob->im_v_codec==CODEC_YUV) {
+      if (vob->im_v_codec==TC_CODEC_YUV420P) {
 	  if (tc > 2) ymask_yuv(ptr->video_buf, vob, 0, tc - 1);
 	  if ((vob->im_v_height - bc) > 1) ymask_yuv(ptr->video_buf, vob, bc, vob->im_v_height - 1);
 	  if (lc > 2) xmask_yuv(ptr->video_buf, vob, 0, lc - 1);
 	  if ((vob->im_v_width - rc) > 1) xmask_yuv(ptr->video_buf, vob, rc, vob->im_v_width - 1);
       }
-      if (vob->im_v_codec==CODEC_RGB) {
+      if (vob->im_v_codec==TC_CODEC_RGB24) {
 	  if (tc > 2) ymask_rgb(ptr->video_buf, vob, 0, tc - 1);
 	  if ((vob->im_v_height - bc) > 1) ymask_rgb(ptr->video_buf, vob, bc, vob->im_v_height - 1);
 	  if (lc > 2) xmask_rgb(ptr->video_buf, vob, 0, lc - 1);
 	  if ((vob->im_v_width - rc) > 1) xmask_rgb(ptr->video_buf, vob, rc, vob->im_v_width - 1);
       }
-      if (vob->im_v_codec==CODEC_YUV422) {
+      if (vob->im_v_codec==TC_CODEC_YUV422P) {
 	  if (tc > 2) ymask_yuv422(ptr->video_buf, vob, 0, tc - 1);
 	  if ((vob->im_v_height - bc) > 1) ymask_yuv422(ptr->video_buf, vob, bc, vob->im_v_height - 1);
 	  if (lc > 2) xmask_yuv422(ptr->video_buf, vob, 0, lc - 1);

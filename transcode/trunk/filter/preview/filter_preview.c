@@ -118,7 +118,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
     switch(vob->im_v_codec) {
 
-    case CODEC_RGB:
+    case TC_CODEC_RGB24:
 
       if(!dv_display_init(dv_player->display, 0, NULL,
 			  w, h, e_dv_color_rgb,
@@ -127,7 +127,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
       size = w * h * 3;
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
 
       if(!dv_display_init(dv_player->display, 0, NULL,
 			  w, h, e_dv_sample_420,
@@ -136,7 +136,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
       size = w*h* 3/2;
       break;
 
-    case CODEC_RAW_YUV:
+    case TC_CODEC_RAW:
 
       if(!dv_display_init(dv_player->display, 0, NULL,
 			  w, h, e_dv_sample_420,

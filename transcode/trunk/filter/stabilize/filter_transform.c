@@ -613,9 +613,9 @@ static int transform_filter_video(TCModuleInstance *self,
         return TC_ERROR;
     }
   
-    if (td->vob->im_v_codec == CODEC_RGB) {
+    if (td->vob->im_v_codec == TC_CODEC_RGB24) {
         transformRGB(td);
-    } else if(td->vob->im_v_codec == CODEC_YUV) {
+    } else if(td->vob->im_v_codec == TC_CODEC_YUV420P) {
         transformYUV(td);
     } else {
         tc_log_error(MOD_NAME, "unsupported Codec: %i\n", td->vob->im_v_codec);
@@ -704,10 +704,10 @@ static int transform_inspect(TCModuleInstance *self,
 
 
 static const TCCodecID transform_codecs_in[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB, TC_CODEC_ERROR 
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24, TC_CODEC_ERROR 
 };
 static const TCCodecID transform_codecs_out[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB, TC_CODEC_ERROR 
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24, TC_CODEC_ERROR 
 };
 TC_MODULE_FILTER_FORMATS(transform);
 

@@ -114,11 +114,11 @@ MOD_open
 
     switch(vob->im_v_codec) {
 
-    case CODEC_RGB:
+    case TC_CODEC_RGB24:
       format=0;
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
       format=1;
       break;
 

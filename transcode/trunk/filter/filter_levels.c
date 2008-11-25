@@ -134,7 +134,7 @@ static int levels_configure(TCModuleInstance *self,
 
     pd = self->userdata;
 
-    if (vob->im_v_codec != CODEC_YUV) {
+    if (vob->im_v_codec != TC_CODEC_YUV420P) {
         tc_log_error(MOD_NAME, "This filter is only capable of YUV mode");
         return TC_ERROR;
     }

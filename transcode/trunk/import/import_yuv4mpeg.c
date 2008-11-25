@@ -132,9 +132,9 @@ static int yw_open_video(YWPrivateData *pd, vob_t *vob)
     y4m_init_stream_info(&pd->streaminfo);
     y4m_init_frame_info(&pd->frameinfo);
     
-    if (vob->im_v_codec == CODEC_YUV) {
+    if (vob->im_v_codec == TC_CODEC_YUV420P) {
 	    pd->dstfmt = IMG_YUV_DEFAULT;
-    } else if (vob->im_v_codec == CODEC_RGB) {
+    } else if (vob->im_v_codec == TC_CODEC_RGB24) {
 	    pd->dstfmt = IMG_RGB_DEFAULT;
     } else {
 	    tc_log_error(MOD_NAME, "unsupported video format %d",

@@ -102,7 +102,7 @@ static int tc_lzo_init(TCModuleInstance *self, uint32_t features)
         return TC_ERROR;
     }
     /* sane defaults */
-    pd->codec = CODEC_YUV;
+    pd->codec = TC_CODEC_YUV420P;
 
     self->userdata = pd;
     if (verbose) {
@@ -161,13 +161,13 @@ static int tc_lzo_format_translate(int tc_codec)
 {
     int ret;
     switch (tc_codec) {
-      case CODEC_YUV:
+      case TC_CODEC_YUV420P:
         ret = TC_LZO_FORMAT_YUV420P;
         break;
-      case CODEC_YUY2:
+      case TC_CODEC_YUY2:
         ret = TC_LZO_FORMAT_YUY2;
         break;
-      case CODEC_RGB:
+      case TC_CODEC_RGB24:
         ret = TC_LZO_FORMAT_RGB24;
         break;
       default:
@@ -258,7 +258,7 @@ static int tc_lzo_encode_video(TCModuleInstance *self,
 /*************************************************************************/
 
 static const TCCodecID tc_lzo_codecs_in[] = {
-    TC_CODEC_YUY2, TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_ERROR
+    TC_CODEC_YUY2, TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_ERROR
 };
 static const TCCodecID tc_lzo_codecs_out[] = { 
     TC_CODEC_LZO2, TC_CODEC_ERROR 

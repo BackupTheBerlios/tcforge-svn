@@ -276,7 +276,7 @@ int f_build_xml_tree(info_t *ipipe,audiovideo_t *p_audiovideo,ProbeInfo *p_first
 				if (p_audio_video->s_a_magic == TC_MAGIC_UNKNOWN)	//forced by ioxml.c
 				{
 					if (s_other_audio.magic == TC_MAGIC_AVI)	//if the magic is AVI and the codec is DV -> i need to use DV
-						if (s_other_audio.track[0].format == CODEC_PCM)	//for instant only PCM work
+						if (s_other_audio.track[0].format == TC_CODEC_PCM)	//for instant only PCM work
 							p_audio_video->s_a_magic=TC_MAGIC_AVI;
 						else
 							p_audio_video->s_a_magic=s_other_audio.magic;

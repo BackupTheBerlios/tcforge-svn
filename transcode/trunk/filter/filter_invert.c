@@ -203,10 +203,10 @@ static int invert_filter_video(TCModuleInstance *self, vframe_list_t *frame)
 /*************************************************************************/
 
 static const TCCodecID invert_codecs_in[] = { 
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_ERROR
 };
 static const TCCodecID invert_codecs_out[] = {
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_ERROR
 };
 TC_MODULE_FILTER_FORMATS(invert);
 

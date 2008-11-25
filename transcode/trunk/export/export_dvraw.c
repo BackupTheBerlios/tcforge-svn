@@ -82,7 +82,7 @@ MOD_init
             dv_yuy2_mode = 1;
         }
 
-        if (vob->im_v_codec == CODEC_YUV422) {
+        if (vob->im_v_codec == TC_CODEC_YUV422P) {
             tmp_buf = tc_bufalloc(PAL_W * PAL_H * 2); //max frame
             dv_uyvy_mode = 1;
         }
@@ -125,23 +125,22 @@ MOD_open
         }
 
         switch (vob->im_v_codec) {
-          case CODEC_RGB:
+          case TC_CODEC_RGB24:
             format = 0;
             if (verbose >= TC_DEBUG)
                 tc_log_info(MOD_NAME, "raw format is RGB");
             break;
-          case CODEC_YUV:
+          case TC_CODEC_YUV420P:
             format = 1;
             if (verbose >= TC_DEBUG)
                 tc_log_info(MOD_NAME, "raw format is YUV420P");
             break;
-          case CODEC_YUV422:
+          case TC_CODEC_YUV422P:
             format = 2;
             if (verbose >= TC_DEBUG)
-                tc_log_info(MOD_NAME, "raw format is YUV422");
+                tc_log_info(MOD_NAME, "raw format is YUV422P");
             break;
-          case CODEC_RAW:
-          case CODEC_RAW_YUV:
+          case TC_CODEC_RAW:
             format = 1;
             pass_through = 1;
             break;

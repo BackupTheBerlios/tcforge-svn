@@ -153,7 +153,7 @@ int process_aud_frame(vob_t *vob, aframe_list_t *ptr)
         return 0;
 
     /* Check audio format */
-    if (vob->im_a_codec != CODEC_PCM) {
+    if (vob->im_a_codec != TC_CODEC_PCM) {
         tc_log_error(__FILE__,
                      "Sorry, only PCM audio is supported for processing");
         return -1;

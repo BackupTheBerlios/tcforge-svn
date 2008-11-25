@@ -67,7 +67,7 @@ MOD_open
 
     switch(vob->im_v_codec) {
 
-    case CODEC_RGB:
+    case TC_CODEC_RGB24:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tcextract -x mpeg2 -i \"%s\" -d %d |"
@@ -78,7 +78,7 @@ MOD_open
 
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tcextract -x mpeg2 -i \"%s\" -d %d |"
@@ -89,8 +89,7 @@ MOD_open
 
       break;
 
-    case CODEC_RAW:
-    case CODEC_RAW_YUV:
+    case TC_CODEC_RAW:
 
 	memset(requant_buf, 0, sizeof (requant_buf));
 	if (vob->m2v_requant > M2V_REQUANT_FACTOR) {
@@ -112,7 +111,7 @@ MOD_open
 
     switch(vob->im_v_codec) {
 
-    case CODEC_RGB:
+    case TC_CODEC_RGB24:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tccat -i \"%s\" -d %d -n 0x%x |"
@@ -125,7 +124,7 @@ MOD_open
 
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tccat -i \"%s\" -d %d -n 0x%x |"

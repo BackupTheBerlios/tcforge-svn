@@ -241,7 +241,7 @@ void probe_ogg(info_t *ipipe)
 			ipipe->probe_info->codec=TC_CODEC_UNKNOWN; // gets rewritten
 
 			if(strlen(vid_codec)==0) {
-			    ipipe->probe_info->codec=TC_CODEC_RGB;
+			    ipipe->probe_info->codec=TC_CODEC_RGB24;
 			} else {
 
 			    if(strcasecmp(vid_codec,"dvsd")==0)

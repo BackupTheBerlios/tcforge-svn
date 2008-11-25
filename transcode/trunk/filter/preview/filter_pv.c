@@ -193,7 +193,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
     switch(vob->im_v_codec) {
 
-    case CODEC_YUV422:
+    case TC_CODEC_YUV422P:
 
       if(xv_display_init(xv_player->display, 0, NULL,
 			 w, h, buffer, buffer, 1)<0) return(-1);
@@ -203,14 +203,14 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
 
       if(xv_display_init(xv_player->display, 0, NULL,
 			 w, h, buffer, buffer, 0)<0) return(-1);
 
       break;
 
-    case CODEC_RAW_YUV:
+    case TC_CODEC_RAW:
 
       if(xv_display_init(xv_player->display, 0, NULL,
 			  w, h, buffer, buffer, 0)<0) return(-1);
@@ -366,7 +366,8 @@ void preview_cache_submit(char *buf, int id, int flag) {
 
   (flag & TC_FRAME_IS_KEYFRAME) ? tc_snprintf(string, sizeof(string), "%u *", id) : tc_snprintf(string, sizeof(string), "%u", id);
 
-  str2img (vid_buf[cache_ptr], string, w, h, cols, rows, 0, 0, CODEC_YUV);
+  str2img (vid_buf[cache_ptr],
+           string, w, h, cols, rows, 0, 0, TC_CODEC_YUV420P);
 }
 
 int preview_filter_buffer(int frames_needed)
@@ -405,7 +406,7 @@ int preview_filter_buffer(int frames_needed)
 	ptr->next = ptr;
 
 	ptr->filter_id = 0;
-	ptr->v_codec = CODEC_YUV;
+	ptr->v_codec = TC_CODEC_YUV420P;
 	ptr->id  = i; // frame
 #ifdef STATBUFFER
 	ptr->internal_video_buf_0 = run_buffer[0];
@@ -703,7 +704,7 @@ void bmp2img(char *img, char **c, int width, int height, int char_width, int cha
 {
     int h, w;
 
-    if (codec == CODEC_YUV) {
+    if (codec == TC_CODEC_YUV420P) {
 	for (h=0; h<char_height; h++) {
 	    for (w=0; w<char_width; w++) {
 		img[(posy+h)*width+posx+w] = (c[h][w] == '+')?230:img[(posy+h)*width+posx+w];

@@ -340,7 +340,7 @@ static int yait_init(char *opt)
 
     Fn = -1;
 
-    if (Codec == CODEC_RGB)
+    if (Codec == TC_CODEC_RGB24)
         cmp_hook = yait_cmp_rgb;
     else
         cmp_hook = yait_cmp_yuv;
@@ -676,7 +676,7 @@ static void yait_put_rows(uint8_t * dst, uint8_t * src, int w, int h, int flg)
 
     y = (flg == Y_OP_EVEN) ? 0 : 1;
 
-    if (Codec == CODEC_RGB) {
+    if (Codec == TC_CODEC_RGB24) {
         for (; y < h; y += 2) {
             o = y * w * 3;
             ac_memcpy(dst + o, src + o, w * 3);

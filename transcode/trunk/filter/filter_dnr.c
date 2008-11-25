@@ -434,7 +434,7 @@ static int dnr_configure(TCModuleInstance *self,
             pd->pScene = DEFAULT_SC;
     }
 
-    pd->isYUV = (vob->im_v_codec == CODEC_YUV);
+    pd->isYUV = (vob->im_v_codec == TC_CODEC_YUV420P);
     pd->src_h = vob->ex_v_height;
     pd->src_w = vob->ex_v_width;
     pd->is_first_frame = 1;
@@ -595,10 +595,10 @@ static int dnr_filter_video(TCModuleInstance *self,
 /*************************************************************************/
 
 static const TCCodecID dnr_codecs_in[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_YUV420P, TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 static const TCCodecID dnr_codecs_out[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_YUV420P, TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 TC_MODULE_FILTER_FORMATS(dnr);
 

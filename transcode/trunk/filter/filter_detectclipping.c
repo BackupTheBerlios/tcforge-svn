@@ -179,10 +179,10 @@ int tc_filter(frame_list_t *ptr_, char *options)
     mfd[ptr->filter_id]->y2 = 0;
     mfd[ptr->filter_id]->fno = 0;
 
-    if (vob->im_v_codec == CODEC_YUV) {
+    if (vob->im_v_codec == TC_CODEC_YUV420P) {
 	mfd[ptr->filter_id]->stride = mfd[ptr->filter_id]->post?vob->ex_v_width:vob->im_v_width;
 	mfd[ptr->filter_id]->bpp = 1;
-    } else if (vob->im_v_codec == CODEC_RGB) {
+    } else if (vob->im_v_codec == TC_CODEC_RGB24) {
 	mfd[ptr->filter_id]->stride = mfd[ptr->filter_id]->post?(vob->ex_v_width*3):(vob->im_v_width*3);
 	mfd[ptr->filter_id]->bpp = 3;
     } else {

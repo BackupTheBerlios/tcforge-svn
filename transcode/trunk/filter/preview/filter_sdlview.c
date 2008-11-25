@@ -149,18 +149,15 @@ static int configure_colorspace(SDLPrivateData *pd, int fmt, int verbose)
     const char *fmt_name = "unknown";
 
     switch (fmt) {
-      case CODEC_YUV: /* fallthrough */
       case TC_CODEC_YUV420P:
         pd->src_fmt = IMG_YUV420P;
         fmt_name = "YUV420";
         break;
-      case CODEC_YUV422: /* fallthrough */
       case TC_CODEC_YUV422P:
         pd->src_fmt = IMG_YUV422P;
         fmt_name = "YUV422";
         break;
-      case CODEC_RGB: /* fallthrough */
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         pd->src_fmt = IMG_RGB24;
         fmt_name = "RGB24";
         break;
@@ -314,10 +311,10 @@ static int sdlview_filter_video(TCModuleInstance *self, vframe_list_t *frame)
 /*************************************************************************/
 
 static const TCCodecID sdlview_codecs_in[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB, TC_CODEC_ERROR 
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24, TC_CODEC_ERROR 
 };
 static const TCCodecID sdlview_codecs_out[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB, TC_CODEC_ERROR 
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24, TC_CODEC_ERROR 
 };
 TC_MODULE_FILTER_FORMATS(sdlview);
 

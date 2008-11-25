@@ -337,7 +337,7 @@ static const TCCodecID tc_x11_codecs_in[] = { TC_CODEC_ERROR };
 
 /* a multiplexor is at the end of pipeline */
 static const TCCodecID tc_x11_codecs_out[] = { 
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_ERROR 
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_ERROR 
 };
 
 static const TCFormatID tc_x11_formats_in[] = { TC_FORMAT_X11, TC_FORMAT_ERROR };

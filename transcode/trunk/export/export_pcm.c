@@ -69,6 +69,8 @@ static PCMChannels chan_settings[8] = {
  *
  * ------------------------------------------------------------*/
 
+#define PCM_FORMAT_TAG  0x00000001
+
 MOD_init
 {
     int rate;
@@ -84,7 +86,7 @@ MOD_init
         strlcpy(rtf.format.id, "fmt ", 4);
     
         rtf.format.len = sizeof(struct common_struct);
-        rtf.common.wFormatTag = CODEC_PCM;
+        rtf.common.wFormatTag = PCM_FORMAT_TAG;
     
         rate = (vob->mp3frequency != 0) ?vob->mp3frequency :vob->a_rate;
 

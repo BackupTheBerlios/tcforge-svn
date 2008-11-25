@@ -31,28 +31,28 @@
  */
 
 typedef enum {
-    /* ok, now the real codecs */
-    TC_CODEC_PCM        = 0x00000001,
-    TC_CODEC_LPCM       = 0x00010001,
-    TC_CODEC_ULAW       = 0x00000007, /* incidental */
-
-    TC_CODEC_AC3        = 0x00002000,
-    TC_CODEC_DTS        = 0x0001000f,
-    TC_CODEC_MP3        = 0x00000055,
-    TC_CODEC_MP2        = 0x00000050,
-    TC_CODEC_AAC        = 0x000000FF,
-    TC_CODEC_VORBIS     = 0x0000FFFE,
-    TC_CODEC_FLAC,
-    TC_CODEC_SPEEX,
-
-    /* we need special values here? */
-    TC_CODEC_RGB        = 0x00000024,
+    /* Pixel Formats */
+    TC_CODEC_RGB24      = 0x00000024,
     TC_CODEC_YV12       = 0x32315659,
     TC_CODEC_YUV420P    = 0x30323449,
     TC_CODEC_YUV422P    = 0x42323459,
     TC_CODEC_UYVY       = 0x59565955,
     TC_CODEC_YUV2       = 0x32565559,
     TC_CODEC_YUY2       = 0x32595559,
+
+    /* ok, now the real codecs */
+    TC_CODEC_PCM        = 0x00000001, /* incidental */
+    TC_CODEC_LPCM       = 0x00010001,
+    TC_CODEC_ULAW       = 0x00000007, /* incidental */
+
+    TC_CODEC_AC3        = 0x00002000, /* incidental */
+    TC_CODEC_DTS        = 0x0001000f,
+    TC_CODEC_MP3        = 0x00000055, /* incidental */
+    TC_CODEC_MP2        = 0x00000050, /* incidental */
+    TC_CODEC_AAC        = 0x000000FF,
+    TC_CODEC_VORBIS     = 0x0000FFFE,
+    TC_CODEC_FLAC,
+    TC_CODEC_SPEEX,
 
     /* this group should be probably removed or changed */
     TC_CODEC_M2V        = 0x000001b3,

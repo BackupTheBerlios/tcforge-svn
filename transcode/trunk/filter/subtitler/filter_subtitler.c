@@ -621,7 +621,7 @@ if(a)
 	    pv = ImageData + image_width * image_height;
 	    pu = ImageData + (image_width * image_height * 5) / 4;
 
-		if(vob->im_v_codec == CODEC_RGB)
+		if(vob->im_v_codec == TC_CODEC_RGB24)
 			{
 			for(y = 0; y < pfl->v_height; y++)
 				{
@@ -641,7 +641,7 @@ if(a)
 
 				} /* end for y */
 			} /* end if color_depth 32 */
-		else if(vob->im_v_codec == CODEC_YUV)
+		else if(vob->im_v_codec == TC_CODEC_YUV420P)
 			{
 			for(y = 0; y < pfl->v_height; y++)
 				{
@@ -702,13 +702,13 @@ if(a)
 		UV vector rotation.
 		Dynamic UV vector rotation (NTSC line phase error correction).
 		*/
-		if(vob->im_v_codec == CODEC_RGB)
+		if(vob->im_v_codec == TC_CODEC_RGB24)
 			{
 			tc_log_error(MOD_NAME, \
 			"hue operations only available in YUV 420");
             return(-1);
 			} /* end if CODEC_RGB */
-		else if(vob->im_v_codec == CODEC_YUV)
+		else if(vob->im_v_codec == TC_CODEC_YUV420P)
 			{
 			/* set pointers */
 		    py = ImageData;
@@ -791,13 +791,13 @@ if(a)
 
 	if(write_ppm_flag)
 		{
-		if(vob->im_v_codec == CODEC_RGB)
+		if(vob->im_v_codec == TC_CODEC_RGB24)
 			{
 			tc_log_error(MOD_NAME, \
 			"subtitler(): write_ppm only available in YUV 420\n");
 			return(-1);
 			} /* end if CODEC_RGB */
-		else if(vob->im_v_codec == CODEC_YUV)
+		else if(vob->im_v_codec == TC_CODEC_YUV420P)
 			{
 			/* set pointers */
 		    py = ImageData;
@@ -917,7 +917,7 @@ if(a)
 			/* copy data to X11 buffer */
 			ucptrs = ImageData;
 
-			if(vob->im_v_codec == CODEC_RGB)
+			if(vob->im_v_codec == TC_CODEC_RGB24)
 				{
 				/* need vertical flip, but not horizontal flip */
 				if(color_depth == 32)
@@ -963,7 +963,7 @@ if(a)
 						} /* end for y (all lines) */
 					} /* end if color_depth 32 */
 				} /* end if buffer is RGB */
-			else if(vob->im_v_codec == CODEC_YUV)
+			else if(vob->im_v_codec == TC_CODEC_YUV420P)
 				{
 				/* set pointers */
 			    py = ImageData;
@@ -1217,7 +1217,7 @@ else
 sc = src;
 sa = srca;
 
-if(vob->im_v_codec == CODEC_RGB)
+if(vob->im_v_codec == TC_CODEC_RGB24)
 	{
 	a = 3 * (image_height * image_width); // size of a picture
 
@@ -1368,7 +1368,7 @@ if(vob->im_v_codec == CODEC_RGB)
 		} /* end for all y */
 
 	} /* end if RGB */
-else if(vob->im_v_codec == CODEC_YUV)
+else if(vob->im_v_codec == TC_CODEC_YUV420P)
 	{
 	/*
 	We seem to be in this format I420:
@@ -1853,7 +1853,7 @@ dmci = (pa -> contrast / 100.0); // contrast insert, 1.0 for 100 % contrast
 
 dmti *= dmci;
 
-if(vob->im_v_codec == CODEC_RGB)
+if(vob->im_v_codec == TC_CODEC_RGB24)
 	{
 	a = 3 * (image_height * image_width); // size of a picture
 
@@ -1896,7 +1896,7 @@ if(vob->im_v_codec == CODEC_RGB)
 		} /* end for all y */
 
 	} /* end if RGB */
-else if(vob->im_v_codec == CODEC_YUV)
+else if(vob->im_v_codec == TC_CODEC_YUV420P)
 	{
 	/*
 	We seem to be in this format I420:
@@ -2076,7 +2076,7 @@ ds = (pa -> saturation / 100.0);
 /* saturation could be done in adjust color, but done here for speed */
 //ds = 1.0;
 
-if(vob->im_v_codec == CODEC_RGB)
+if(vob->im_v_codec == TC_CODEC_RGB24)
 	{
 	/* ImageData, image_width, image_height */
 
@@ -2085,7 +2085,7 @@ if(vob->im_v_codec == CODEC_RGB)
 
 	return(-1);
 	} /* end if RGB */
-else if(vob->im_v_codec == CODEC_YUV)
+else if(vob->im_v_codec == TC_CODEC_YUV420P)
 	{
 	b = image_width / 4;
 	c = image_width / 2;

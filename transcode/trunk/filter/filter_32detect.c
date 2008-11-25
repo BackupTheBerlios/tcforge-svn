@@ -260,7 +260,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
     //if (ptr->tag & TC_PRE_M_PROCESS) tc_log_msg(MOD_NAME, "32#%d pre (%d)", instance, ptr->id);
     //if (ptr->tag & TC_POST_M_PROCESS) tc_log_msg(MOD_NAME, "32#%d post (%d)", instance, ptr->id);
 
-    if(vob->im_v_codec==CODEC_RGB) {
+    if(vob->im_v_codec==TC_CODEC_RGB24) {
 	is_interlaced = interlace_test(ptr->video_buf, 3*ptr->v_width, ptr->v_height, ptr->id, instance,
 		threshold[instance], color_diff_threshold1[instance], color_diff_threshold2[instance]);
     } else {

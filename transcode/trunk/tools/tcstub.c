@@ -43,10 +43,10 @@ static vob_t vob = {
     .im_v_height= PAL_H,
     .ex_v_height= PAL_H,
 
-    .im_v_codec = CODEC_YUV,
-    .im_a_codec = CODEC_PCM,
-    .ex_v_codec = CODEC_YUV,
-    .ex_a_codec = CODEC_PCM,
+    .im_v_codec = TC_CODEC_YUV420P,
+    .im_a_codec = TC_CODEC_PCM,
+    .ex_v_codec = TC_CODEC_YUV420P,
+    .ex_a_codec = TC_CODEC_PCM,
 
     .im_frc = 3,
     .ex_frc = 3,

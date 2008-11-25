@@ -69,11 +69,9 @@ static int tc_dv_configure(TCModuleInstance *self,
     }
 
     switch (vob->im_v_codec) {
-      case CODEC_RGB: /* compatibility */
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         pd->is_yuv = 0;
         break;
-      case CODEC_YUV:
       case TC_CODEC_YUV420P:
         pd->is_yuv = 1;
         break;
@@ -262,7 +260,7 @@ static int tc_dv_encode_video(TCModuleInstance *self,
 /*************************************************************************/
 
 static const TCCodecID tc_dv_codecs_in[] = {
-    TC_CODEC_YUY2, TC_CODEC_RGB, TC_CODEC_YUV420P,
+    TC_CODEC_YUY2, TC_CODEC_RGB24, TC_CODEC_YUV420P,
     TC_CODEC_ERROR
 };
 

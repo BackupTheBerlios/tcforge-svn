@@ -307,7 +307,7 @@ int tc_filter(frame_list_t *ptr_, char *options){
 			tc_log_info(MOD_NAME, "Options correctly merged.");
 	}
 
-	if (vob->im_v_codec == CODEC_YUV){
+	if (vob->im_v_codec == TC_CODEC_YUV420P){
 		if (!(parameters->tcvhandle = tcv_init())) {
 			tc_log_error(MOD_NAME, "Error at image conversion initialization.");
 			return(-1);
@@ -358,11 +358,11 @@ int tc_filter(frame_list_t *ptr_, char *options){
 
 		frame_slot = find_empty_slot(ptr->id, slots);
 		switch(vob->im_v_codec){
-			case CODEC_RGB:
+			case TC_CODEC_RGB24:
 				return aart_render(ptr->video_buf, ptr->v_width, ptr->v_height, frame_slot, parameters->aart_font, parameters->aart_pallete, parameters->aart_threads, parameters->aart_buffer);
 				break;
 
-			case CODEC_YUV:
+			case TC_CODEC_YUV420P:
 
 				if (!tcv_convert(parameters->tcvhandle, ptr->video_buf, ptr->video_buf, ptr->v_width, ptr->v_height, IMG_YUV_DEFAULT, IMG_RGB24)){
 					tc_log_error(MOD_NAME, "cannot convert YUV stream to RGB format !");

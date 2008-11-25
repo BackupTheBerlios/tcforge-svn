@@ -108,9 +108,9 @@ static dn3d_private_data_t dn3d_private_data[100];
 
 static const dn3d_layout_t dn3d_layout[] =
 {
-	{ CODEC_YUV,    dn3d_yuv420p, dn3d_planar, {{ dn3d_luma, dn3d_off_y420,  1, 1, 1 }, { dn3d_chroma, dn3d_off_u420,  1, 2, 2 }, { dn3d_chroma, dn3d_off_v420,  1, 2, 2 }}},
-	{ CODEC_YUV422, dn3d_yuv422,  dn3d_planar, {{ dn3d_luma, dn3d_off_y422,  1, 1, 1 }, { dn3d_chroma, dn3d_off_u422,  1, 2, 1 }, { dn3d_chroma, dn3d_off_v422,  1, 2, 1 }}},
-	{ CODEC_RGB,    dn3d_rgb,     dn3d_packed, {{ dn3d_luma, dn3d_off_r,     3, 1, 1 }, { dn3d_luma,   dn3d_off_g,     3, 1, 1 }, { dn3d_luma,   dn3d_off_b,     3, 1, 1 }}}
+	{ TC_CODEC_YUV420P, dn3d_yuv420p, dn3d_planar, {{ dn3d_luma, dn3d_off_y420,  1, 1, 1 }, { dn3d_chroma, dn3d_off_u420,  1, 2, 2 }, { dn3d_chroma, dn3d_off_v420,  1, 2, 2 }}},
+	{ TC_CODEC_YUV422P, dn3d_yuv422,  dn3d_planar, {{ dn3d_luma, dn3d_off_y422,  1, 1, 1 }, { dn3d_chroma, dn3d_off_u422,  1, 2, 1 }, { dn3d_chroma, dn3d_off_v422,  1, 2, 1 }}},
+	{ TC_CODEC_RGB24,     dn3d_rgb,     dn3d_packed, {{ dn3d_luma, dn3d_off_r,     3, 1, 1 }, { dn3d_luma,   dn3d_off_g,     3, 1, 1 }, { dn3d_luma,   dn3d_off_b,     3, 1, 1 }}}
 };
 
 #define LowPass(prev, curr, coef) (curr + coef[prev - curr])

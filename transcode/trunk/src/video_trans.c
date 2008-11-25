@@ -85,7 +85,7 @@ static void set_vtd(video_trans_data_t *vtd, vframe_list_t *ptr)
     vtd->height_div[0] = 1;
     vtd->black_pixel[0] = 0;
     /* Now set parameters based on image format */
-    if (ptr->v_codec == CODEC_YUV) {
+    if (ptr->v_codec == TC_CODEC_YUV420P) {
         vtd->nplanes = 3;
         vtd->Bpp = 1;
         vtd->width_div[1] = 2;
@@ -94,7 +94,7 @@ static void set_vtd(video_trans_data_t *vtd, vframe_list_t *ptr)
         vtd->height_div[2] = 2;
         vtd->black_pixel[1] = 128;
         vtd->black_pixel[2] = 128;
-    } else if (vtd->ptr->v_codec == CODEC_YUV422) {
+    } else if (vtd->ptr->v_codec == TC_CODEC_YUV422P) {
         vtd->nplanes = 3;
         vtd->Bpp = 1;
         vtd->width_div[1] = 2;
@@ -103,7 +103,7 @@ static void set_vtd(video_trans_data_t *vtd, vframe_list_t *ptr)
         vtd->height_div[2] = 1;
         vtd->black_pixel[1] = 128;
         vtd->black_pixel[2] = 128;
-    } else if (vtd->ptr->v_codec == CODEC_RGB) {
+    } else if (vtd->ptr->v_codec == TC_CODEC_RGB24) {
         vtd->Bpp = 3;
     }
     ptr->video_size = 0;
@@ -360,7 +360,7 @@ static int do_process_frame(vob_t *vob, vframe_list_t *ptr)
     /**** -k: red/blue swap ****/
 
     if (rgbswap) {
-        if (ptr->v_codec == CODEC_RGB) {
+        if (ptr->v_codec == TC_CODEC_RGB24) {
             int i;
             for (i = 0; i < ptr->v_width * ptr->v_height; i++) {
                 uint8_t tmp = vtd.planes[0][i*3];
@@ -379,7 +379,7 @@ static int do_process_frame(vob_t *vob, vframe_list_t *ptr)
     /**** -K: grayscale ****/
 
     if (decolor) {
-        if (ptr->v_codec == CODEC_RGB) {
+        if (ptr->v_codec == TC_CODEC_RGB24) {
             /* Convert to 8-bit grayscale, then back to RGB24.  Just
              * averaging the values won't give us the right intensity. */
             tcv_convert(handle, vtd.planes[0], vtd.tmpplanes[0],
@@ -411,7 +411,7 @@ static int do_process_frame(vob_t *vob, vframe_list_t *ptr)
         tcv_antialias(handle, vtd.planes[0], vtd.tmpplanes[0],
                       ptr->v_width, ptr->v_height, vtd.Bpp,
                       vob->aa_weight, vob->aa_bias);
-        if (ptr->v_codec != CODEC_RGB) {
+        if (ptr->v_codec != TC_CODEC_RGB24) {
             int UVsize = (ptr->v_width  / vtd.width_div[1])
                        * (ptr->v_height / vtd.height_div[1]) * vtd.Bpp;
             ac_memcpy(vtd.tmpplanes[1], vtd.planes[1], UVsize);
@@ -454,9 +454,9 @@ int process_vid_frame(vob_t *vob, vframe_list_t *ptr)
         return 0;
 
     /* It's a valid frame, check the colorspace for validity and process it */
-    if (vob->im_v_codec == CODEC_RGB
-     || vob->im_v_codec == CODEC_YUV
-     || vob->im_v_codec == CODEC_YUV422
+    if (vob->im_v_codec == TC_CODEC_RGB24
+     || vob->im_v_codec == TC_CODEC_YUV420P
+     || vob->im_v_codec == TC_CODEC_YUV422P
     ) {
         ptr->v_codec = vob->im_v_codec;
         return do_process_frame(vob, ptr);
@@ -500,9 +500,9 @@ int preprocess_vid_frame(vob_t *vob, vframe_list_t *ptr)
         return 0;
 
     /* Check frame colorspace */
-    if (vob->im_v_codec != CODEC_RGB
-     && vob->im_v_codec != CODEC_YUV
-     && vob->im_v_codec != CODEC_YUV422
+    if (vob->im_v_codec != TC_CODEC_RGB24
+     && vob->im_v_codec != TC_CODEC_YUV420P
+     && vob->im_v_codec != TC_CODEC_YUV422P
     ) {
         tc_error("Oops, invalid colorspace video frame data");
         return -1;
@@ -558,9 +558,9 @@ int postprocess_vid_frame(vob_t *vob, vframe_list_t *ptr)
         return 0;
 
     /* Check frame colorspace */
-    if (vob->im_v_codec != CODEC_RGB
-     && vob->im_v_codec != CODEC_YUV
-     && vob->im_v_codec != CODEC_YUV422
+    if (vob->im_v_codec != TC_CODEC_RGB24
+     && vob->im_v_codec != TC_CODEC_YUV420P
+     && vob->im_v_codec != TC_CODEC_YUV422P
     ) {
         tc_error("Oops, invalid colorspace video frame data");
         return -1;

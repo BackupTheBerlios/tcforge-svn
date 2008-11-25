@@ -255,7 +255,7 @@ static int tc_im_encode_video(TCModuleInstance *self,
 /*************************************************************************/
 
 static const TCCodecID tc_im_codecs_in[] = { 
-    TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 static const TCCodecID tc_im_codecs_out[] = {
     TC_CODEC_JPEG, TC_CODEC_TIFF, TC_CODEC_PNG,

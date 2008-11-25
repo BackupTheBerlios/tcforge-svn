@@ -931,18 +931,18 @@ static int tc_v4l2_parse_options(V4L2Source *vs, int layout, const char *options
     vs->mute_audio = TC_TRUE; /* for back compatibility and comfort */
 
     switch (layout) {
-      case CODEC_RGB:
+      case TC_CODEC_RGB24:
         vs->fmt = IMG_RGB_DEFAULT;
         break;
-      case CODEC_YUV:
+      case TC_CODEC_YUV420P:
         vs->fmt = IMG_YUV_DEFAULT;
         break;
-      case CODEC_YUV422:
+      case TC_CODEC_YUV422P:
         vs->fmt = IMG_YUV422P;
         break;
       default:
         tc_log_error(MOD_NAME,
-                     "colorspace (%d) must be one of CODEC_RGB, CODEC_YUV or CODEC_YUV422",
+                     "colorspace (%d) must be one of RGB, YUV 4:2:0 or YUV 4:2:2",
                      layout);
         return TC_ERROR;
     }

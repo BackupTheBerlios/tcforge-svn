@@ -152,7 +152,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
     if((vob = tc_get_vob())==NULL) return(-1);
 
-    if (vob->im_v_codec == CODEC_RGB) {
+    if (vob->im_v_codec == TC_CODEC_RGB24) {
       tc_log_error(MOD_NAME, "filter is not capable for RGB-Mode !");
       return(-1);
     }
@@ -287,7 +287,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
   // transcodes internal video/audo frame processing routines
   // or after and determines video/audio context
 
-  if (vob->im_v_codec!=CODEC_YUV)
+  if (vob->im_v_codec!=TC_CODEC_YUV420P)
       return 0;
 
   if(((ptr->tag & TC_PRE_M_PROCESS  && pre) ||

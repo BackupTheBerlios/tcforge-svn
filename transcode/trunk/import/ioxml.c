@@ -393,17 +393,17 @@ int f_parse_tree(xmlNodePtr p_node,audiovideo_t *p_audiovideo)
                     break;
                     case IN_VIDEO_CODEC:
                         if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"rgb") == 0)
-                            p_audiovideo->s_v_codec=CODEC_RGB;
+                            p_audiovideo->s_v_codec=TC_CODEC_RGB24;
                         else if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"yuv2") == 0)
-                            p_audiovideo->s_v_codec=CODEC_YUV;
+                            p_audiovideo->s_v_codec=TC_CODEC_YUV420P;
                         else if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"yuv420p") == 0)
-                            p_audiovideo->s_v_codec=CODEC_YUV;
+                            p_audiovideo->s_v_codec=TC_CODEC_YUV420P;
                         else if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"yv12") == 0)
-                            p_audiovideo->s_v_codec=CODEC_YUV;
+                            p_audiovideo->s_v_codec=TC_CODEC_YUV420P; //  What?!?
                         else if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"yuy2") == 0)
-                            p_audiovideo->s_v_codec=CODEC_YUY2;
+                            p_audiovideo->s_v_codec=TC_CODEC_YUY2;
                         else if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"raw") == 0)
-                            p_audiovideo->s_v_codec=CODEC_RAW;
+                            p_audiovideo->s_v_codec=TC_CODEC_RAW;
                         else
                         {
                             tc_log_warn(__FILE__,"The in-video-codec %s parameter isn't yet supported.",(char *)p_node->xmlChildrenNode->content);
@@ -419,7 +419,7 @@ int f_parse_tree(xmlNodePtr p_node,audiovideo_t *p_audiovideo)
                     break;
                     case IN_AUDIO_CODEC:
                         if (xmlStrcmp((char *)p_node->xmlChildrenNode->content, (const xmlChar*)"pcm") == 0)
-                            p_audiovideo->s_a_codec=CODEC_PCM;
+                            p_audiovideo->s_a_codec=TC_CODEC_PCM;
                         else
                         {
                             tc_log_warn(__FILE__,"The in-audio-codec %s parameter isn't yet supported.",(char *)p_node->xmlChildrenNode->content);

@@ -37,19 +37,6 @@ extern "C" {
 /* codec helpers ***********************************************************/
 
 /*
- * tc_translate_codec_id:
- *     translate a CODEC_* value to corresponding TC_CODEC_* one.
- *
- * Parameters:
- *     codec: CODEC_* value to translate.
- * Return value:
- *     corresponding TC_CODEC_* value, or
- *     TC_CODEC_ERROR if given CODEC_XXX hasn't corresponding TC_CODEC_XXX
- *     or if it;s just unknown.
- */
-int tc_translate_codec_id(TCCodecID codec);
-
-/*
  * tc_codec_to_comment:
  *     return a short constant descriptive string given the codec identifier.
  *

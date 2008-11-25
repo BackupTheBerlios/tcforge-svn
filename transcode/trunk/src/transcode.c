@@ -908,8 +908,8 @@ static vob_t *new_vob(void)
     vob->audio_in_file       = NULL;
     vob->video_in_file       = NULL;
     vob->clip_count          = 0;
-    vob->ex_a_codec          = CODEC_MP3;  //or fall back to module default
-    vob->ex_v_codec          = CODEC_NULL; //determined by export module type
+    vob->ex_a_codec          = TC_CODEC_MP3;   //or fall back to module default
+    vob->ex_v_codec          = TC_CODEC_ERROR; //determined by export module type
     vob->ex_v_fcc            = NULL;
     vob->ex_a_fcc            = NULL;
     vob->ex_profile_name     = NULL;
@@ -944,8 +944,8 @@ static vob_t *new_vob(void)
     vob->antialias           = 0;
     vob->deinterlace         = 0;
     vob->decolor             = 0;
-    vob->im_a_codec          = CODEC_PCM;
-    vob->im_v_codec          = CODEC_YUV;
+    vob->im_a_codec          = TC_CODEC_PCM;
+    vob->im_v_codec          = TC_CODEC_YUV420P;
     vob->mod_path            = MOD_PATH;
     vob->audiologfile        = NULL;
     vob->divxlogfile         = NULL;
@@ -955,7 +955,7 @@ static vob_t *new_vob(void)
     vob->a_leap_frame        = TC_LEAP_FRAME;
     vob->a_leap_bytes        = 0;
     vob->demuxer             = -1;
-    vob->a_codec_flag        = CODEC_AC3;
+    vob->a_codec_flag        = TC_CODEC_AC3;
     vob->gamma               = 0.0;
     vob->encoder_flush       = TC_TRUE;
     vob->has_video           = 1;
@@ -1206,7 +1206,7 @@ static void teardown_input_sources(vob_t *vob)
 
 #define CLIP_CHECK(MODE, NAME, OPTION) do { \
     /* force to even for YUV mode */ \
-    if (vob->im_v_codec == CODEC_YUV || vob->im_v_codec == CODEC_YUV422) { \
+    if (vob->im_v_codec == TC_CODEC_YUV420P || vob->im_v_codec == TC_CODEC_YUV422P) { \
         if (vob->MODE ## _left % 2 != 0) { \
             tc_warn("left/right %s must be even in YUV/YUV422 mode", NAME); \
             vob->MODE ## _left--; \
@@ -1215,11 +1215,11 @@ static void teardown_input_sources(vob_t *vob)
             tc_warn("left/right %s must be even in YUV/YUV422 mode", NAME); \
             vob->MODE ## _right--; \
         } \
-        if (vob->im_v_codec == CODEC_YUV && vob->MODE ## _top % 2 != 0) { \
+        if (vob->im_v_codec == TC_CODEC_YUV420P && vob->MODE ## _top % 2 != 0) { \
             tc_warn("top/bottom %s must be even in YUV mode", NAME); \
             vob->MODE ## _top--; \
         } \
-        if (vob->im_v_codec == CODEC_YUV && vob->MODE ## _bottom % 2 != 0) { \
+        if (vob->im_v_codec == TC_CODEC_YUV420P && vob->MODE ## _bottom % 2 != 0) { \
             tc_warn("top/bottom %s must be even in YUV mode", NAME); \
             vob->MODE ## _bottom--; \
         } \
@@ -1497,8 +1497,8 @@ int main(int argc, char *argv[])
 
     // -P
     if (vob->pass_flag & TC_VIDEO) {
-        vob->im_v_codec = (vob->im_v_codec == CODEC_YUV) ?CODEC_RAW_YUV :CODEC_RAW;
-        vob->ex_v_codec = CODEC_RAW;
+        vob->im_v_codec = TC_CODEC_RAW;
+        vob->ex_v_codec = TC_CODEC_RAW;
 
         // suggestion:
         if (no_v_out_codec)
@@ -1542,12 +1542,13 @@ int main(int argc, char *argv[])
 
     // import size
     // force to even for YUV mode
-    if (vob->im_v_codec == CODEC_YUV || vob->im_v_codec == CODEC_YUV422) {
+    if (vob->im_v_codec == TC_CODEC_YUV420P
+     || vob->im_v_codec == TC_CODEC_YUV422P) {
         if (vob->im_v_width % 2 != 0) {
             tc_warn("frame width must be even in YUV/YUV422 mode");
             vob->im_v_width--;
         }
-        if (vob->im_v_codec == CODEC_YUV && vob->im_v_height % 2 != 0) {
+        if (vob->im_v_codec == TC_CODEC_YUV420P && vob->im_v_height % 2 != 0) {
             tc_warn("frame height must be even in YUV mode");
             vob->im_v_height--;
         }
@@ -2036,9 +2037,10 @@ int main(int argc, char *argv[])
                         vob->ex_v_width, vob->ex_v_height,asr);
 
         // sanity check for YUV
-        if (vob->im_v_codec == CODEC_YUV || vob->im_v_codec == CODEC_YUV422) {
-            if (vob->ex_v_width%2 != 0 || (vob->im_v_codec == CODEC_YUV && vob->ex_v_height % 2 != 0)) {
-                tc_error("rescaled width/height must be even for YUV mode, try -V rgb24");
+        if (vob->im_v_codec == TC_CODEC_YUV420P
+         || vob->im_v_codec == TC_CODEC_YUV422P) {
+            if (vob->ex_v_width%2 != 0 || (vob->im_v_codec == TC_CODEC_YUV420P && vob->ex_v_height % 2 != 0)) {
+                tc_error("rescaled width/height must be even for YUV 4:2:0 mode, try -V rgb24");
             }
         }
     }
@@ -2275,19 +2277,26 @@ int main(int argc, char *argv[])
     }
 
     // -V
-    if (vob->im_v_codec == CODEC_YUV) {
+    if (vob->im_v_codec == TC_CODEC_YUV420P) {
         vob->ex_v_size = (3*vob->ex_v_height * vob->ex_v_width)>>1;
         vob->im_v_size = (3*vob->im_v_height * vob->im_v_width)>>1;
         if (verbose & TC_INFO)
             tc_log_info(PACKAGE,
                         "V: %-16s | YUV420 (4:2:0) aka I420",
                         "video format");
-    } else if (vob->im_v_codec == CODEC_YUV422) {
+    } else if (vob->im_v_codec == TC_CODEC_YUV422P) {
         vob->ex_v_size = (2*vob->ex_v_height * vob->ex_v_width);
         vob->im_v_size = (2*vob->im_v_height * vob->im_v_width);
         if (verbose & TC_INFO)
             tc_log_info(PACKAGE,
-                        "V: %-16s | YUV422 (4:2:2)",
+                        "V: %-16s | YUV422 (4:2:2) planar",
+                        "video format");
+     } else if (vob->im_v_codec == TC_CODEC_UYVY) {
+        vob->ex_v_size = (2*vob->ex_v_height * vob->ex_v_width);
+        vob->im_v_size = (2*vob->im_v_height * vob->im_v_width);
+        if (verbose & TC_INFO)
+            tc_log_info(PACKAGE,
+                        "V: %-16s | UYVY (4:2:2) packed",
                         "video format");
     } else {
         vob->ex_v_size = vob->ex_v_height * vob->ex_v_width * BPP/8;
@@ -2304,7 +2313,7 @@ int main(int argc, char *argv[])
 
     // -n
     if (no_ain_codec == 1 && vob->has_audio == 0
-     && vob->a_codec_flag == CODEC_AC3) {
+     && vob->a_codec_flag == TC_CODEC_AC3) {
         if (vob->amod_probed == NULL || strcmp(vob->amod_probed,"null") == 0) {
             if (verbose & TC_DEBUG)
                 tc_log_warn(PACKAGE,
@@ -2348,7 +2357,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (vob->im_a_codec == CODEC_PCM && vob->a_chan > 2 && !(vob->pass_flag & TC_AUDIO)) {
+    if (vob->im_a_codec == TC_CODEC_PCM && vob->a_chan > 2 && !(vob->pass_flag & TC_AUDIO)) {
         // Input is more than 2 channels (i.e. 5.1 AC3) but PCM internal
         // representation can't handle that, adjust the channel count to reflect
         // what modules will actually have presented to them.
@@ -2368,11 +2377,11 @@ int main(int argc, char *argv[])
         // audio format
         if (ex_aud_mod && strlen(ex_aud_mod) != 0) {
             if (strcmp(ex_aud_mod, "mpeg") == 0)
-                vob->ex_a_codec = CODEC_MP2;
+                vob->ex_a_codec = TC_CODEC_MP2;
             if (strcmp(ex_aud_mod, "mp2enc") == 0)
-                vob->ex_a_codec = CODEC_MP2;
+                vob->ex_a_codec = TC_CODEC_MP2;
             if (strcmp(ex_aud_mod, "mp1e") == 0)
-                vob->ex_a_codec=CODEC_MP2;
+                vob->ex_a_codec = TC_CODEC_MP2;
         }
 
         // calc export bitrate
@@ -2383,7 +2392,7 @@ int main(int argc, char *argv[])
                                 ((vob->dm_chan > 0) ?vob->dm_chan :vob->a_chan) / 1000;
             break;
           case 0x2000: // PCM
-            if (vob->im_a_codec == CODEC_AC3) {
+            if (vob->im_a_codec == TC_CODEC_AC3) {
                 vob->mp3bitrate = vob->a_stream_bitrate;
             }
             break;
@@ -2418,7 +2427,7 @@ int main(int argc, char *argv[])
     // import_ac3 now correctly probes the channels of the ac3 stream
     // (previous versions always returned "2"). This breakes transcode
     // when doing -A --tibit
-    if (vob->im_a_codec == CODEC_AC3)
+    if (vob->im_a_codec == TC_CODEC_AC3)
         vob->a_chan = vob->a_chan > 2 ?2 :vob->a_chan;
 
     // -f and --export_fps/export_frc
@@ -2554,8 +2563,8 @@ int main(int argc, char *argv[])
 
     // -P
     if (vob->pass_flag & TC_AUDIO) {
-        vob->im_a_codec = CODEC_RAW;
-        vob->ex_a_codec = CODEC_RAW;
+        vob->im_a_codec = TC_CODEC_RAW;
+        vob->ex_a_codec = TC_CODEC_RAW;
         //suggestion:
         if (no_a_out_codec)
             ex_aud_mod = "raw";
@@ -2601,12 +2610,12 @@ int main(int argc, char *argv[])
         if (core_mode == TC_MODE_AVI_SPLIT && no_v_out_codec)
             tc_warn("no option -y found, option -t ignored, writing to \"/dev/null\"");
 
-        if (vob->im_v_codec == CODEC_YUV
+        if (vob->im_v_codec == TC_CODEC_YUV420P
          && (vob->im_clip_left % 2 != 0 || vob->im_clip_right % 2
          || vob->im_clip_top % 2 != 0 || vob->im_clip_bottom % 2 != 0))
             tc_warn ("Odd import clipping paramter(s) detected, may cause distortion");
 
-        if (vob->im_v_codec == CODEC_YUV
+        if (vob->im_v_codec == TC_CODEC_YUV420P
          && (vob->ex_clip_left % 2 != 0 || vob->ex_clip_right % 2
          || vob->ex_clip_top % 2 != 0 || vob->ex_clip_bottom % 2 != 0))
             tc_warn ("Odd export clipping paramter(s) detected, may cause distortion");

@@ -70,11 +70,11 @@ static y4m_stream_info_t y4mstream;
 MOD_init
 {
     if (param->flag == TC_VIDEO) {
-        if (vob->im_v_codec == CODEC_YUV) {
+        if (vob->im_v_codec == TC_CODEC_YUV420P) {
             srcfmt = IMG_YUV_DEFAULT;
-        } else if (vob->im_v_codec == CODEC_YUV422) {
+        } else if (vob->im_v_codec == TC_CODEC_YUV422P) {
             srcfmt = IMG_YUV422P;
-        } else if (vob->im_v_codec == CODEC_RGB) {
+        } else if (vob->im_v_codec == TC_CODEC_RGB24) {
             srcfmt = IMG_RGB_DEFAULT;
         } else {
             tc_log_warn(MOD_NAME, "unsupported video format %d",

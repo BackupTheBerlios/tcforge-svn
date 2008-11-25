@@ -23,7 +23,7 @@
 
 #include "transcode.h"
 #include "libtc/libtc.h"
-#include "libtc/optstr.h"
+#include "libtcutil/optstr.h"
 #include "aclib/imgconvert.h"
 
 #include <sys/ioctl.h>
@@ -369,13 +369,13 @@ MOD_open
         param->fd = NULL;
 
         switch (vob->im_v_codec) {
-          case CODEC_RGB:
+          case TC_CODEC_RGB24:
             fmt = VIDEO_PALETTE_RGB24;
             break;
-          case CODEC_YUV422:
+          case TC_CODEC_YUV422P:
              fmt = VIDEO_PALETTE_YUV422;
             break;
-          case CODEC_YUV:
+          case TC_CODEC_YUV420P:
             fmt = VIDEO_PALETTE_YUV420P;
             break;
         }

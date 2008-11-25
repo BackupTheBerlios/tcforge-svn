@@ -193,7 +193,7 @@ void decode_lavc(decode_t *decode)
         frame_size = (x_dim * y_dim * 3)/2;
         break;
 
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         frame_size = x_dim * y_dim * 3;
         bpp = 24;
 

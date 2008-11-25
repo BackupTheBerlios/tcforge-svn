@@ -213,8 +213,8 @@ static int pp_configure(TCModuleInstance *self,
     pd = self->userdata;
 
     strlcpy(opts, options, sizeof(opts));
-    if (vob->im_v_codec != CODEC_YUV) {
-        tc_log_error(MOD_NAME, "This filter is only capable of YUV mode");
+    if (vob->im_v_codec != TC_CODEC_YUV420P) {
+        tc_log_error(MOD_NAME, "This filter is only capable of YUV 4:2:0 mode");
         return TC_ERROR;
     }
     if (!options || !len)  {

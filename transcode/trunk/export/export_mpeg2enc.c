@@ -356,15 +356,15 @@ MOD_init
     sa_size_l = sa_width * sa_height;
     sa_size_c = sa_size_l/4;
 
-    if (vob->im_v_codec == CODEC_YUV) {
-	srcfmt = IMG_YUV_DEFAULT;
-    } else if (vob->im_v_codec == CODEC_YUV422) {
-	srcfmt = IMG_YUV422P;
-    } else if (vob->im_v_codec == CODEC_RGB) {
-	srcfmt = IMG_RGB_DEFAULT;
+    if (vob->im_v_codec == TC_CODEC_YUV420P) {
+	    srcfmt = IMG_YUV_DEFAULT;
+    } else if (vob->im_v_codec == TC_CODEC_YUV422P) {
+    	srcfmt = IMG_YUV422P;
+    } else if (vob->im_v_codec == TC_CODEC_RGB24) {
+	    srcfmt = IMG_RGB_DEFAULT;
     } else {
-	tc_log_warn(MOD_NAME, "unsupported video format %d",
-		vob->im_v_codec);
+    	tc_log_warn(MOD_NAME, "unsupported video format %d",
+	            	vob->im_v_codec);
 	return(TC_EXPORT_ERROR);
     }
     if (!(tcvhandle = tcv_init())) {

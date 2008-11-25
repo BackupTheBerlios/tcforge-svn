@@ -125,16 +125,16 @@ MOD_open
     } else { /* build tcdemux part of pipeline */
       const char *codec = "raw";
       /* select demuxer codec. Ugh. */
-      if (vob->im_a_codec == CODEC_AC3) {
+      if (vob->im_a_codec == TC_CODEC_AC3) {
         codec = "ac3";
       } else { /* vob->im_a_codec == CODEC_PCM */
-        if (vob->a_codec_flag == CODEC_AC3) {
+        if (vob->a_codec_flag == TC_CODEC_AC3) {
           codec = "ac3";
-        } else if (vob->a_codec_flag == CODEC_MP3
-                || vob->a_codec_flag == CODEC_MP2) {
+        } else if (vob->a_codec_flag == TC_CODEC_MP3
+                || vob->a_codec_flag == TC_CODEC_MP2) {
           codec = "mp3";
-        } else if (vob->a_codec_flag == CODEC_PCM
-                || vob->a_codec_flag == CODEC_LPCM) {
+        } else if (vob->a_codec_flag == TC_CODEC_PCM
+                || vob->a_codec_flag == TC_CODEC_LPCM) {
           codec = "pcm";
         }
       }
@@ -151,7 +151,7 @@ MOD_open
     syncf = vob->sync;
 
     switch(codec) {
-    case CODEC_AC3:
+    case TC_CODEC_AC3:
       if (tc_snprintf(import_cmd_buf, sizeof(import_cmd_buf),
                       "%s %s"
                       " | tcextract -t vob -a %d -x ac3 -d %d"
@@ -165,8 +165,8 @@ MOD_open
       if(verbose_flag & TC_DEBUG) tc_log_info(MOD_NAME, "AC3->AC3");
       break;
     
-    case CODEC_PCM:
-      if(vob->a_codec_flag==CODEC_AC3) {
+    case TC_CODEC_PCM:
+      if(vob->a_codec_flag==TC_CODEC_AC3) {
         if(tc_snprintf(import_cmd_buf, sizeof(import_cmd_buf),
                        "%s %s"
                        " | tcextract -t vob -a %d -x ac3 -d %d"
@@ -182,7 +182,7 @@ MOD_open
         if(verbose_flag & TC_DEBUG) tc_log_info(MOD_NAME, "AC3->PCM");
       }
       
-      if(vob->a_codec_flag==CODEC_MP3) {
+      if(vob->a_codec_flag==TC_CODEC_MP3) {
         if(tc_snprintf(import_cmd_buf, sizeof(import_cmd_buf),
                        "%s %s"
                        " | tcextract -t vob -a %d -x mp3 -d %d"
@@ -196,7 +196,7 @@ MOD_open
         if(verbose_flag & TC_DEBUG) tc_log_info(MOD_NAME, "MP3->PCM");
       }
 
-      if(vob->a_codec_flag==CODEC_MP2) {
+      if(vob->a_codec_flag==TC_CODEC_MP2) {
         if(tc_snprintf(import_cmd_buf, sizeof(import_cmd_buf),
                        "%s %s"
                        " | tcextract -t vob -a %d -x mp2 -d %d"
@@ -210,7 +210,7 @@ MOD_open
         if(verbose_flag & TC_DEBUG) tc_log_info(MOD_NAME, "MP2->PCM");
       }
 
-      if(vob->a_codec_flag==CODEC_PCM || vob->a_codec_flag==CODEC_LPCM) {
+      if(vob->a_codec_flag==TC_CODEC_PCM || vob->a_codec_flag==TC_CODEC_LPCM) {
         if(tc_snprintf(import_cmd_buf, sizeof(import_cmd_buf),
                        "%s %s"
                        " | tcextract -t vob -a %d -x pcm -d %d",
@@ -287,15 +287,14 @@ MOD_open
 
       off=0x80;
 
-      if(vob->a_codec_flag==CODEC_PCM || vob->a_codec_flag==CODEC_LPCM)
+      if(vob->a_codec_flag==TC_CODEC_PCM || vob->a_codec_flag==TC_CODEC_LPCM)
 	off=0xA0;
-      if(vob->a_codec_flag==CODEC_MP3 || vob->a_codec_flag==CODEC_MP2)
+      if(vob->a_codec_flag==TC_CODEC_MP3 || vob->a_codec_flag==TC_CODEC_MP2)
 	off=0xC0;
 
       switch(vob->im_v_codec) {
 
-      case CODEC_RAW:
-      case CODEC_RAW_YUV:
+      case TC_CODEC_RAW:
 
 	memset(requant_buf, 0, sizeof (requant_buf));
 	if (vob->m2v_requant > M2V_REQUANT_FACTOR) {
@@ -316,7 +315,7 @@ MOD_open
 	  return(TC_IMPORT_ERROR);
 	}
 	break;
-      case CODEC_RGB:
+      case TC_CODEC_RGB24:
 
 	if (tc_snprintf(import_cmd_buf, TC_BUF_MAX, "tccat -i \"%s\" -t vob -d %d -S %d | tcdemux -s 0x%x -x mpeg2 %s %s -d %d | tcextract -t vob -a %d -x mpeg2 -d %d | tcdecode -x mpeg2 -d %d", vob->video_in_file, vob->verbose, vob->vob_offset, (vob->a_track+off), seq_buf, demux_buf, vob->verbose, vob->v_track, vob->verbose, vob->verbose) < 0) {
 	  tc_log_perror(MOD_NAME, "command buffer overflow");
@@ -325,7 +324,7 @@ MOD_open
 
 	break;
 
-      case CODEC_YUV:
+      case TC_CODEC_YUV420P:
 
 	if (tc_snprintf(import_cmd_buf, TC_BUF_MAX, "tccat -i \"%s\" -t vob -d %d -S %d | tcdemux -s 0x%x -x mpeg2 %s %s -d %d | tcextract -t vob -a %d -x mpeg2 -d %d | tcdecode -x mpeg2 -d %d -y yuv420p", vob->video_in_file, vob->verbose, vob->vob_offset, (vob->a_track+off), seq_buf, demux_buf, vob->verbose, vob->v_track, vob->verbose, vob->verbose) < 0) {
 	  tc_log_perror(MOD_NAME, "command buffer overflow");
@@ -562,7 +561,7 @@ MOD_decode
 
     switch(codec) {
 
-    case CODEC_AC3:
+    case TC_CODEC_AC3:
 
       // determine frame size at the very beginning of the stream
 
@@ -609,7 +608,7 @@ MOD_decode
 
       break;
 
-    case CODEC_PCM:
+    case TC_CODEC_PCM:
 
       //default:
       ac_off   = 0;

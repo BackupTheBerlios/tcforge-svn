@@ -31,7 +31,7 @@ void probe_x11(info_t *ipipe)
 #ifdef HAVE_X11
     TCX11Source xsrc;
     int err = tc_x11source_open(&xsrc, ipipe->name,
-                                TC_X11_MODE_PLAIN, TC_CODEC_RGB);
+                                TC_X11_MODE_PLAIN, TC_CODEC_RGB24);
     /* performances and colorspaces doesn't really matters here */
     if (err == 0) {
         tc_x11source_probe(&xsrc, ipipe->probe_info);

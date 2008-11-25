@@ -98,7 +98,7 @@ void probe_im(info_t *ipipe)
 	ipipe->probe_info->fps = 1.0;
 
 	ipipe->probe_info->magic = ipipe->magic;
-	ipipe->probe_info->codec = TC_CODEC_RGB;
+	ipipe->probe_info->codec = TC_CODEC_RGB24;
 
     DestroyMagickWand(wand);
     MagickWandTerminus();

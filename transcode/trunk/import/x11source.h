@@ -146,7 +146,7 @@ int tc_x11source_probe(TCX11Source *handle, ProbeInfo *info);
  *       format: image (colorspace) format to be used in
  *               tc_x11source_acquire. Currently only following
  *               formats are supported:
- *               TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_YUV422P
+ *               TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_YUV422P
  * Return Value:
  *      -1: error on connection, reason will be tc_log_*()'d out.
  *       0: succesfull

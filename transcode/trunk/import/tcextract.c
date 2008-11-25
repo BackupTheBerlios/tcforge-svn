@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     if (ipipe.magic == TC_MAGIC_OGG) {
 
 	// dummy for video
-	if(strcmp(codec, "raw")==0) ipipe.codec = TC_CODEC_RGB;
+	if(strcmp(codec, "raw")==0) ipipe.codec = TC_CODEC_RGB24;
 	if((strcmp(codec, "vorbis")==0) || (strcmp(codec, "ogg")==0)) {
 	    ipipe.codec = TC_CODEC_VORBIS;
 	    ipipe.select = TC_AUDIO;
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
     // RGB
     if(strcmp(codec,"rgb")==0) {
 
-	ipipe.codec = TC_CODEC_RGB;
+	ipipe.codec = TC_CODEC_RGB24;
 
 	if(strcmp(magic, "avi")==0) ipipe.magic = TC_MAGIC_AVI;
 	if(strcmp(magic, "raw")==0) ipipe.magic = TC_MAGIC_RAW;

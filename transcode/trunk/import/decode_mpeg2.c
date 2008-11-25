@@ -103,7 +103,7 @@ void decode_mpeg2(decode_t *decode)
     uint32_t ac = 0;
 
     WriteDataFn writer = write_yuv420p;
-    if (decode->format == TC_CODEC_RGB) {
+    if (decode->format == TC_CODEC_RGB24) {
         tc_log_info(__FILE__, "using libmpeg2convert"
                               " RGB24 conversion");
         writer = write_rgb24;
@@ -129,7 +129,7 @@ void decode_mpeg2(decode_t *decode)
             mpeg2_buffer(decoder, buffer, buffer + size);
             break;
           case STATE_SEQUENCE:
-            if (decode->format == TC_CODEC_RGB) {
+            if (decode->format == TC_CODEC_RGB24) {
                 mpeg2_convert(decoder, mpeg2convert_rgb24, NULL);
             }
             break;

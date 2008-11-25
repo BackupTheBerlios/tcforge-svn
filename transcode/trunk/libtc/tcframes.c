@@ -38,22 +38,16 @@ int tc_video_planes_size(size_t psizes[3],
                          int width, int height, int format)
 {
     switch (format) {
-      case CODEC_RAW: /* worst case paranoia, fallback */
-      case CODEC_RAW_RGB: /* worst case paranoia again, fallback */
-      case CODEC_RAW_YUV: /* worst case paranoia again, fallback */
-      case CODEC_RGB: /* backward compatibility, fallback */
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         psizes[0] = width * height;
         psizes[1] = width * height;
         psizes[2] = width * height;
         break;
-      case CODEC_YUV422: /* backward compatibility, fallback */
       case TC_CODEC_YUV422P:
         psizes[0] = width * height;
         psizes[1] = width * height / 2;
         psizes[2] = width * height / 2;
         break;
-      case CODEC_YUV: /* backward compatibility, fallback */
       case TC_CODEC_YUV420P:
         psizes[0] = width * height;
         psizes[1] = width * height / 4;
@@ -283,15 +277,12 @@ void tc_blank_video_frame(TCFrameVideo *ptr)
     
     if (ptr) {
         switch (ptr->v_codec) {
-          case CODEC_RGB: /* fallthrough, backward compatibility */
-          case TC_CODEC_RGB:
+          case TC_CODEC_RGB24:
             memset(ptr->video_buf, BLACK_RGB, ptr->video_size);
             break;
-          case CODEC_YUV: /* fallthrough, backward compatibility */
           case TC_CODEC_YUV420P:
             /* fallthrough, the algorythm is the same modulo the 
              * UV planes size */
-          case CODEC_YUV422: /* fallthrough, backward compatibility */
           case TC_CODEC_YUV422P:
             memset(ptr->video_buf,             BLACK_Y,  psizes[0]            );
             memset(ptr->video_buf + psizes[0], BLACK_UV, psizes[1] + psizes[2]);

@@ -134,7 +134,7 @@ static TCFrameSpecs tc_specs = {
     .frc      = 3,  // PAL, why not
     .width    = TC_MAX_V_FRAME_WIDTH,
     .height   = TC_MAX_V_FRAME_HEIGHT,
-    .format   = TC_CODEC_RGB,
+    .format   = TC_CODEC_RGB24,
     .rate     = RATE,
     .channels = CHANNELS,
     .bits     = BITS,
@@ -235,7 +235,7 @@ void tc_framebuffer_set_specs(const TCFrameSpecs *specs)
          */
         tc_specs.width  = TC_MAX_V_FRAME_WIDTH;
         tc_specs.height = TC_MAX_V_FRAME_HEIGHT;
-        tc_specs.format = TC_CODEC_RGB;
+        tc_specs.format = TC_CODEC_RGB24;
 
         /* then deduct missing parameters */
         if (tc_frc_code_to_value(tc_specs.frc, &fps) == TC_NULL_MATCH) {

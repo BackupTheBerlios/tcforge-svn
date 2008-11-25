@@ -208,7 +208,7 @@ MOD_decode
 
     switch(audio_codec) {
 
-    case CODEC_RAW:
+    case TC_CODEC_RAW:
 
       bytes_read = AVI_audio_size(avifile1, aframe_count);
 

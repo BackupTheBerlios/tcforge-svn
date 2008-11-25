@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "libtc/libtc.h"
+#include "libtc/tccodecs.h"
 #include "libtc/tcframes.h"
 #include "src/tc_defaults.h"
 #include "src/framebuffer.h"
@@ -34,7 +35,7 @@
 #define PACKAGE __FILE__
 #endif
 
-static int format[] = { CODEC_RGB, CODEC_YUV422, CODEC_YUV }; /* old breed */
+static int format[] = { TC_CODEC_RGB24, TC_CODEC_YUV422P, TC_CODEC_YUV420P };
 static const char *strfmt[] = { "rgb24", "yuv422p", "yuv420p" };
 
 static int test_alloc_vid(int w, int h, int fmtid, int part)

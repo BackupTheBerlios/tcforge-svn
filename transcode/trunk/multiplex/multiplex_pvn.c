@@ -256,7 +256,7 @@ METHOD int pvn_multiplex(TCModuleInstance *self,
         tc_log_error(MOD_NAME, "Video frame size changed in midstream!");
         return TC_ERROR;
     }
-    if (vframe->v_codec != CODEC_RGB) {
+    if (vframe->v_codec != TC_CODEC_RGB24) {
         tc_log_error(MOD_NAME, "Invalid codec for video frame!");
         return TC_ERROR;
     }
@@ -279,7 +279,7 @@ METHOD int pvn_multiplex(TCModuleInstance *self,
 
 /*************************************************************************/
 
-static const TCCodecID pvn_codecs_in[] = { TC_CODEC_RGB, TC_CODEC_ERROR };
+static const TCCodecID pvn_codecs_in[] = { TC_CODEC_RGB24, TC_CODEC_ERROR };
 static const TCFormatID pvn_formats_out[] = { TC_FORMAT_PVN, TC_CODEC_ERROR };
 /* a multiplexor is at the end of pipeline */
 TC_MODULE_MPLEX_FORMATS_CODECS(pvn);

@@ -358,7 +358,7 @@ MOD_open
         }
 
         /* translate src_fmt */
-        dst_fmt = (vob->im_v_codec == CODEC_YUV) ?IMG_YUV_DEFAULT :IMG_RGB_DEFAULT;
+        dst_fmt = (vob->im_v_codec == TC_CODEC_YUV420P) ?IMG_YUV_DEFAULT :IMG_RGB_DEFAULT;
         switch (vff_data.dec_context->pix_fmt) {
           case PIX_FMT_YUVJ420P:
           case PIX_FMT_YUV420P:

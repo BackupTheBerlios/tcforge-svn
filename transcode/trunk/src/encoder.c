@@ -992,13 +992,13 @@ static int OLD_tc_export_setup(vob_t *vob,
         }
 
         switch (vob->im_a_codec) {
-          case CODEC_PCM:
+          case TC_CODEC_PCM:
             cc = (encdata.export_para.flag & TC_CAP_PCM);
             break;
-          case CODEC_AC3:
+          case TC_CODEC_AC3:
             cc = (encdata.export_para.flag & TC_CAP_AC3);
             break;
-          case CODEC_RAW:
+          case TC_CODEC_RAW:
             cc = (encdata.export_para.flag & TC_CAP_AUD);
             break;
           default:
@@ -1010,7 +1010,7 @@ static int OLD_tc_export_setup(vob_t *vob,
             return TC_ERROR;
         }
     } else { /* encdata.export_para.flag == verbose */
-        if (vob->im_a_codec != CODEC_PCM) {
+        if (vob->im_a_codec != TC_CODEC_PCM) {
             tc_log_warn(__FILE__, "audio codec not supported by export module");
             return TC_ERROR;
         }
@@ -1029,17 +1029,16 @@ static int OLD_tc_export_setup(vob_t *vob,
         }
 
         switch (vob->im_v_codec) {
-          case CODEC_RGB:
+          case TC_CODEC_RGB24:
             cc = (encdata.export_para.flag & TC_CAP_RGB);
             break;
-          case CODEC_YUV:
+          case TC_CODEC_YUV420P:
             cc = (encdata.export_para.flag & TC_CAP_YUV);
             break;
-          case CODEC_YUV422:
+          case TC_CODEC_YUV422P:
             cc = (encdata.export_para.flag & TC_CAP_YUV422);
             break;
-          case CODEC_RAW:
-          case CODEC_RAW_YUV: /* fallthrough */
+          case TC_CODEC_RAW:
             cc = (encdata.export_para.flag & TC_CAP_VID);
             break;
           default:
@@ -1051,7 +1050,7 @@ static int OLD_tc_export_setup(vob_t *vob,
             return TC_ERROR;
         }
     } else { /* encdata.export_para.flag == verbose */
-        if (vob->im_v_codec != CODEC_RGB) {
+        if (vob->im_v_codec != TC_CODEC_RGB24) {
             tc_log_warn(__FILE__, "video codec not supported by export module");
             return TC_ERROR;
         }

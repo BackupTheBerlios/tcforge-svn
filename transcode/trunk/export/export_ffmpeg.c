@@ -315,11 +315,13 @@ MOD_init
 
     pix_fmt = vob->im_v_codec;
 
-    if (! (pix_fmt == CODEC_RGB || pix_fmt == CODEC_YUV || pix_fmt == CODEC_YUV422)) {
+    if (! (pix_fmt == TC_CODEC_RGB24
+        || pix_fmt == TC_CODEC_YUV420P
+        || pix_fmt == TC_CODEC_YUV422P)) {
         tc_log_warn(MOD_NAME, "Unknown color space %d.", pix_fmt);
         return TC_EXPORT_ERROR;
     }
-    if (pix_fmt == CODEC_RGB || pix_fmt == CODEC_YUV422 || is_huffyuv) {
+    if (pix_fmt == TC_CODEC_RGB24 || pix_fmt == TC_CODEC_YUV422P || is_huffyuv) {
         img_buffer = tc_malloc(size);
         if (!img_buffer) {
             tc_log_error(MOD_NAME, "conversion buffer allocation failed.");
@@ -941,8 +943,8 @@ MOD_init
     {
         switch(pix_fmt)
         {
-            case CODEC_YUV:
-            case CODEC_RGB:
+            case TC_CODEC_YUV420P:
+            case TC_CODEC_RGB24:
             {
                 if(is_mjpeg)
                     lavc_venc_context->pix_fmt = PIX_FMT_YUVJ420P;
@@ -951,7 +953,7 @@ MOD_init
                 break;
             }
 
-            case CODEC_YUV422:
+            case TC_CODEC_YUV422P:
             {
                 if(is_mjpeg)
                     lavc_venc_context->pix_fmt = PIX_FMT_YUVJ422P;
@@ -1068,8 +1070,7 @@ MOD_init
       tc_log_info(MOD_NAME, "             frame rate: %.2f",
               vob->ex_fps);
       tc_log_info(MOD_NAME, "            color space: %s",
-              (pix_fmt == CODEC_RGB) ? "RGB24":
-             ((pix_fmt == CODEC_YUV) ? "YUV420P" : "YUV422"));
+                  tc_codec_to_string(pix_fmt));
       tc_log_info(MOD_NAME, "             quantizers: %d/%d",
               lavc_venc_context->qmin, lavc_venc_context->qmax);
     }
@@ -1241,12 +1242,13 @@ MOD_init
             {
                 if(target != pc_dvd)
                 {
-                    if(vob->ex_a_codec != CODEC_MP2)
+                    if (vob->ex_a_codec != TC_CODEC_MP2)
                         tc_log_warn(MOD_NAME, "Audio codec not mp2 as required");
                 }
                 else
                 {
-                    if(vob->ex_a_codec != CODEC_MP2 && vob->ex_a_codec != CODEC_AC3)
+                    if (vob->ex_a_codec != TC_CODEC_MP2
+                     && vob->ex_a_codec != TC_CODEC_AC3)
                         tc_log_warn(MOD_NAME, "Audio codec not mp2 or ac3 as required");
                 }
             }
@@ -1254,14 +1256,14 @@ MOD_init
             {
                 if(target != pc_dvd)
                 {
-                    vob->ex_a_codec = CODEC_MP2;
+                    vob->ex_a_codec = TC_CODEC_MP2;
 		    if (verbose) {
 			tc_log_info(MOD_NAME, "Set audio codec to mp2");
 		    }
                 }
                 else
                 {
-                    vob->ex_a_codec = CODEC_AC3;
+                    vob->ex_a_codec = TC_CODEC_AC3;
 		    if (verbose) {
 			tc_log_info(MOD_NAME, "Set audio codec to ac3");
 		    }
@@ -1372,7 +1374,7 @@ MOD_encode
 
     switch (pix_fmt)
     {
-        case CODEC_YUV:
+        case TC_CODEC_YUV420P:
             lavc_venc_frame->linesize[0] = lavc_venc_context->width;
             lavc_venc_frame->linesize[1] = lavc_venc_context->width / 2;
             lavc_venc_frame->linesize[2] = lavc_venc_context->width / 2;
@@ -1399,7 +1401,7 @@ MOD_encode
             }
             break;
 
-        case CODEC_YUV422:
+        case TC_CODEC_YUV422P:
             if(is_huffyuv)
             {
                 YUV_INIT_PLANES(lavc_venc_frame->data, param->buffer,
@@ -1422,7 +1424,7 @@ MOD_encode
             }
             break;
 
-        case CODEC_RGB:
+        case TC_CODEC_RGB24:
             avpicture_fill((AVPicture *)lavc_venc_frame, img_buffer,
                            PIX_FMT_YUV420P, lavc_venc_context->width,
                            lavc_venc_context->height);

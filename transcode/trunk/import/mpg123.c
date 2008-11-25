@@ -282,8 +282,8 @@ int buf_probe_mp3(unsigned char *_buf, int len, ProbeTrackInfo *pcm)
     if(is_syncword_mp123(buf)) {
 	// catch false positives
 	switch(buf[1] & 0xff) {
-	    case 0xFD: case 0xFC: format = CODEC_MP2; break;
-	    case 0xFB:            format = CODEC_MP3; break;
+	    case 0xFD: case 0xFC: format = TC_CODEC_MP2; break;
+	    case 0xFB:            format = TC_CODEC_MP3; break;
 	}
 	if (format) break;
     }
@@ -304,7 +304,7 @@ int buf_probe_mp3(unsigned char *_buf, int len, ProbeTrackInfo *pcm)
   pcm->samplerate = mp3data->samplerate;
   pcm->chan = mp3data->stereo;
   pcm->bits = 16;
-  pcm->format = CODEC_MP3;
+  pcm->format = TC_CODEC_MP3;
   pcm->bitrate = mp3data->bitrate;
 
   if(verbose_flag & TC_DEBUG)
@@ -314,10 +314,10 @@ int buf_probe_mp3(unsigned char *_buf, int len, ProbeTrackInfo *pcm)
 
   case 0xFD:
   case 0xFC:
-    pcm->format = CODEC_MP2;
+    pcm->format = TC_CODEC_MP2;
     break;
   case 0xFB:
-    pcm->format = CODEC_MP3;
+    pcm->format = TC_CODEC_MP3;
     break;
   }
   return 0;
@@ -346,10 +346,10 @@ void probe_mp3(info_t *ipipe)
 
     switch(ipipe->probe_info->track[0].format) {
 
-    case CODEC_MP2:
+    case TC_CODEC_MP2:
       ipipe->probe_info->magic = TC_MAGIC_MP2;
       break;
-    case CODEC_MP3:
+    case TC_CODEC_MP3:
       ipipe->probe_info->magic = TC_MAGIC_MP3;
       break;
     }

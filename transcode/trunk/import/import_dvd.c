@@ -161,7 +161,7 @@ MOD_open
 
     switch(codec) {
 
-    case CODEC_AC3:
+    case TC_CODEC_AC3:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -180,9 +180,9 @@ MOD_open
 
       break;
 
-    case CODEC_PCM:
+    case TC_CODEC_PCM:
 
-      if(vob->a_codec_flag==CODEC_AC3) {
+      if(vob->a_codec_flag==TC_CODEC_AC3) {
 
 	sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			   "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -201,7 +201,7 @@ MOD_open
           tc_log_info(MOD_NAME, "AC3->PCM");
       }
 
-      if(vob->a_codec_flag==CODEC_MP3) {
+      if(vob->a_codec_flag==TC_CODEC_MP3) {
 
         sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			   "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -219,7 +219,7 @@ MOD_open
           tc_log_info(MOD_NAME, "MP3->PCM");
       }
 
-      if(vob->a_codec_flag==CODEC_MP2) {
+      if(vob->a_codec_flag==TC_CODEC_MP2) {
 
 	sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			   "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -237,7 +237,7 @@ MOD_open
           tc_log_info(MOD_NAME, "MP2->PCM");
       }
 
-      if(vob->a_codec_flag==CODEC_PCM || vob->a_codec_flag==CODEC_LPCM) {
+      if(vob->a_codec_flag==TC_CODEC_PCM || vob->a_codec_flag==TC_CODEC_LPCM) {
 
 	sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			   "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -352,9 +352,9 @@ MOD_open
 
     off=0x80;
 
-    if(vob->a_codec_flag==CODEC_PCM || vob->a_codec_flag==CODEC_LPCM)
+    if(vob->a_codec_flag==TC_CODEC_PCM || vob->a_codec_flag==TC_CODEC_LPCM)
       off=0xA0;
-    if(vob->a_codec_flag==CODEC_MP3 || vob->a_codec_flag==CODEC_MP2)
+    if(vob->a_codec_flag==TC_CODEC_MP3 || vob->a_codec_flag==TC_CODEC_MP2)
       off=0xC0;
 
 
@@ -362,8 +362,7 @@ MOD_open
 
     switch(vob->im_v_codec) {
 
-    case CODEC_RAW:
-    case CODEC_RAW_YUV:
+    case TC_CODEC_RAW:
 
       memset(requant_buf, 0, sizeof (requant_buf));
       if (vob->m2v_requant > M2V_REQUANT_FACTOR) {
@@ -384,7 +383,7 @@ MOD_open
 
       break;
 
-    case CODEC_RGB:
+    case TC_CODEC_RGB24:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -400,7 +399,7 @@ MOD_open
 
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "tccat -T %s -i \"%s\" -t dvd -d %d |"
@@ -667,7 +666,7 @@ MOD_decode
 
     switch(codec) {
 
-    case CODEC_AC3:
+    case TC_CODEC_AC3:
 
       // determine frame size at the very beginning of the stream
 
@@ -715,7 +714,7 @@ MOD_decode
 
       break;
 
-    case CODEC_PCM:
+    case TC_CODEC_PCM:
 
       ac_off   = 0;
       ac_bytes = param->size;

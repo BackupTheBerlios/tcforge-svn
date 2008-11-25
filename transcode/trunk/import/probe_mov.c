@@ -96,7 +96,7 @@ void probe_mov(info_t *ipipe)
   if(codec!=NULL) {
 
     if(strlen(codec)==0) {
-      ipipe->probe_info->codec=TC_CODEC_RGB;
+      ipipe->probe_info->codec=TC_CODEC_RGB24;
     } else {
 
       if(strcasecmp(codec,QUICKTIME_DV)==0)

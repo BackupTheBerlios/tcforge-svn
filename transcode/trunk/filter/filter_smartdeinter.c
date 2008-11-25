@@ -355,7 +355,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	tcv_convert(mfd->tcvhandle, ptr->video_buf,
 		    (uint8_t *)mfd->convertFrameIn,
 		    ptr->v_width, ptr->v_height,
-		    mfd->codec==CODEC_YUV ? IMG_YUV_DEFAULT : IMG_RGB24,
+		    mfd->codec==TC_CODEC_YUV420P ? IMG_YUV_DEFAULT : IMG_RGB24,
 		    ac_endian()==AC_LITTLE_ENDIAN ? IMG_BGRA32 : IMG_ARGB32);
 
 	src_buf = mfd->convertFrameIn;
@@ -1069,7 +1069,7 @@ filter_done:
 	tcv_convert(mfd->tcvhandle, (uint8_t *)mfd->convertFrameOut,
 		    ptr->video_buf, ptr->v_width, ptr->v_height,
 		    ac_endian()==AC_LITTLE_ENDIAN ? IMG_BGRA32 : IMG_ARGB32,
-		    mfd->codec==CODEC_YUV ? IMG_YUV_DEFAULT : IMG_RGB24);
+		    mfd->codec==TC_CODEC_YUV420P ? IMG_YUV_DEFAULT : IMG_RGB24);
 
 	return 0;
   }

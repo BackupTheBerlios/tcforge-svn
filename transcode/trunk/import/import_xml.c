@@ -89,7 +89,7 @@ static int f_calc_frame_size(audiovideo_t *p_temp,int s_codec)
 	{
 		switch(s_codec)
 		{
-			case CODEC_RGB:
+			case TC_CODEC_RGB24:
 				return(3*s_new_width*s_new_height);
 			break;
 			default:
@@ -178,7 +178,7 @@ static void f_mod_video_frame(transfer_t *param,audiovideo_t *p_temp,int s_codec
 		}
 		switch(s_codec)
 		{
-			case CODEC_RGB:
+			case TC_CODEC_RGB24:
 				if (p_pixel_tmp ==NULL)
 					p_pixel_tmp = tc_zalloc(3*p_temp->s_v_tg_width * p_temp->s_v_tg_height);
 				tcv_zoom(tcvhandle, p_vframe_buffer, p_pixel_tmp, p_temp->s_v_width, p_temp->s_v_height, 3, p_temp->s_v_tg_width, p_temp->s_v_tg_height, p_v_filter->s_zoom_filter);
@@ -243,9 +243,9 @@ MOD_open
 		if(p_video->s_v_codec == TC_CODEC_UNKNOWN)
 		{
 			if (vob->dv_yuy2_mode == 1)
-		    		s_v_codec=CODEC_YUY2;
+		    		s_v_codec=TC_CODEC_YUY2;
 			else if (vob->dv_yuy2_mode == 0)
-				s_v_codec=CODEC_YUV;
+				s_v_codec=TC_CODEC_YUV420P;
 			else
 				s_v_codec=vob->im_v_codec;
 		}
@@ -261,7 +261,7 @@ MOD_open
 			capability_flag=TC_CAP_RGB|TC_CAP_YUV|TC_CAP_DV|TC_CAP_PCM;
 			switch(s_v_codec)
 			{
-				case CODEC_RGB:
+				case TC_CODEC_RGB24:
 					s_frame_size = 3*(p_video->s_v_width * p_video->s_v_height);
 					if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld | tcdecode -x dv -y rgb -d %d -Q %d", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video,vob->verbose, vob->quality) < 0)
 					{
@@ -269,7 +269,7 @@ MOD_open
 						return(TC_IMPORT_ERROR);
 					}
 				break;
-				case CODEC_YUY2:
+				case TC_CODEC_YUY2:
 					s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height))/2;
 					if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld | tcdecode -x dv -y yuv420p -Y -d %d -Q %d", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video,vob->verbose, vob->quality) < 0)
 					{
@@ -277,7 +277,7 @@ MOD_open
 						return(TC_IMPORT_ERROR);
 					}
 				break;
-				case CODEC_YUV:
+				case TC_CODEC_YUV420P:
 					s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height))/2;
 					if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld | tcdecode -x dv -y yuv420p -d %d -Q %d", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video,vob->verbose, vob->quality) < 0)
 					{
@@ -285,8 +285,7 @@ MOD_open
 						return(TC_IMPORT_ERROR);
 					}
 				break;
-				case CODEC_RAW:
-				case CODEC_RAW_YUV:
+				case TC_CODEC_RAW:
 					s_frame_size = (p_video->s_v_height==PAL_H) ? TC_FRAME_DV_PAL:TC_FRAME_DV_NTSC;
 					if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video) < 0)
 					{
@@ -303,7 +302,7 @@ MOD_open
 			capability_flag=TC_CAP_PCM|TC_CAP_RGB|TC_CAP_YUV;
 			switch(s_v_codec)
 			{
-				case CODEC_RGB:
+				case TC_CODEC_RGB24:
 					s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height));
 					if (p_video->s_v_real_codec == TC_CODEC_DV)
 					{
@@ -322,7 +321,7 @@ MOD_open
 						}
 					}
 				break;
-				case CODEC_YUV:
+				case TC_CODEC_YUV420P:
 					s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height))/2;
 					if (p_video->s_v_real_codec == TC_CODEC_DV)
 					{
@@ -350,7 +349,7 @@ MOD_open
 			capability_flag=TC_CAP_PCM|TC_CAP_RGB|TC_CAP_AUD|TC_CAP_VID;
 			switch(s_v_codec)
 			{
-				case CODEC_RGB:
+				case TC_CODEC_RGB24:
 				s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height));
 				if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x avi -d %d -C %ld-%ld", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video) < 0)
 				{
@@ -565,9 +564,9 @@ MOD_decode
 				if(p_video->s_v_codec == TC_CODEC_UNKNOWN)
 				{
 					if (vob->dv_yuy2_mode == 1)
-		    				s_v_codec=CODEC_YUY2;
+		    				s_v_codec=TC_CODEC_YUY2;
 					else if (vob->dv_yuy2_mode == 0)
-		    				s_v_codec=CODEC_YUV;
+		    				s_v_codec=TC_CODEC_YUV420P;
 					else
 						s_v_codec=vob->im_v_codec;
 				}
@@ -582,7 +581,7 @@ MOD_decode
 		   		   case TC_MAGIC_DV_NTSC:
 					switch(s_v_codec)
 					{
-						case CODEC_RGB:
+						case TC_CODEC_RGB24:
 							s_frame_size = 3*(p_video->s_v_width * p_video->s_v_height);
 							if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld | tcdecode -x dv -y rgb -d %d -Q %d", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video,vob->verbose, vob->quality) < 0)
 							{
@@ -590,7 +589,7 @@ MOD_decode
 								return(TC_IMPORT_ERROR);
 							}
 						break;
-						case CODEC_YUY2:
+						case TC_CODEC_YUY2:
 							s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height))/2;
 							if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld | tcdecode -x dv -y yuv420p -Y -d %d -Q %d", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video,vob->verbose, vob->quality) < 0)
 							{
@@ -598,7 +597,7 @@ MOD_decode
 								return(TC_IMPORT_ERROR);
 							}
 						break;
-						case CODEC_YUV:
+						case TC_CODEC_YUV420P:
 							s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height))/2;
 							if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld | tcdecode -x dv -y yuv420p -d %d -Q %d", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video,vob->verbose, vob->quality) < 0)
 							{
@@ -606,8 +605,7 @@ MOD_decode
 								return(TC_IMPORT_ERROR);
 							}
 						break;
-						case CODEC_RAW:
-						case CODEC_RAW_YUV:
+						case TC_CODEC_RAW:
 							s_frame_size = (p_video->s_v_height==PAL_H) ? TC_FRAME_DV_PAL:TC_FRAME_DV_NTSC;
 							if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x dv -d %d -C %ld-%ld", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video) < 0)
 							{
@@ -622,7 +620,7 @@ MOD_decode
 		   		   case TC_MAGIC_MOV:
 					switch(s_v_codec)
 					{
-						case CODEC_RGB:
+						case TC_CODEC_RGB24:
 							s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height));
 							if (p_video->s_v_real_codec == TC_CODEC_DV)
 							{
@@ -641,7 +639,7 @@ MOD_decode
 								}
 							}
 						break;
-						case CODEC_YUV:
+						case TC_CODEC_YUV420P:
 							s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height))/2;
 							if (p_video->s_v_real_codec == TC_CODEC_DV)
 							{
@@ -667,7 +665,7 @@ MOD_decode
 		   		   case TC_MAGIC_AVI:
 					switch(s_v_codec)
 					{
-						case CODEC_RGB:
+						case TC_CODEC_RGB24:
 							s_frame_size = (3*(p_video->s_v_width * p_video->s_v_height));
 							if(tc_snprintf(import_cmd_buf, MAX_BUF, "tcextract -i \"%s\" -x avi -d %d -C %ld-%ld", p_video->p_nome_video,vob->verbose,p_video->s_start_video,p_video->s_end_video) < 0)
 							{

@@ -232,7 +232,7 @@ static int fields_configure(TCModuleInstance *self,
         return TC_ERROR;
     }
 
-    if (vob->im_v_codec == CODEC_RGB);
+    if (vob->im_v_codec == TC_CODEC_RGB24);
         pd->rgb_mode = TC_TRUE;
 
     if (verbose)
@@ -366,10 +366,10 @@ static int fields_filter_video(TCModuleInstance *self,
 /*************************************************************************/
 
 static const TCCodecID fields_codecs_in[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_YUV420P, TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 static const TCCodecID fields_codecs_out[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_YUV420P, TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 TC_MODULE_FILTER_FORMATS(fields);
 

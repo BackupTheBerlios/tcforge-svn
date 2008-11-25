@@ -390,7 +390,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
             return -1;
         }
 
-        if (vob->im_v_codec == CODEC_YUV) {
+        if (vob->im_v_codec == TC_CODEC_YUV420P) {
             if ((mfd->image->columns & 1) || (mfd->image->rows & 1)) {
                 tc_log_error(MOD_NAME, "\"%s\" has odd sizes", mfd->file);
                 return -1;
@@ -429,7 +429,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
             tc_log_info(MOD_NAME, "Nr: %d Delay: %d mfd->image->del %lu|",
                         mfd->nr_of_images, mfd->cur_delay, mfd->image->delay);
 
-        if (vob->im_v_codec == CODEC_YUV) {
+        if (vob->im_v_codec == TC_CODEC_YUV420P) {
             /* convert Magick RGB image format to YUV */
             /* todo: convert the magick image if it's not rgb! (e.g. cmyk) */
             Image   *image;
@@ -675,7 +675,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
                                       mfd->images->columns,
                                       mfd->images->rows);
 
-        if (vob->im_v_codec == CODEC_RGB) {
+        if (vob->im_v_codec == TC_CODEC_RGB24) {
             unsigned long r_off, g_off, b_off;
 
             if (!(rgbswap || mfd->rgbswap)) {

@@ -734,12 +734,12 @@ static int stabilize_filter_video(TCModuleInstance *self,
   
     if (sd->hasSeenOneFrame) {
         sd->curr = frame->video_buf;
-        if (sd->vob->im_v_codec == CODEC_RGB) {
+        if (sd->vob->im_v_codec == TC_CODEC_RGB24) {
             if(sd->algo == 0)
                 addTrans(sd, calcShiftRGBSimple(sd));
             else if (sd->algo == 1)
                 addTrans(sd, calcTransFields(sd, calcFieldTransRGB));
-        } else if(sd->vob->im_v_codec == CODEC_YUV) {
+        } else if(sd->vob->im_v_codec == TC_CODEC_YUV420P) {
             if (sd->algo == 0)
                 addTrans(sd, calcShiftYUVSimple(sd));
             else if (sd->algo == 1)
@@ -831,10 +831,10 @@ static int stabilize_inspect(TCModuleInstance *self,
 }
 
 static const TCCodecID stabilize_codecs_in[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB, TC_CODEC_ERROR 
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24, TC_CODEC_ERROR 
 };
 static const TCCodecID stabilize_codecs_out[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB, TC_CODEC_ERROR 
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24, TC_CODEC_ERROR 
 };
 TC_MODULE_FILTER_FORMATS(stabilize); 
 

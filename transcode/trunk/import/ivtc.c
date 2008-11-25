@@ -245,7 +245,7 @@ int ivtc(int *flag, int pflag, char *buffer, char *pulldown_buffer, int width, i
     ++pulldown_frame_ctr;
 
     // check if frame is interlaced
-    if(vcodec==CODEC_RGB) {
+    if(vcodec==TC_CODEC_RGB24) {
 	interlace_flag=interlace_test(buffer, 3*width, height);
     } else {
 	interlace_flag=interlace_test(buffer, width, height);
@@ -275,7 +275,7 @@ int ivtc(int *flag, int pflag, char *buffer, char *pulldown_buffer, int width, i
       if(verbose & TC_STATS)
 	  tc_log_msg(__FILE__, "MERGE (%2d)", pulldown_frame_ctr);
 
-      if(vcodec==CODEC_RGB) {
+      if(vcodec==TC_CODEC_RGB24) {
 	merge_rgb_fields(buffer, pulldown_buffer, width, height);
       } else {
 	merge_yuv_fields(buffer, pulldown_buffer, width, height);
@@ -437,7 +437,7 @@ int ivtc(int *flag, int pflag, char *buffer, char *pulldown_buffer, int width, i
     if(interlace_flag==1 && merge_flag==0 && clone_flag==1) {
 
       //FIXME: move this to main frame processing
-      if(vcodec==CODEC_RGB) {
+      if(vcodec==TC_CODEC_RGB24) {
 	rgb_deinterlace(buffer, width, height);
       } else {
 	yuv_deinterlace(buffer, width, height);

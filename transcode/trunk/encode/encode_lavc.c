@@ -155,7 +155,7 @@ struct tclavcprivatedata_ {
 /*************************************************************************/
 
 static const TCCodecID tc_lavc_codecs_in[] = {
-    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB,
+    TC_CODEC_YUV420P, TC_CODEC_YUV422P, TC_CODEC_RGB24,
     TC_CODEC_PCM,
     TC_CODEC_ERROR
 };
@@ -619,7 +619,7 @@ static void psnr_print(TCLavcPrivateData *pd)
 static int tc_lavc_set_pix_fmt(TCLavcPrivateData *pd, const vob_t *vob)
 {
     switch (vob->im_v_codec) {
-      case CODEC_YUV:
+      case TC_CODEC_YUV420P:
         if (TC_VCODEC_ID(pd) == TC_CODEC_HUFFYUV) {
             pd->tc_pix_fmt = TC_CODEC_YUV422P;
             pd->ff_vcontext.pix_fmt = PIX_FMT_YUV422P;
@@ -632,7 +632,7 @@ static int tc_lavc_set_pix_fmt(TCLavcPrivateData *pd, const vob_t *vob)
             pd->pre_encode_video = pre_encode_video_yuv420p;
         }
         break;
-      case CODEC_YUV422:
+      case TC_CODEC_YUV422P:
         pd->tc_pix_fmt = TC_CODEC_YUV422P;
         pd->ff_vcontext.pix_fmt = (TC_VCODEC_ID(pd) == TC_CODEC_MJPEG) 
                                    ? PIX_FMT_YUVJ422P
@@ -643,8 +643,8 @@ static int tc_lavc_set_pix_fmt(TCLavcPrivateData *pd, const vob_t *vob)
             pd->pre_encode_video = pre_encode_video_yuv422p;
         }
         break;
-      case CODEC_RGB:
-        pd->tc_pix_fmt = TC_CODEC_RGB;
+      case TC_CODEC_RGB24:
+        pd->tc_pix_fmt = TC_CODEC_RGB24;
         pd->ff_vcontext.pix_fmt = (TC_VCODEC_ID(pd) == TC_CODEC_HUFFYUV)
                                         ? PIX_FMT_YUV422P
                                         : (TC_VCODEC_ID(pd) == TC_CODEC_MJPEG) 

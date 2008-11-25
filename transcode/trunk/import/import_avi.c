@@ -68,13 +68,10 @@ static const struct {
 static ImageFormat tc_csp_translate(TCCodecID id)
 {
     switch (id) {
-      case CODEC_RGB:        /* fallthrough */
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         return IMG_RGB24;
-      case CODEC_YUV:        /* fallthrough */
       case TC_CODEC_YUV420P:
         return IMG_YUV420P;
-      case CODEC_YUV422:     /* fallthrough */
       case TC_CODEC_YUV422P:
         return IMG_YUV422P;
       default: /* cannot happen */
@@ -83,26 +80,13 @@ static ImageFormat tc_csp_translate(TCCodecID id)
     return IMG_NONE; /*cannot happen */
 }
 
-static TCCodecID tc_cdc_translate(int id)
-{
-    switch(id) {
-      case CODEC_YUV:
-        return TC_CODEC_YUV420P;
-      case CODEC_YUV422:
-        return TC_CODEC_YUV422P;
-      case CODEC_RGB:
-        return TC_CODEC_RGB;
-      default: /*cannot happen */
-        return TC_CODEC_UNKNOWN;
-    }
-    return TC_CODEC_ERROR; /* cannot happen */
-}
-
 /* ------------------------------------------------------------
  *
  * open stream
  *
  * ------------------------------------------------------------*/
+
+#define PCM_FORMAT_TAG  0x00000001
 
 MOD_open
 {
@@ -172,7 +156,7 @@ MOD_open
                         "channels=%d, bitrate=%ld",
                         format, rate, bits, chan, bitrate);
 
-        if (vob->im_a_codec == CODEC_PCM && format != CODEC_PCM) {
+        if (vob->im_a_codec == TC_CODEC_PCM && format != PCM_FORMAT_TAG) {
             tc_log_info(MOD_NAME, "error: invalid AVI audio format '0x%x'"
                         " for PCM processing", format);
             return TC_ERROR;
@@ -227,7 +211,6 @@ MOD_open
             }
 	    }
     	if ((srcfmt && dstfmt) && (srcfmt != dstfmt)) {
-            TCCodecID tc_id = tc_cdc_translate(vob->im_v_codec);
             tcvhandle = tcv_init();
             if (!tcvhandle) {
 	            tc_log_error(MOD_NAME, "tcv_convert_init failed");
@@ -236,7 +219,7 @@ MOD_open
             tc_log_info(MOD_NAME, "raw source, "
                                   "converting colorspace: %s -> %s",
                         formats[i].name,
-                        tc_codec_to_string(tc_id));
+                        tc_codec_to_string(vob->im_v_codec));
         }
         return TC_OK;
     }
@@ -275,7 +258,7 @@ MOD_decode
 
         // Fixup: For uncompressed AVIs, it must be aligned at
         // a 4-byte boundary
-        if (mod && vob->im_v_codec == CODEC_RGB) {
+        if (mod && vob->im_v_codec == TC_CODEC_RGB24) {
             for (i = 0; i < height; i++) {
                 memmove(param->buffer+(i*width*3),
                         param->buffer+(i*width*3) + (mod)*i,
@@ -314,7 +297,7 @@ MOD_decode
     }
 
     if (param->flag == TC_AUDIO) {
-        if (audio_codec == CODEC_RAW) {
+        if (audio_codec == TC_CODEC_RAW) {
             int r = 0;
 
             bytes_read = AVI_audio_size(avifile_aud, aframe_count);

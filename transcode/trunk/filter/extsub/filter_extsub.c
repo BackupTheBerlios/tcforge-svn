@@ -367,8 +367,8 @@ static void subtitle_overlay_rgb(char *vid_frame, int w, int h)
 
 static void subtitle_overlay(char *vid_frame, int w, int h)
 {
-  if(codec == CODEC_RGB) subtitle_overlay_rgb(vid_frame, w, h);
-  if(codec == CODEC_YUV) subtitle_overlay_yuv(vid_frame, w, h);
+  if(codec == TC_CODEC_RGB24)     subtitle_overlay_rgb(vid_frame, w, h);
+  if(codec == TC_CODEC_YUV420P) subtitle_overlay_yuv(vid_frame, w, h);
 }
 
 /*-------------------------------------------------
@@ -450,7 +450,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
         }
     }
 
-    if (vob->im_v_codec == CODEC_YUV)
+    if (vob->im_v_codec == TC_CODEC_YUV420P)
 	vshift = -vshift;
 
     if(n>8) color_set_done=1;

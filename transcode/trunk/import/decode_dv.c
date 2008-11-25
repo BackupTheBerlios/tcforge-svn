@@ -286,7 +286,7 @@ void decode_dv(decode_t *decode)
         linesize[0] = 32;
         linesize[1] = linesize[2] = 0;
         break;
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         srcfmt = destfmt = IMG_RGB24;
         colorspace = DV_COLOR_RGB;
         linesize[0] = 48;
@@ -425,7 +425,7 @@ void decode_dv(decode_t *decode)
 
           case TC_CODEC_YUV420P:
           case TC_CODEC_YUY2:
-          case TC_CODEC_RGB:
+          case TC_CODEC_RGB24:
             if (srcfmt == destfmt) {
                 dv_decode_full_frame(decoder, framebuf, colorspace, video,
                                      linesize);
@@ -588,7 +588,7 @@ void probe_dv(info_t *info)
     info->probe_info->track[0].samplerate = decoder->audio->frequency;
     info->probe_info->track[0].chan       = decoder->audio->num_channels;
     info->probe_info->track[0].bits       = 16;
-    info->probe_info->track[0].format     = CODEC_PCM;
+    info->probe_info->track[0].format     = TC_CODEC_PCM;
     info->probe_info->track[0].bitrate    =
         (decoder->audio->frequency * decoder->audio->num_channels * 16) / 1000;
     info->probe_info->num_tracks          = 1;

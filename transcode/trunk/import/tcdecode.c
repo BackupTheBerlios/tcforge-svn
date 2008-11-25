@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
      * output raw stream format
      * ------------------------------------------------------------*/
 
-    if (!strcmp(format, "rgb")) decode.format = TC_CODEC_RGB;
+    if (!strcmp(format, "rgb")) decode.format = TC_CODEC_RGB24;
     else if (!strcmp(format, "yuv420p")) decode.format = TC_CODEC_YUV420P;
     else if (!strcmp(format, "yuv2")) decode.format = TC_CODEC_YUV2;
     else if (!strcmp(format, "yuy2")) decode.format = TC_CODEC_YUY2;

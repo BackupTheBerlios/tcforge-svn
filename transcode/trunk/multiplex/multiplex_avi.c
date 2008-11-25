@@ -73,7 +73,7 @@ static int avi_configure(TCModuleInstance *self,
     AVIPrivateData *pd = NULL;
     int arate = (vob->mp3frequency != 0)
                     ?vob->mp3frequency :vob->a_rate;
-    int abitrate = (vob->ex_a_codec == CODEC_PCM)
+    int abitrate = (vob->ex_a_codec == TC_CODEC_PCM)
                     ?(vob->a_rate*4)/1000*8 :vob->mp3bitrate;
 
     TC_MODULE_SELF_CHECK(self, "configure");
@@ -89,9 +89,9 @@ static int avi_configure(TCModuleInstance *self,
         tc_log_info(MOD_NAME, "AVI FourCC: '%s'", fcc);
     }
 
-    if (vob->ex_v_codec == CODEC_RGB || vob->ex_v_codec == TC_CODEC_RGB
-     || vob->ex_v_codec == CODEC_YUV || vob->ex_v_codec == TC_CODEC_YUV420P
-     || vob->ex_v_codec == CODEC_YUV422 || vob->ex_v_codec == TC_CODEC_YUV422P) {
+    if (vob->ex_v_codec == TC_CODEC_RGB24
+     || vob->ex_v_codec == TC_CODEC_YUV420P
+     || vob->ex_v_codec == TC_CODEC_YUV422P) {
         pd->force_kf = TC_TRUE;
     } else {
         pd->force_kf = TC_FALSE;
@@ -220,7 +220,7 @@ static const TCCodecID avi_codecs_in[] = {
     TC_CODEC_DIVX3, TC_CODEC_DIVX4, TC_CODEC_DIVX5, TC_CODEC_XVID,
     TC_CODEC_H264, /* FIXME: that means asking for troubles */
     TC_CODEC_MPEG4VIDEO, TC_CODEC_MPEG1VIDEO, TC_CODEC_MJPEG,
-    TC_CODEC_LZO1, TC_CODEC_LZO2, TC_CODEC_RGB,
+    TC_CODEC_LZO1, TC_CODEC_LZO2, TC_CODEC_RGB24,
     TC_CODEC_ERROR
 };
 static const TCFormatID avi_formats_out[] = { TC_FORMAT_AVI, TC_FORMAT_ERROR };

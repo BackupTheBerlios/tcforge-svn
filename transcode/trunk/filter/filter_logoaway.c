@@ -833,7 +833,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
     if (ptr->id < data[instance]->start || ptr->id > data[instance]->end) return (0);
 
-    if(vob->im_v_codec==CODEC_RGB) {
+    if(vob->im_v_codec==TC_CODEC_RGB24) {
       work_with_rgb_frame(ptr->video_buf, vob->im_v_width, vob->im_v_height, instance);
     } else {
       work_with_yuv_frame(ptr->video_buf, vob->im_v_width, vob->im_v_height, instance);

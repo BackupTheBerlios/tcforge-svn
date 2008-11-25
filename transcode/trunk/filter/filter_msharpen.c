@@ -131,7 +131,7 @@ static int msharpen_configure(TCModuleInstance *self,
     pd->threshold = 10;
     pd->mask      = TC_FALSE; /* not sure what this does at the moment */
     pd->highq     = TC_TRUE; /* high Q or not? */
-    pd->out_fmt   = (vob->im_v_codec == CODEC_YUV)
+    pd->out_fmt   = (vob->im_v_codec == TC_CODEC_YUV420P)
                         ?IMG_YUV_DEFAULT :IMG_RGB24;
 
     if (options) {
@@ -497,10 +497,10 @@ static int msharpen_filter_video(TCModuleInstance *self,
 /*************************************************************************/
 
 static const TCCodecID msharpen_codecs_in[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_YUV420P, TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 static const TCCodecID msharpen_codecs_out[] = { 
-    TC_CODEC_YUV420P, TC_CODEC_RGB, TC_CODEC_ERROR
+    TC_CODEC_YUV420P, TC_CODEC_RGB24, TC_CODEC_ERROR
 };
 TC_MODULE_FILTER_FORMATS(msharpen);
 

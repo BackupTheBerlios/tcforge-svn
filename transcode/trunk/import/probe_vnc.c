@@ -140,7 +140,7 @@ void probe_vnc(info_t *ipipe)
     ipipe->probe_info->height = height;
     ipipe->probe_info->fps = 25.;
     ipipe->probe_info->frc = 3;
-    ipipe->probe_info->codec = TC_CODEC_RGB;
+    ipipe->probe_info->codec = TC_CODEC_RGB24;
     ipipe->probe_info->magic = ipipe->magic;
 
 }

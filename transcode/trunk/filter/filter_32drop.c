@@ -167,7 +167,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
   if((ptr->tag & TC_PRE_M_PROCESS) && (ptr->tag & TC_VIDEO))  {
 
-    if(vob->im_v_codec==CODEC_RGB) {
+    if(vob->im_v_codec==TC_CODEC_RGB24) {
       isint = interlace_test(ptr->video_buf, 3*ptr->v_width, ptr->v_height, ptr->id, 1);
     } else {
       isint = interlace_test(ptr->video_buf, ptr->v_width, ptr->v_height, ptr->id, 1);
@@ -183,7 +183,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	 */
 
 	if ((fnum - lfnum) == 2) {
-	    merge_frames(lastiframe, ptr->video_buf, ptr->v_width, ptr->v_height, ((vob->im_v_codec == CODEC_RGB) ? 3:1) );
+	    merge_frames(lastiframe, ptr->video_buf, ptr->v_width, ptr->v_height, ((vob->im_v_codec == TC_CODEC_RGB24) ? 3:1) );
 	} else {
           ac_memcpy(lastiframe, ptr->video_buf, ptr->video_size);
 	  /* The use of the drop counter ensures syncronization even with

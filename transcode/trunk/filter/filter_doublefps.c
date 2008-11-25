@@ -275,7 +275,7 @@ static int doublefps_filter_video(TCModuleInstance *self, vframe_list_t *frame)
     }
     w = frame->v_width;
     h = frame->v_height;
-    hUV = (frame->v_codec == CODEC_YUV422) ? h : h/2;
+    hUV = (frame->v_codec == TC_CODEC_YUV422P) ? h : h/2;
 
     switch ((pd->fullheight ? 2 : 0)
           + (frame->attributes & TC_FRAME_WAS_CLONED ? 1 : 0)

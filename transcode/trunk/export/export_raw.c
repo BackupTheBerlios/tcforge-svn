@@ -166,7 +166,7 @@ further:
 
       switch(vob->im_v_codec) {
 
-      case CODEC_RGB:
+      case TC_CODEC_RGB24:
 
 	//force keyframe
 	force_kf=1;
@@ -188,7 +188,7 @@ further:
 	srcfmt = IMG_RGB_DEFAULT;
 	break;
 
-      case CODEC_YUV:
+      case TC_CODEC_YUV420P:
 
 	//force keyframe
 	force_kf=1;
@@ -207,7 +207,7 @@ further:
 	srcfmt = IMG_YUV_DEFAULT;
 	break;
 
-      case CODEC_YUV422:
+      case TC_CODEC_YUV422P:
 
 	//force keyframe
 	force_kf=1;
@@ -230,8 +230,7 @@ further:
 	break;
 
 
-      case CODEC_RAW:
-      case CODEC_RAW_YUV:
+      case TC_CODEC_RAW:
 
 	if (vob->v_codec_flag == TC_CODEC_MPEG2) {
 
@@ -384,7 +383,7 @@ MOD_encode
 
     // Fixup: For uncompressed AVIs, it must be aligned at
     // a 4-byte boundary
-    if (mod && (destfmt ? destfmt == IMG_RGB24 : im_v_codec == CODEC_RGB)) {
+    if (mod && (destfmt ? destfmt == IMG_RGB24 : im_v_codec == TC_CODEC_RGB24)) {
 	for (i = height; i>0; i--) {
 	    memmove (param->buffer+(i*width*3) + mod*i,
 		     param->buffer+(i*width*3) ,

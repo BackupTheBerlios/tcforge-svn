@@ -124,7 +124,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 		}
 		update_switches();
 
-		if (vob->im_v_codec == CODEC_YUV) {
+		if (vob->im_v_codec == TC_CODEC_YUV420P) {
 			if (verbose) tc_log_warn(MOD_NAME, "will need to convert YUV to RGB before filtering");
 			if (!(tcvhandle = tcv_init())) {
 				tc_log_error(MOD_NAME, "image conversion init failed");
@@ -163,7 +163,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 		}
 
 		if (state) {
-			if (vob->im_v_codec == CODEC_YUV)
+			if (vob->im_v_codec == TC_CODEC_YUV420P)
 				tcv_convert(tcvhandle,
 					    ptr->video_buf, ptr->video_buf,
 					    ptr->v_width, ptr->v_height,
@@ -182,7 +182,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
 
 			ac_memcpy(ptr->video_buf, buffer, ptr->v_width*ptr->v_height*3);
-			if (vob->im_v_codec == CODEC_YUV)
+			if (vob->im_v_codec == TC_CODEC_YUV420P)
 				tcv_convert(tcvhandle,
 					    ptr->video_buf, ptr->video_buf,
 					    ptr->v_width, ptr->v_height,

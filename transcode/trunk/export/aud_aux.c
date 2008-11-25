@@ -275,7 +275,7 @@ static int tc_audio_init_lame(vob_t *vob, int o_codec)
 				get_lame_version());
 		if (verbose_flag & TC_DEBUG) {
 			tc_info("Lame config: PCM -> %s",
-			        (o_codec==CODEC_MP3)?"MP3":"MP2");
+			        (o_codec==TC_CODEC_MP3)?"MP3":"MP2");
 			tc_info("             bitrate         : %d kbit/s",
 			        vob->mp3bitrate);
 			tc_info("             ouput samplerate: %d Hz",
@@ -445,7 +445,7 @@ int tc_audio_init(vob_t *vob, int v)
 	 * Sanity checks
 	 */
 	if((sample_size == 0) &&
-	   (vob->im_a_codec != CODEC_NULL))
+	   (vob->im_a_codec != TC_CODEC_ERROR))
 	{
 		tc_warn("Zero sample size detected for audio format `0x%x'. "
 		      "Muting.", vob->im_a_codec);
@@ -471,32 +471,32 @@ int tc_audio_init(vob_t *vob, int v)
 
 	switch(vob->im_a_codec)
 	{
-	case CODEC_PCM:
+	case TC_CODEC_PCM:
 		switch(vob->ex_a_codec)
 		{
-		case CODEC_NULL:
+		case TC_CODEC_ERROR:
 			tc_audio_encode_function = tc_audio_mute;
 			break;
 
-		case CODEC_MP3:
+		case TC_CODEC_MP3:
 			ret=tc_audio_init_lame(vob, vob->ex_a_codec);
 			tc_audio_encode_function = tc_audio_encode_mp3;
 			break;
 
-		case CODEC_PCM:
+		case TC_CODEC_PCM:
 			tc_info("PCM -> PCM");
 			/* adjust bitrate with magic ! */
 			avi_aud_bitrate=(vob->a_rate*4)/1000*8;
 			tc_audio_encode_function = tc_audio_pass_through_pcm;
 			break;
 
-		case CODEC_MP2:
+		case TC_CODEC_MP2:
 			tc_info("PCM -> MP2");
 			ret=tc_audio_init_ffmpeg(vob, vob->ex_a_codec);
 			tc_audio_encode_function = tc_audio_encode_ffmpeg;
 			break;
 
-		case CODEC_AC3:
+		case TC_CODEC_AC3:
 			tc_info("PCM -> AC3");
 			ret=tc_audio_init_ffmpeg(vob, vob->ex_a_codec);
 			tc_audio_encode_function = tc_audio_encode_ffmpeg;
@@ -510,16 +510,16 @@ int tc_audio_init(vob_t *vob, int v)
 		}
 		break;
 
-	case CODEC_MP2:
-	case CODEC_MP3: /* only pass through supported */
+	case TC_CODEC_MP2:
+	case TC_CODEC_MP3: /* only pass through supported */
 		switch(vob->ex_a_codec)
 		{
-		case CODEC_NULL:
+		case TC_CODEC_ERROR:
 			tc_audio_encode_function = tc_audio_mute;
 			break;
 
-		case CODEC_MP2:
-		case CODEC_MP3:
+		case TC_CODEC_MP2:
+		case TC_CODEC_MP3:
 			tc_audio_encode_function = tc_audio_pass_through;
 			break;
 
@@ -531,14 +531,14 @@ int tc_audio_init(vob_t *vob, int v)
 		}
 		break;
 
-	case CODEC_AC3: /* only pass through supported */
+	case TC_CODEC_AC3: /* only pass through supported */
 		switch(vob->ex_a_codec)
 		{
-		case CODEC_NULL:
+		case TC_CODEC_ERROR:
 			tc_audio_encode_function = tc_audio_mute;
 			break;
 
-		case CODEC_AC3:
+		case TC_CODEC_AC3:
 			tc_info("AC3->AC3");
 			if (vob->audio_file_flag) {
 				tc_audio_encode_function = tc_audio_pass_through;
@@ -559,11 +559,11 @@ int tc_audio_init(vob_t *vob, int v)
 		}
 		break;
 
-	case CODEC_NULL: /* no audio requested */
+	case TC_CODEC_ERROR: /* no audio requested */
 		tc_audio_encode_function = tc_audio_mute;
 		break;
 
-	case CODEC_RAW: /* pass-through mode */
+	case TC_CODEC_RAW: /* pass-through mode */
 		tc_audio_encode_function = tc_audio_pass_through;
 		ret=tc_audio_init_raw(vob);
 		break;

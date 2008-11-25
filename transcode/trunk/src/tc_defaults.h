@@ -111,30 +111,6 @@
 
 //--------------------------------------------------
 
-#define CODEC_NULL       0x0
-
-#define CODEC_RGB          1
-#define CODEC_YUV          2
-#define CODEC_MP4          4
-#define CODEC_YUY2         8
-#define CODEC_DV          16
-#define CODEC_RAW         32
-#define CODEC_RAW_RGB     64
-#define CODEC_RAW_YUV    128
-#define CODEC_YUV422     256
-
-#define CODEC_PCM     0x1
-#define CODEC_ULAW    0x7     // incidental
-#define CODEC_AC3     0x2000
-#define CODEC_MP2     0x50
-#define CODEC_MP3     0x55
-#define CODEC_DIVX    0x161
-#define CODEC_IMA4    0x11
-#define CODEC_LPCM    0x10001
-#define CODEC_DTS     0x1000F     //??
-#define CODEC_VORBIS  0xfffe
-#define CODEC_VAG     0xfeed //me pizza
-
 #define TC_INFO_NO_DEMUX        1
 #define TC_INFO_MPEG_PS         2
 #define TC_INFO_MPEG_ES         4

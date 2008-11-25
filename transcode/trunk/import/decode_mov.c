@@ -218,7 +218,7 @@ void decode_mov(decode_t *decode)
                 }
                 QT_WRITE(decode->fd_out, p_buffer, s_buff_size);
             }
-        } else if (decode->format == TC_CODEC_RGB) {
+        } else if (decode->format == TC_CODEC_RGB24) {
             if (quicktime_supported_video(qt_handle, 0) == 0) {
                 tc_snprintf(msgbuf, sizeof(msgbuf), "quicktime video codec"
                             " '%s' not supported for RGB", p_v_codec);

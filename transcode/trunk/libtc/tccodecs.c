@@ -42,8 +42,8 @@ typedef struct {
  * to protect it with threading locks
  */
 static const TCCodecInfo tc_codecs_info[] = {
-    /* video codecs */
-    { TC_CODEC_RGB,        "rgb",         "RGB",
+    /* pixel formats */
+    { TC_CODEC_RGB24,      "rgb24",       "RGB",
                            "RGB/BGR",                0, TC_VIDEO },
     { TC_CODEC_YUV420P,    "yuv420p",     "I420",
                            "YUV420P",                0, TC_VIDEO },
@@ -51,6 +51,7 @@ static const TCCodecInfo tc_codecs_info[] = {
                            "YUV422P",                0, TC_VIDEO },
     { TC_CODEC_YUY2,       "yuy2",        "YUY2",
                            "YUY2",                   0, TC_VIDEO },
+    /* video codecs */
     // XXX: right fcc?
     { TC_CODEC_MPEG1VIDEO, "mpeg1video",  "mpg1",
                            "MPEG1 ES",               1, TC_VIDEO },
@@ -168,24 +169,6 @@ static const TCCodecInfo tc_codecs_info[] = {
                            NULL,                     0, 0 }, // XXX
     /* this MUST be the last one */
 };
-
-/* compatibility */
-int tc_translate_codec_id(TCCodecID codec)
-{
-    switch (codec) {
-      case CODEC_AC3:    return TC_CODEC_AC3;
-      case CODEC_MP3:    return TC_CODEC_MP3;
-      case CODEC_MP2:    return TC_CODEC_MP2;
-      case CODEC_PCM:    return TC_CODEC_PCM;
-      case CODEC_LPCM:   return TC_CODEC_LPCM;
-      case CODEC_ULAW:   return TC_CODEC_ULAW;
-      case CODEC_VORBIS: return TC_CODEC_VORBIS;
-      case CODEC_VAG:    return TC_CODEC_VAG;
-      default:           return TC_CODEC_ERROR; /* can't happen */
-    }
-    return TC_CODEC_ERROR;
-}
-
 
 /*
  * TCCodecMatcher:

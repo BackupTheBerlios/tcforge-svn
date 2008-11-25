@@ -202,7 +202,7 @@ static int facemask_configure(TCModuleInstance *self,
         optstr_get(options, "ydim",        "%d", &fpd->ydim);
     }
 
-    if (vob->im_v_codec == CODEC_YUV){
+    if (vob->im_v_codec == TC_CODEC_YUV420P){
         fpd->tcvhandle = tcv_init();
         if (!fpd->tcvhandle) {
             tc_log_error(MOD_NAME, "Error at image conversion initialization.");
@@ -311,12 +311,12 @@ static int facemask_filter_video(TCModuleInstance *self, vframe_list_t *frame)
 
     if (!(frame->attributes & TC_FRAME_IS_SKIPPED)) {
         switch(fpd->codec){
-            case CODEC_RGB:
+            case TC_CODEC_RGB24:
                 return print_mask(fpd->xpos, fpd->ypos,
                                   fpd->xresolution, fpd->yresolution,
                                   fpd->xdim, fpd->ydim, frame);
                 break;
-            case CODEC_YUV:
+            case TC_CODEC_YUV420P:
                 if (!tcv_convert(fpd->tcvhandle, frame->video_buf, frame->video_buf,
                                  frame->v_width, frame->v_height,
                                  IMG_YUV_DEFAULT, IMG_RGB24)){
@@ -351,10 +351,10 @@ static int facemask_filter_video(TCModuleInstance *self, vframe_list_t *frame)
 /*************************************************************************/
 
 static const TCCodecID facemask_codecs_in[] = { 
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_ERROR
 };
 static const TCCodecID facemask_codecs_out[] = {
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_ERROR
 };
 TC_MODULE_FILTER_FORMATS(facemask);
 

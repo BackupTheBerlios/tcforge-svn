@@ -1168,7 +1168,7 @@ void probe_pes(info_t *ipipe)
 		    = ipipe->probe_info->track[num].samplerate
 		      * ipipe->probe_info->track[num].bits
 		      * ipipe->probe_info->track[num].chan / 1000;
-		  ipipe->probe_info->track[num].format=CODEC_LPCM;
+		  ipipe->probe_info->track[num].format=TC_CODEC_LPCM;
 
 		  ac_memcpy(scan_buf, &buf[6], 16);
 		  has_pts_dts=get_pts_dts(scan_buf, &i_pts, &i_dts);
@@ -1219,7 +1219,7 @@ void probe_pes(info_t *ipipe)
 		      * 4        /* bits per sample, encoded */
 		      * 16 / 14  /* overhead ratio */
                       / 1000;
-		  ipipe->probe_info->track[num].format = CODEC_VAG;
+		  ipipe->probe_info->track[num].format = TC_CODEC_VAG;
 
 		  ac_memcpy(scan_buf, &buf[6], 16);
 		  has_pts_dts=get_pts_dts(scan_buf, &i_pts, &i_dts);

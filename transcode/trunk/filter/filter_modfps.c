@@ -176,7 +176,7 @@ static int yuv_detect_scenechange(uint8_t *_src, uint8_t *_prev, const int _thre
 static int tc_detect_scenechange(unsigned char*clone, unsigned char *next, vframe_list_t *ptr){
   const int thresh = 14;
   const int scenethresh = 31;
-  if(ptr->v_codec == CODEC_YUV){
+  if(ptr->v_codec == TC_CODEC_YUV420P){
     return yuv_detect_scenechange((uint8_t *)next, (uint8_t *)clone, thresh, scenethresh,
     				ptr->v_width, ptr->v_height, ptr->v_width);
   } else {
@@ -282,13 +282,13 @@ static void clone_interpolate(char *clone, char *next, vframe_list_t *ptr){
   int i,width = 0,height;
   char *dest, *s1, *s2;
 
-  if (CODEC_RGB == ptr->v_codec){
+  if (TC_CODEC_RGB24 == ptr->v_codec){
     // in RGB, the data is packed, three bytes per pixel
     width = 3*ptr->v_width;
-  } else if (CODEC_YUY2 == ptr->v_codec){
+  } else if (TC_CODEC_YUY2 == ptr->v_codec){
     // in YUY2, the data again is packed.
     width = 2*ptr->v_width;
-  } else if (CODEC_YUV == ptr->v_codec){
+  } else if (TC_CODEC_YUV420P == ptr->v_codec){
     // we'll handle the planar colours later
     width = ptr->v_width;
   }
@@ -307,7 +307,7 @@ static void clone_interpolate(char *clone, char *next, vframe_list_t *ptr){
       s2 += width<<1;
     }
   }
-  if (CODEC_YUV == ptr->v_codec){
+  if (TC_CODEC_YUV420P == ptr->v_codec){
     // here we handle the planar color part of the data
     dest = ptr->video_buf + width*height;
     s1 = ptr->video_buf+width*height;
@@ -358,7 +358,7 @@ static void fancy_clone(char* clone, char* next, vframe_list_t *ptr, int tin, in
       clone_temporal_average(clone,next,ptr,tin,tout);
       break;
     case 5:
-      if (ptr->v_codec != CODEC_YUV){
+      if (ptr->v_codec != TC_CODEC_YUV420P){
         tc_log_error(MOD_NAME, "phosphor merge only implemented for YUV data");
 	return;
       }
@@ -375,12 +375,12 @@ static int memory_init(vframe_list_t * ptr){
 
   int i;
   frbufsize = numSample +1;
-  if (ptr->v_codec == CODEC_YUV){
+  if (ptr->v_codec == TC_CODEC_YUV420P){
     // we only care about luminance
     scanrange = ptr->v_height*ptr->v_width;
-  } else if (ptr->v_codec == CODEC_RGB){
+  } else if (ptr->v_codec == TC_CODEC_RGB24){
     scanrange = ptr->v_height*ptr->v_width*3;
-  } else if (ptr->v_codec == CODEC_YUY2){
+  } else if (ptr->v_codec == TC_CODEC_YUY2){
     // we only care about luminance, but since this is packed
     // we'll look at everything.
     scanrange = ptr->v_height*ptr->v_width*2;

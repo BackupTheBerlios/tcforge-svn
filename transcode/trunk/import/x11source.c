@@ -279,15 +279,13 @@ static int tc_x11source_map_format(TCX11Source *handle, uint32_t format)
     if (handle != NULL) {
         ret = 0;
         switch (format) {
-          case CODEC_RGB: /* compatibility */
-          case TC_CODEC_RGB:
-            handle->out_fmt = TC_CODEC_RGB;
+          case TC_CODEC_RGB24:
+            handle->out_fmt = TC_CODEC_RGB24;
             handle->conv_fmt = IMG_RGB24;
             if (verbose >= TC_DEBUG) {
                 tc_log_info(__FILE__, "output colorspace: RGB24");
             }
             break;
-          case CODEC_YUV: /* compatibility */
           case TC_CODEC_YUV420P:
             handle->out_fmt = TC_CODEC_YUV420P;
             handle->conv_fmt = IMG_YUV420P;
@@ -295,7 +293,6 @@ static int tc_x11source_map_format(TCX11Source *handle, uint32_t format)
                 tc_log_info(__FILE__, "output colorspace: YUV420P");
             }
             break;
-          case CODEC_YUV422: /* compatibility */
           case TC_CODEC_YUV422P:
             handle->out_fmt = TC_CODEC_YUV422P;
             handle->conv_fmt = IMG_YUV422P;

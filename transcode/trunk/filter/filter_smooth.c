@@ -186,7 +186,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
     if (strength[instance]> 0.9) strength[instance] = 0.9;
     memset(tbuf[instance], 0, SIZE_RGB_FRAME);
 
-    if (vob->im_v_codec == CODEC_RGB) {
+    if (vob->im_v_codec == TC_CODEC_RGB24) {
 	if (verbose) tc_log_error(MOD_NAME, "only capable of YUV mode");
 	return -1;
     }
@@ -222,7 +222,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
   if(ptr->tag & TC_PRE_M_PROCESS && ptr->tag & TC_VIDEO && !(ptr->attributes & TC_FRAME_IS_SKIPPED)) {
 
-	if (vob->im_v_codec == CODEC_YUV)
+	if (vob->im_v_codec == TC_CODEC_YUV420P)
 		smooth_yuv(ptr->video_buf, ptr->v_width, ptr->v_height, cdiff[instance],
 		    ldiff[instance], range[instance], strength[instance], instance);
 

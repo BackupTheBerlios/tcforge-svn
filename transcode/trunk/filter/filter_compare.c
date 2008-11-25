@@ -227,7 +227,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
 		if (orig != NULL){
                         // Flip and resize
-			if (compare[instance]->vob->im_v_codec == CODEC_YUV)
+			if (compare[instance]->vob->im_v_codec == TC_CODEC_YUV420P)
 				TransformRGBImage(orig,YCbCrColorspace);
 			if (verbose > 1) tc_log_info(MOD_NAME, "Resizing the Image");
 			resized = ResizeImage(orig,
@@ -321,7 +321,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 		double sr,sg,sb;
 		double avg_dr,avg_dg,avg_db;
 
-		if (compare[instance]->vob->im_v_codec == CODEC_RGB){
+		if (compare[instance]->vob->im_v_codec == TC_CODEC_RGB24){
 
 			int r,g,b,c;
 			double width_long;

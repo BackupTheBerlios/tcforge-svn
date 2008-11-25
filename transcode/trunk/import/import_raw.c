@@ -48,7 +48,7 @@ MOD_open
     char *co = NULL;
 
     if (param->flag == TC_AUDIO) {
-        co = (vob->a_codec_flag == CODEC_ULAW) ?"ulaw" :"pcm"; // XXX
+        co = (vob->a_codec_flag == TC_CODEC_ULAW) ?"ulaw" :"pcm"; // XXX
 
         /* multiple inputs? */
         if (tc_file_check(vob->audio_in_file) == 1) {
@@ -82,13 +82,13 @@ MOD_open
         codec = vob->im_v_codec;
 
         switch (codec) {
-          case CODEC_RGB:
+          case TC_CODEC_RGB24:
             co = "rgb";
             break;
-          case CODEC_YUV422:
+          case TC_CODEC_YUV422P:
             co = "yuv422p";
             break;
-          case CODEC_YUV: /* fallthrough */
+          case TC_CODEC_YUV420P: /* fallthrough */
           default:
             co = "yuv420p";
             break;

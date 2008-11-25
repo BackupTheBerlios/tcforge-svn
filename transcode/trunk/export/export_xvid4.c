@@ -227,13 +227,13 @@ MOD_init
      * ones, something really odd occurs somewhere and i prefer the
      * application crash */
     thismod.stream_size = vob->ex_v_width * vob->ex_v_height;
-    if(vob->im_v_codec == CODEC_RGB) {
+    if(vob->im_v_codec == TC_CODEC_RGB24) {
         thismod.stream_size *= 3;
         if (!(thismod.tcvhandle = tcv_init())) {
             tc_log_warn(MOD_NAME, "tcv_init failed");
             return TC_EXPORT_ERROR;
         }
-    } else if(vob->im_v_codec == CODEC_YUV422) {
+    } else if(vob->im_v_codec == TC_CODEC_YUV422P) {
         thismod.stream_size *= 2;
         if (!(thismod.tcvhandle = tcv_init())) {
             tc_log_warn(MOD_NAME, "tcv_init failed");
@@ -400,12 +400,12 @@ MOD_encode
 
     /* Video encoding */
 
-    if(vob->im_v_codec == CODEC_YUV422) {
+    if(vob->im_v_codec == TC_CODEC_YUV422P) {
         /* Convert to UYVY */
         tcv_convert(thismod.tcvhandle, param->buffer, param->buffer,
                     vob->ex_v_width, vob->ex_v_height,
                     IMG_YUV422P, IMG_UYVY);
-    } else if (vob->im_v_codec == CODEC_RGB) {
+    } else if (vob->im_v_codec == TC_CODEC_RGB24) {
         /* Convert to BGR (why isn't RGB supported??) */
         tcv_convert(thismod.tcvhandle, param->buffer, param->buffer,
                     vob->ex_v_width, vob->ex_v_height,
@@ -1082,10 +1082,10 @@ static void set_frame_struct(xvid_transcode_module_t *mod, vob_t *vob, transfer_
 
         /* Bind source frame */
         x->input.plane[0] = t->buffer;
-        if(vob->im_v_codec == CODEC_RGB) {
+        if(vob->im_v_codec == TC_CODEC_RGB24) {
             x->input.csp       = XVID_CSP_BGR;
             x->input.stride[0] = vob->ex_v_width*3;
-        } else if (vob->im_v_codec == CODEC_YUV422) {
+        } else if (vob->im_v_codec == TC_CODEC_YUV422P) {
             x->input.csp       = XVID_CSP_UYVY;
             x->input.stride[0] = vob->ex_v_width*2;
         } else {

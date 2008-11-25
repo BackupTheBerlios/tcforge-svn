@@ -104,7 +104,7 @@ void probe_avi(info_t *ipipe)
     if(codec!=NULL) {
 
       if(strlen(codec)==0) {
-	ipipe->probe_info->codec=TC_CODEC_RGB;
+	ipipe->probe_info->codec=TC_CODEC_RGB24;
       } else {
 
     /* FIXME: switch to a table or, better, use tccodecs.c facilities */

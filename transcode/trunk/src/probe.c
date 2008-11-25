@@ -519,7 +519,7 @@ void probe_to_vob(ProbeInfo *vinfo, ProbeInfo *ainfo, int flags, vob_t *vob)
         /* See if audio was detected */
         if (ainfo->num_tracks == 0)
             vob->has_audio = 0;
-        if (ainfo->track[track].format == CODEC_NULL)
+        if (ainfo->track[track].format == TC_CODEC_ERROR)
             vob->has_audio_track = 0;
 
         /* Set video format/codec fields as well if no video present */
@@ -588,13 +588,13 @@ static void select_modules(int flags, vob_t *vob)
 
     /* Choose a default audio module based on the audio codec */
     switch (vob->a_codec_flag) {
-        case CODEC_MP2:    default_amod = "mp3";  break;
-        case CODEC_MP3:    default_amod = "mp3";  break;
-        case CODEC_AC3:    default_amod = "ac3";  break;
-        case CODEC_PCM:    default_amod = "raw";  break;
-        case CODEC_ULAW:   default_amod = "raw";  break;
-        case CODEC_VORBIS: default_amod = "ogg";  break;
-        case CODEC_VAG:    default_amod = "vag";  break;
+        case TC_CODEC_MP2:    default_amod = "mp3";  break;
+        case TC_CODEC_MP3:    default_amod = "mp3";  break;
+        case TC_CODEC_AC3:    default_amod = "ac3";  break;
+        case TC_CODEC_PCM:    default_amod = "raw";  break;
+        case TC_CODEC_ULAW:   default_amod = "raw";  break;
+        case TC_CODEC_VORBIS: default_amod = "ogg";  break;
+        case TC_CODEC_VAG:    default_amod = "vag";  break;
         default:           default_amod = "null"; break;
     }
 
@@ -612,7 +612,7 @@ static void select_modules(int flags, vob_t *vob)
         if (MAY_SET(FRAMESIZE)) {
             vob->im_v_width  = PAL_W/2;
             vob->im_v_height = PAL_H/2;
-            if (vob->im_v_codec != CODEC_RGB)
+            if (vob->im_v_codec != TC_CODEC_RGB24)
                 vob->im_v_width &= -16;
         }
         break;
@@ -623,7 +623,7 @@ static void select_modules(int flags, vob_t *vob)
         if (MAY_SET(FRAMESIZE)) {
             vob->im_v_width  = PAL_W/2;
             vob->im_v_height = PAL_H/2;
-            if (vob->im_v_codec != CODEC_RGB)
+            if (vob->im_v_codec != TC_CODEC_RGB24)
                 vob->im_v_width &= -16;
         }
         break;
@@ -633,7 +633,7 @@ static void select_modules(int flags, vob_t *vob)
         if (MAY_SET(FRAMESIZE) && !(vob->im_v_width>0 && vob->im_v_height>0)) {
             vob->im_v_width  = PAL_W/2;
             vob->im_v_height = PAL_H/2;
-            if (vob->im_v_codec != CODEC_RGB)
+            if (vob->im_v_codec != TC_CODEC_RGB24)
                 vob->im_v_width &= -16;
         }
         break;
@@ -672,7 +672,7 @@ static void select_modules(int flags, vob_t *vob)
       case TC_MAGIC_AVI:
         if (vob->pass_flag & TC_VIDEO)
             vob->vmod_probed = "avi";
-        if (vob->a_codec_flag == CODEC_ULAW)
+        if (vob->a_codec_flag == TC_CODEC_ULAW)
             vob->amod_probed = "raw";
         break;
 
@@ -836,7 +836,7 @@ static void select_modules(int flags, vob_t *vob)
 
       case TC_CODEC_YUV420P:
       case TC_CODEC_YUV422P:
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         if (!vob->vmod_probed)
             vob->vmod_probed = "raw";
         if (!vob->amod_probed)

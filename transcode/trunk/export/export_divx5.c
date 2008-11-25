@@ -442,11 +442,11 @@ MOD_init
 	tc_log_info(MOD_NAME, "              crispness: %d", vob->divxcrispness);
 	tc_log_info(MOD_NAME, "  max keyframe interval: %d", divx->max_key_interval);
 	tc_log_info(MOD_NAME, "             frame rate: %.2f", vob->ex_fps);
-	tc_log_info(MOD_NAME, "            color space: %s", (vob->im_v_codec==CODEC_RGB) ? "RGB24" : "YUV420P");
+	tc_log_info(MOD_NAME, "            color space: %s", tc_codec_to_string(vob->im_v_codec));
 	tc_log_info(MOD_NAME, "            deinterlace: %d", divx->deinterlace);
     }
 
-    encode.colorspace = (vob->im_v_codec==CODEC_RGB) ? ENC_CSP_RGB24:ENC_CSP_I420;
+    encode.colorspace = (vob->im_v_codec==TC_CODEC_RGB24) ? ENC_CSP_RGB24:ENC_CSP_I420;
     encode.mvs = NULL;
 
     encode.bitstream = buffer;

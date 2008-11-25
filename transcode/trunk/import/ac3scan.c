@@ -153,7 +153,7 @@ int buf_probe_ac3(unsigned char *_buf, int len, ProbeTrackInfo *pcm)
   pcm->samplerate = j;
   pcm->chan = (nfchans<2?2:nfchans);
   pcm->bits = 16;
-  pcm->format = CODEC_AC3;
+  pcm->format = TC_CODEC_AC3;
   pcm->bitrate = bitrate;
 
   if(verbose_flag & TC_DEBUG) {
@@ -251,7 +251,7 @@ int buf_probe_dts (unsigned char *_buf, int len, ProbeTrackInfo *pcm)
     pcm->samplerate = frequency;
     pcm->bitrate = bitrate;
     pcm->chan = channels;
-    pcm->format = CODEC_DTS;
+    pcm->format = TC_CODEC_DTS;
     pcm->bits = 16;
 
     if (verbose_flag & TC_DEBUG) {

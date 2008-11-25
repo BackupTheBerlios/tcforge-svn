@@ -123,7 +123,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
    */
 
   if( ptr->tag & TC_PRE_S_PROCESS &&
-     (vob->im_v_codec == CODEC_YUV || vob->im_v_codec == CODEC_RGB) ) {
+     (vob->im_v_codec == TC_CODEC_YUV420P || vob->im_v_codec == TC_CODEC_RGB24) ) {
 
       int i;
       unsigned char *f3;

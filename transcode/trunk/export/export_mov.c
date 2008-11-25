@@ -329,7 +329,7 @@ MOD_init
                         quicktime_set_video(qtfile, 1, w, h, vob->ex_fps,"yv12");
                         break;
 
-                    case TC_CODEC_RGB:
+                    case TC_CODEC_RGB24:
                         quicktime_set_video(qtfile, 1, w, h, vob->ex_fps,"raw ");
                         break;
 

@@ -70,7 +70,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	if ((vob = tc_get_vob()) == NULL)
 	    return (-1);
 
-	if (vob->im_v_codec != CODEC_YUV) {
+	if (vob->im_v_codec != TC_CODEC_YUV420P) {
 		tc_log_error(MOD_NAME, "Sorry, only YUV input allowed for now");
 		return (-1);
 	}

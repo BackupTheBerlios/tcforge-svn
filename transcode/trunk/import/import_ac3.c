@@ -63,7 +63,7 @@ MOD_open
 
     switch(codec) {
 
-    case CODEC_AC3:
+    case TC_CODEC_AC3:
 
 	// produce a clean sequence of AC3 frames
 	sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
@@ -77,9 +77,9 @@ MOD_open
 
 	break;
 
-    case CODEC_PCM:
+    case TC_CODEC_PCM:
 
-	if(vob->a_codec_flag==CODEC_AC3) {
+	if(vob->a_codec_flag==TC_CODEC_AC3) {
 
 	    sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			"tcextract -a %d -i \"%s\" -x ac3 -d %d |"
@@ -134,7 +134,7 @@ MOD_decode
 
   switch(codec) {
 
-  case CODEC_AC3:
+  case TC_CODEC_AC3:
 
       // determine frame size at the very beginning of the stream
 
@@ -182,7 +182,7 @@ MOD_decode
 
       break;
 
-  case CODEC_PCM:
+  case TC_CODEC_PCM:
 
     //default:
     ac_off   = 0;

@@ -834,7 +834,7 @@ static int decode_pvn_sse2(const PrivateData *pd, uint8_t *video_buf)
 /*************************************************************************/
 
 static const TCCodecID pvn_codecs_in[] = { TC_CODEC_ERROR };
-static const TCCodecID pvn_codecs_out[] = { TC_CODEC_RGB, TC_CODEC_ERROR };
+static const TCCodecID pvn_codecs_out[] = { TC_CODEC_RGB24, TC_CODEC_ERROR };
 static const TCFormatID pvn_formats_in[] = { TC_FORMAT_PVN, TC_FORMAT_ERROR };
 static const TCFormatID pvn_formats_out[] = { TC_FORMAT_ERROR };
 
@@ -890,7 +890,7 @@ MOD_open
         return TC_ERROR;
     pd = mod.userdata;
 
-    if (vob->im_v_codec != CODEC_RGB) {
+    if (vob->im_v_codec != TC_CODEC_RGB24) {
         tc_log_error(MOD_NAME, "The import_pvn module requires -V rgb24");
         return TC_ERROR;
     }
@@ -977,7 +977,7 @@ void probe_pvn(info_t *ipipe)
     }
 
     ipipe->probe_info->magic = TC_MAGIC_PVN;
-    ipipe->probe_info->codec = TC_CODEC_RGB;
+    ipipe->probe_info->codec = TC_CODEC_RGB24;
     ipipe->probe_info->width = pd.width;
     ipipe->probe_info->height = pd.height;
     ipipe->probe_info->fps = pd.framerate;

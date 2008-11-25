@@ -87,7 +87,7 @@ MOD_open
 
     switch(vob->im_v_codec) {
 
-    case CODEC_RGB:
+    case TC_CODEC_RGB24:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
                       "%s -i \"%s\" -d %d | tcdecode -x dv -y rgb -d %d -Q %d",
@@ -103,7 +103,7 @@ MOD_open
 
       break;
 
-    case CODEC_YUV:
+    case TC_CODEC_YUV420P:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "%s -i \"%s\" -d %d | tcdecode -x dv %s -d %d -Q %d",
@@ -124,7 +124,7 @@ MOD_open
 
       break;
 
-    case CODEC_YUV422:
+    case TC_CODEC_YUV422P:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX,
 			 "%s -i \"%s\" -d %d |"
@@ -163,8 +163,7 @@ MOD_open
       break;
 
 
-    case CODEC_RAW:
-    case CODEC_RAW_YUV:
+    case TC_CODEC_RAW:
 
       sret = tc_snprintf(import_cmd_buf, TC_BUF_MAX, "%s -i \"%s\" -d %d",
 			 cat_buf, vob->video_in_file, vob->verbose);

@@ -127,7 +127,7 @@ static void font_render(int width, int height, int codec, int w, int h, int i, u
     int error;
 
     //render into temp buffer
-    if (codec == CODEC_YUV || codec == CODEC_YUV422) {
+    if (codec == TC_CODEC_YUV420P || codec == TC_CODEC_YUV422P) {
 
         memset (buf, 16, height*width);
         memset (buf+height*width, 128, height*width/2);
@@ -165,7 +165,7 @@ static void font_render(int width, int height, int codec, int w, int h, int i, u
 	    p+=((mfd->slot->advance.x >> 6) - (mfd->slot->advance.y >> 6)*width);
 	}
 
-    } else if (codec == CODEC_RGB) {
+    } else if (codec == TC_CODEC_RGB24) {
 
         memset (buf, 0, height*width*3);
 	p = buf + 3*(height-mfd->posy)*width + 3*mfd->posx;
@@ -383,9 +383,9 @@ int tc_filter(frame_list_t *ptr_, char *options)
     height = vob->ex_v_height;
     codec  = vob->im_v_codec;
 
-    if (codec == CODEC_RGB)
+    if (codec == TC_CODEC_RGB24)
 	buf = tc_malloc(width*height*3);
-    else if (codec == CODEC_YUV422)
+    else if (codec == TC_CODEC_YUV422P)
 	buf = tc_malloc(width*height + ((width/2)*height)*2);
     else
 	buf = tc_malloc(width*height + ((width/2)*(height/2))*2);
@@ -393,12 +393,12 @@ int tc_filter(frame_list_t *ptr_, char *options)
     if(buf == NULL)
         return (-1);
 
-    if (codec == CODEC_RGB)
+    if (codec == TC_CODEC_RGB24)
 	memset(buf, 0, height*width*3);
     else {
 	memset(buf, 16, height*width);
 	memset(buf + height*width, 128,
-	       (codec==CODEC_YUV422 ? height : height/2) * (width/2) * 2);
+	       (codec==TC_CODEC_YUV422P ? height : height/2) * (width/2) * 2);
     }
 
     // init lib
@@ -580,7 +580,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	}
 
 
-	if (codec == CODEC_YUV) {
+	if (codec == TC_CODEC_YUV420P) {
 	    uint8_t *vbuf, *U, *V;
 	    int Bpl;
 
@@ -622,7 +622,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	    }
 
 
-	} else if (codec == CODEC_YUV422) { // FIXME untested
+	} else if (codec == TC_CODEC_YUV422P) { // FIXME untested
 	    uint8_t *vbuf, *U, *V;
 	    int Bpl;
 
@@ -664,7 +664,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	    }
 
 
-	} else if (codec == CODEC_RGB) { // FIXME
+	} else if (codec == TC_CODEC_RGB24) { // FIXME
 	    uint8_t *vbuf;
 	    int Bpl;
 

@@ -252,7 +252,7 @@ static int tc_scan_directory_info(const char *dname,
         char path_buf[PATH_MAX + 1];
         uint32_t magic = TC_MAGIC_UNKNOWN;
         struct stat stat_buf;
-        int fd, err;
+        int fd = 0, err = 0;
 
         entry = readdir(dir);
         if (entry == NULL) {
@@ -599,7 +599,7 @@ static void dump_info_old(info_t *ipipe)
 	        if (ipipe->probe_info->track[i].samplerate != RATE
              || ipipe->probe_info->track[i].chan != CHANNELS
              || ipipe->probe_info->track[i].bits != BITS
-             || ipipe->probe_info->track[i].format != CODEC_AC3) {
+             || ipipe->probe_info->track[i].format != TC_CODEC_AC3) {
                 is_std = TC_FALSE;
             } else {
                 is_std = TC_TRUE;
@@ -613,7 +613,7 @@ static void dump_info_old(info_t *ipipe)
                    ipipe->probe_info->track[i].chan,
                    RATE, BITS, CHANNELS,
                    ipipe->probe_info->track[i].format,
-                   CODEC_AC3,
+                   TC_CODEC_AC3,
                    MARK_EXPECTED(is_std));
 
             /* audio track extra info */

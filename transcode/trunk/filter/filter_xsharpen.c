@@ -161,11 +161,9 @@ static int xsharpen_configure(TCModuleInstance *self,
     mfd->dst_buf        = NULL;
 
     switch (mfd->codec) {
-      case CODEC_RGB: /* fallthrough */
-      case TC_CODEC_RGB:
+      case TC_CODEC_RGB24:
         mfd->filter_frame = xsharpen_rgb_frame;
         break;
-      case CODEC_YUV: /* fallthrough */
       case TC_CODEC_YUV420P:
         mfd->dst_buf = tc_malloc(width*height*3/2); /* FIXME */
         if (!mfd->dst_buf) {
@@ -567,10 +565,10 @@ static int xsharpen_filter_video(TCModuleInstance *self, vframe_list_t *frame)
 /*************************************************************************/
 
 static const TCCodecID xsharpen_codecs_in[] = { 
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_ERROR
 };
 static const TCCodecID xsharpen_codecs_out[] = {
-    TC_CODEC_RGB, TC_CODEC_YUV420P, TC_CODEC_ERROR
+    TC_CODEC_RGB24, TC_CODEC_YUV420P, TC_CODEC_ERROR
 };
 TC_MODULE_FILTER_FORMATS(xsharpen);
 

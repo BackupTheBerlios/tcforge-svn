@@ -1244,7 +1244,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	mfd->Blend          = 1;
 	mfd->verbose        = 0;
 
-	if (mfd->codec != CODEC_YUV) {
+	if (mfd->codec != TC_CODEC_YUV420P) {
 	    tc_log_error (MOD_NAME, "This filter is only capable of YUV mode");
 	    return -1;
 	}

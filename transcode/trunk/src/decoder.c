@@ -98,19 +98,18 @@ struct modpair {
 };
 
 static const struct modpair audpairs[] = {
-    { CODEC_PCM,     TC_CAP_PCM    },
-    { CODEC_AC3,     TC_CAP_AC3    },
-    { CODEC_RAW,     TC_CAP_AUD    },
-    { CODEC_NULL,    TC_CAP_NONE   } /* end marker, must be the last */
+    { TC_CODEC_PCM,     TC_CAP_PCM    },
+    { TC_CODEC_AC3,     TC_CAP_AC3    },
+    { TC_CODEC_RAW,     TC_CAP_AUD    },
+    { TC_CODEC_ERROR,   TC_CAP_NONE   } /* end marker, must be the last */
 };
 
 static const struct modpair vidpairs[] = {
-    { CODEC_RGB,     TC_CAP_RGB    },
-    { CODEC_YUV,     TC_CAP_YUV    },
-    { CODEC_YUV422,  TC_CAP_YUV422 },
-    { CODEC_RAW_YUV, TC_CAP_VID    },
-    { CODEC_RAW,     TC_CAP_VID    },
-    { CODEC_NULL,    TC_CAP_NONE   } /* end marker, must be the last */
+    { TC_CODEC_RGB24,   TC_CAP_RGB    },
+    { TC_CODEC_YUV420P, TC_CAP_YUV    },
+    { TC_CODEC_YUV422P, TC_CAP_YUV422 },
+    { TC_CODEC_RAW,     TC_CAP_VID    },
+    { TC_CODEC_ERROR,   TC_CAP_NONE   } /* end marker, must be the last */
 };
 
 
@@ -143,7 +142,7 @@ static int check_module_caps(const transfer_t *param, int codec,
                        param->flag, codec);
         }
 
-        for (i = 0; mpairs[i].codec != CODEC_NULL; i++) {
+        for (i = 0; mpairs[i].codec != TC_CODEC_ERROR; i++) {
             if (codec == mpairs[i].codec) {
                 caps = (param->flag & mpairs[i].caps);
                 break;

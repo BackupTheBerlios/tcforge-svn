@@ -115,7 +115,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
 	    if((vob = tc_get_vob())==NULL) return(-1);
 
-	    if (vob->im_v_codec == CODEC_RGB) {
+	    if (vob->im_v_codec == TC_CODEC_RGB24) {
 		tc_log_error(MOD_NAME, "filter is not capable for RGB-Mode !");
 		return(-1);
 	    }

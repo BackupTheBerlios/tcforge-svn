@@ -227,7 +227,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
   if(ptr->tag & TC_PRE_M_PROCESS && ptr->tag & TC_VIDEO && !(ptr->attributes & TC_FRAME_IS_SKIPPED)) {
 
-    if(vob->im_v_codec==CODEC_RGB) {
+    if(vob->im_v_codec==TC_CODEC_RGB24) {
       generate_rgb_frame(ptr->video_buf, ptr->v_width, ptr->v_height);
     } else {
       generate_yuv_frame(ptr->video_buf, ptr->v_width, ptr->v_height);
