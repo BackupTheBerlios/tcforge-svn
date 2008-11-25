@@ -1730,60 +1730,6 @@ int AVI_write_audio(avi_t *AVI, const char *data, long bytes)
 }
 
 
-#if 0
-/* just unused nowhere */
-int AVI_dup_frame(avi_t *AVI)
-{
-   if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
-
-   if(AVI->last_pos==0) return 0; /* No previous real frame */
-   if(avi_add_index_entry(AVI,(unsigned char *)"00db",0x10,AVI->last_pos,AVI->last_len)) return -1;
-   AVI->video_frames++;
-   AVI->must_use_index = 1;
-   return 0;
-}
-
-
-/* just unused nowhere */
-int AVI_append_audio(avi_t *AVI, const char *data, long bytes)
-{
-
-    // won't work for >2gb
-  long i, length, pos;
-  unsigned char c[4];
-
-  if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
-
-  // update last index entry:
-
-  --AVI->n_idx;
-  length = str2ulong(AVI->idx[AVI->n_idx]+12);
-  pos    = str2ulong(AVI->idx[AVI->n_idx]+8);
-
-  //update;
-  long2str(AVI->idx[AVI->n_idx]+12,length+bytes);
-
-  ++AVI->n_idx;
-
-  AVI->track[AVI->aptr].audio_bytes += bytes;
-
-  //update chunk header
-  plat_seek(AVI->fdes, pos+4, SEEK_SET);
-  long2str(c, length+bytes);
-  plat_write(AVI->fdes, (char *)c, 4);
-
-  plat_seek(AVI->fdes, pos+8+length, SEEK_SET);
-
-  i=PAD_EVEN(length + bytes);
-
-  bytes = i - length;
-  plat_write(AVI->fdes, data, bytes);
-  AVI->pos = pos + 8 + i;
-
-  return 0;
-}
-#endif
-
 long AVI_bytes_remain(avi_t *AVI)
 {
    if(AVI->mode==AVI_MODE_READ) return 0;

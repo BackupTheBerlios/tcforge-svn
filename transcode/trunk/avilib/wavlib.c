@@ -1,5 +1,5 @@
 /*
- * wavlib.h - simple WAV I/O library interface
+ * wavlib.c - simple WAV I/O library interface
  * Copyright (C) 2006-2008 Francesco Romani <fromani at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
@@ -495,10 +495,10 @@ static void bswap_buffer(void *data, size_t bytes)
     }
 }
 
-#define SWAP_WRITE_CHUNK(data, len) do { \
-        memcpy(conv_buf, (data), (len)); \
-        bswap_buffer(conv_buf, (len)); \
-        ret = plat_write(fd, conv_buf, (len)) \
+#define SWAP_WRITE_CHUNK(data, len) do {       \
+        memcpy(conv_buf, (data), (len));       \
+        bswap_buffer(conv_buf, (len));         \
+        ret = plat_write(fd, conv_buf, (len)); \
 } while (0)
 
 static ssize_t wav_bswap_fdwrite(int fd, const uint8_t *buf, size_t len)
