@@ -25,8 +25,6 @@
  *
  */
 
-#define SUPPORT_OLD_ENCODER  // for now
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -82,20 +80,6 @@ static void encoder_skip(TCEncoderData *data, int out_of_range);
 static int encoder_flush(TCEncoderData *data);
 
 /* rest of API is already public */
-
-/* old-style encoder */
-#ifdef SUPPORT_OLD_ENCODER
-
-static int OLD_tc_export_setup(vob_t *vob,
-                            const char *a_mod, const char *v_mod);
-static void OLD_tc_export_shutdown(void);
-static int OLD_tc_encoder_init(vob_t *vob);
-static int OLD_tc_encoder_open(vob_t *vob);
-static int OLD_tc_encoder_close(void);
-static int OLD_tc_encoder_stop(void);
-static int OLD_encoder_export(TCEncoderData *data, vob_t *vob);
-
-#endif  // SUPPORT_OLD_ENCODER
 
 /* misc helpers */
 static int need_stop(TCEncoderData *encdata);
@@ -429,13 +413,6 @@ struct tcencoderdata_ {
     TCModule mplex_mod;
 
     TCRotateContext rotor_data;
-
-#ifdef SUPPORT_OLD_ENCODER
-    transfer_t export_para;
-
-    void *ex_a_handle;
-    void *ex_v_handle;
-#endif
 };
 
 static TCEncoderData encdata = {
@@ -454,10 +431,6 @@ static TCEncoderData encdata = {
     .aud_mod = NULL,
     .mplex_mod = NULL,
     /* rotor_data explicitely initialized later */
-#ifdef SUPPORT_OLD_ENCODER
-    .ex_a_handle = NULL,
-    .ex_v_handle = NULL,
-#endif
 };
 
 
@@ -544,14 +517,7 @@ int tc_export_init(TCEncoderBuffer *buffer, TCFactory factory)
         tc_log_error(__FILE__, "missing encoder buffer reference");
         return TC_ERROR;
     }
-    encdata.buffer = buffer;
-
-#ifndef SUPPORT_OLD_ENCODER  // factory==NULL to signal use of old code
-    if (factory == NULL) {
-        tc_log_error(__FILE__, "missing factory reference");
-        return TC_ERROR;
-    }
-#endif
+    encdata.buffer  = buffer;
     encdata.factory = factory;
     return TC_OK;
 }
@@ -561,11 +527,6 @@ int tc_export_setup(vob_t *vob,
 {
     int match = 0;
     const char *mod_name = NULL;
-
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_tc_export_setup(vob, a_mod, v_mod);
-#endif
 
     if (verbose >= TC_DEBUG) {
         tc_log_info(__FILE__, "loading export modules");
@@ -621,11 +582,6 @@ int tc_export_setup(vob_t *vob,
 
 void tc_export_shutdown(void)
 {
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_tc_export_shutdown();
-#endif
-
     if (verbose >= TC_DEBUG) {
         tc_log_info(__FILE__, "unloading export modules");
     }
@@ -646,11 +602,6 @@ int tc_encoder_init(vob_t *vob)
 {
     int ret;
     const char *options = NULL;
-
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_tc_encoder_init(vob);
-#endif
 
     ret = alloc_buffers(&encdata);
     if (ret != TC_OK) {
@@ -687,11 +638,6 @@ int tc_encoder_open(vob_t *vob)
     int ret;
     const char *options = NULL;
 
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_tc_encoder_open(vob);
-#endif
-
     options = vob->ex_m_string ? vob->ex_m_string : "";
     ret = tc_module_configure(encdata.mplex_mod, options, vob);
     if (ret == TC_ERROR) {
@@ -715,11 +661,6 @@ int tc_encoder_open(vob_t *vob)
 int tc_encoder_close(void)
 {
     int ret;
-
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_tc_encoder_close();
-#endif
 
     /* old style code handle flushing in modules, not here */
     ret = encoder_flush(&encdata);
@@ -750,11 +691,6 @@ int tc_encoder_close(void)
 int tc_encoder_stop(void)
 {
     int ret;
-
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_tc_encoder_stop();
-#endif
 
     ret = tc_module_stop(encdata.vid_mod);
     if (ret != TC_OK) {
@@ -825,10 +761,6 @@ static int encoder_export(TCEncoderData *data, vob_t *vob)
     int video_delayed = 0;
     int ret;
 
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return OLD_encoder_export(data, vob);
-#endif
     /* remove spurious attributes */
     RESET_ATTRIBUTES(data->venc_ptr);
     RESET_ATTRIBUTES(data->aenc_ptr);
@@ -928,392 +860,16 @@ static int encoder_flush(TCEncoderData *data)
 
 void tc_export_rotation_limit_frames(vob_t *vob, uint32_t frames)
 {
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return;
-#endif
-
     tc_rotate_set_frames_limit(&encdata.rotor_data, vob, frames);
 }
 
 void tc_export_rotation_limit_megabytes(vob_t *vob, uint32_t megabytes)
 {
-#ifdef SUPPORT_OLD_ENCODER
-    if (!encdata.factory)
-        return;
-#endif
-
     tc_rotate_set_bytes_limit(&encdata.rotor_data,
                               vob, megabytes * 1024 * 1024);
 }
 
 /*************************************************************************/
-
-#ifdef SUPPORT_OLD_ENCODER
-
-#include "dl_loader.h"
-
-/* ------------------------------------------------------------
- *
- * export init
- *
- * ------------------------------------------------------------*/
-
-static int OLD_tc_export_setup(vob_t *vob,
-                            const char *a_mod, const char *v_mod)
-{
-    const char *mod_name = NULL;
-
-    // load export modules
-    mod_name = (a_mod == NULL) ?TC_DEFAULT_EXPORT_AUDIO :a_mod;
-    encdata.ex_a_handle = load_module((char*)mod_name, TC_EXPORT + TC_AUDIO);
-    if (encdata.ex_a_handle == NULL) {
-        tc_log_warn(__FILE__, "loading audio export module failed");
-        return TC_ERROR;
-   }
-
-    mod_name = (v_mod==NULL) ?TC_DEFAULT_EXPORT_VIDEO :v_mod;
-    encdata.ex_v_handle = load_module((char*)mod_name, TC_EXPORT + TC_VIDEO);
-    if (encdata.ex_v_handle == NULL) {
-        tc_log_warn(__FILE__, "loading video export module failed");
-        return TC_ERROR;
-    }
-
-    encdata.export_para.flag = verbose;
-    tca_export(TC_EXPORT_NAME, &encdata.export_para, NULL);
-
-    if(encdata.export_para.flag != verbose) {
-        // module returned capability flag
-        int cc=0;
-
-        if (verbose & TC_DEBUG) {
-            tc_log_info(__FILE__, "audio capability flag 0x%x | 0x%x",
-                                  encdata.export_para.flag, vob->im_a_codec);
-        }
-
-        switch (vob->im_a_codec) {
-          case TC_CODEC_PCM:
-            cc = (encdata.export_para.flag & TC_CAP_PCM);
-            break;
-          case TC_CODEC_AC3:
-            cc = (encdata.export_para.flag & TC_CAP_AC3);
-            break;
-          case TC_CODEC_RAW:
-            cc = (encdata.export_para.flag & TC_CAP_AUD);
-            break;
-          default:
-            cc = 0;
-        }
-
-        if (cc == 0) {
-            tc_log_warn(__FILE__, "audio codec not supported by export module");
-            return TC_ERROR;
-        }
-    } else { /* encdata.export_para.flag == verbose */
-        if (vob->im_a_codec != TC_CODEC_PCM) {
-            tc_log_warn(__FILE__, "audio codec not supported by export module");
-            return TC_ERROR;
-        }
-    }
-
-    encdata.export_para.flag = verbose;
-    tcv_export(TC_EXPORT_NAME, &encdata.export_para, NULL);
-
-    if (encdata.export_para.flag != verbose) {
-        // module returned capability flag
-        int cc = 0;
-
-        if (verbose & TC_DEBUG) {
-            tc_log_info(__FILE__, "video capability flag 0x%x | 0x%x",
-                                  encdata.export_para.flag, vob->im_v_codec);
-        }
-
-        switch (vob->im_v_codec) {
-          case TC_CODEC_RGB24:
-            cc = (encdata.export_para.flag & TC_CAP_RGB);
-            break;
-          case TC_CODEC_YUV420P:
-            cc = (encdata.export_para.flag & TC_CAP_YUV);
-            break;
-          case TC_CODEC_YUV422P:
-            cc = (encdata.export_para.flag & TC_CAP_YUV422);
-            break;
-          case TC_CODEC_RAW:
-            /* rough translation */
-            cc = (encdata.export_para.flag & TC_CAP_VID);
-            break;
-          default:
-            cc = 0;
-        }
-
-        if (cc == 0) {
-            tc_log_warn(__FILE__, "video codec not supported by export module");
-            return TC_ERROR;
-        }
-    } else { /* encdata.export_para.flag == verbose */
-        if (vob->im_v_codec != TC_CODEC_RGB24) {
-            tc_log_warn(__FILE__, "video codec not supported by export module");
-            return TC_ERROR;
-        }
-    }
-
-    return TC_OK;
-}
-
-/* ------------------------------------------------------------
- *
- * export close, unload modules
- *
- * ------------------------------------------------------------*/
-
-static void OLD_tc_export_shutdown(void)
-{
-    if (verbose & TC_DEBUG) {
-        tc_log_info(__FILE__, "unloading export modules");
-    }
-
-    unload_module(encdata.ex_a_handle);
-    unload_module(encdata.ex_v_handle);
-}
-
-
-/* ------------------------------------------------------------
- *
- * encoder init
- *
- * ------------------------------------------------------------*/
-
-static int OLD_tc_encoder_init(vob_t *vob)
-{
-    int ret;
-
-    encdata.export_para.flag = TC_VIDEO;
-    ret = tcv_export(TC_EXPORT_INIT, &encdata.export_para, vob);
-    if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "video export module error: init failed");
-        return TC_ERROR;
-    }
-
-    encdata.export_para.flag = TC_AUDIO;
-    ret = tca_export(TC_EXPORT_INIT, &encdata.export_para, vob);
-    if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "audio export module error: init failed");
-        return TC_ERROR;
-    }
-
-    return TC_OK;
-}
-
-
-/* ------------------------------------------------------------
- *
- * encoder open
- *
- * ------------------------------------------------------------*/
-
-static int OLD_tc_encoder_open(vob_t *vob)
-{
-    int ret;
-
-    encdata.export_para.flag = TC_VIDEO;
-    ret = tcv_export(TC_EXPORT_OPEN, &encdata.export_para, vob);
-    if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "video export module error: open failed");
-        return TC_ERROR;
-    }
-
-    encdata.export_para.flag = TC_AUDIO;
-    ret = tca_export(TC_EXPORT_OPEN, &encdata.export_para, vob);
-    if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "audio export module error: open failed");
-        return TC_ERROR;
-    }
-
-    return TC_OK;
-}
-
-
-/* ------------------------------------------------------------
- *
- * encoder close
- *
- * ------------------------------------------------------------*/
-
-static int OLD_tc_encoder_close(void)
-{
-    /* 
-     * close, errors not fatal.
-     * flushing handled internally by export modules.
-     */
-
-    encdata.export_para.flag = TC_AUDIO;
-    tca_export(TC_EXPORT_CLOSE, &encdata.export_para, NULL);
-
-    encdata.export_para.flag = TC_VIDEO;
-    tcv_export(TC_EXPORT_CLOSE, &encdata.export_para, NULL);
-
-    if(verbose & TC_DEBUG) {
-        tc_log_info(__FILE__, "encoder closed");
-    }
-    return TC_OK;
-}
-
-
-/* ------------------------------------------------------------
- *
- * encoder stop
- *
- * ------------------------------------------------------------*/
-
-static int OLD_tc_encoder_stop(void)
-{
-    int ret;
-
-    encdata.export_para.flag = TC_VIDEO;
-    ret = tcv_export(TC_EXPORT_STOP, &encdata.export_para, NULL);
-    if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "video export module error: stop failed");
-        return TC_ERROR;
-    }
-
-    encdata.export_para.flag = TC_AUDIO;
-    ret = tca_export(TC_EXPORT_STOP, &encdata.export_para, NULL);
-    if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "audio export module error: stop failed");
-        return TC_ERROR;
-    }
-
-    return TC_OK;
-}
-
-/*
- * dispatch the acquired frames to encoder modules
- */
-static int OLD_encoder_export(TCEncoderData *data, vob_t *vob)
-{
-    int video_delayed = 0;
-
-    /* encode and export video frame */
-    data->export_para.buffer = data->buffer->vptr->video_buf;
-    data->export_para.size = data->buffer->vptr->video_size;
-    data->export_para.attributes = data->buffer->vptr->attributes;
-    if (data->buffer->vptr->attributes & TC_FRAME_IS_KEYFRAME) {
-        data->export_para.attributes |= TC_FRAME_IS_KEYFRAME;
-    }
-    data->export_para.flag = TC_VIDEO;
-
-    if(tcv_export(TC_EXPORT_ENCODE, &data->export_para, vob) < 0) {
-        tc_log_warn(__FILE__, "error encoding video frame");
-        data->error_flag = 1;
-    }
-    /* maybe clone? */
-    data->buffer->vptr->attributes = data->export_para.attributes;
-    if (data->buffer->vptr->attributes & TC_FRAME_IS_DELAYED) {
-        data->buffer->vptr->attributes &= ~TC_FRAME_IS_DELAYED;
-        video_delayed = 1;
-    }
-
-    /* encode and export audio frame */
-    data->export_para.buffer = data->buffer->aptr->audio_buf;
-    data->export_para.size = data->buffer->aptr->audio_size;
-    data->export_para.attributes = data->buffer->aptr->attributes;
-    data->export_para.flag = TC_AUDIO;
-
-    if(video_delayed > 0) {
-        data->buffer->aptr->attributes |= TC_FRAME_IS_CLONED;
-        tc_log_info(__FILE__, "Delaying audio");
-    } else {
-        if (tca_export(TC_EXPORT_ENCODE, &data->export_para, vob) < 0) {
-            tc_log_warn(__FILE__, "error encoding audio frame");
-            data->error_flag = 1;
-        }
-
-        /* maybe clone? */
-        data->buffer->aptr->attributes = data->export_para.attributes;
-    }
-
-    if (tc_progress_meter) {
-        int last = (data->frame_last == TC_FRAME_LAST) ?(-1) :data->frame_last;
-        if (!data->fill_flag) {
-            data->fill_flag = 1;
-        }
-        counter_print(1, data->buffer->frame_id, data->frame_first, last);
-    }
-
-    // XXX: _always_ update?
-    tc_update_frames_encoded(1);
-    return data->error_flag ? TC_ERROR : TC_OK;
-}
-
-
-/************************************************************************* 
- * old style rotation support code.
- * TEMPORARY merged here until it will be deleted together with
- * old encoder code when NMS-powered export layer is ready to switch
- * (read: when we have enough encode/multiplexor module to go).
- *************************************************************************/
-
-#include "libtcutil/xio.h"
-
-//-----------------------------------------------------------------
-//
-// r,R - switch output file
-//
-//-----------------------------------------------------------------
-
-static int rotate_ctr = 0;
-static int rotate_flag = 0;
-static char *base = NULL;
-
-void tc_outstream_rotate_request(void)
-{
-    //set flag
-    rotate_flag = 1;
-}
-
-void tc_outstream_rotate(void)
-{
-    char buf[TC_BUF_MAX];
-    vob_t *vob=tc_get_vob();
-
-    if (!rotate_flag)
-        return;
-
-    //reset flag to avoid re-entry
-    rotate_flag=0;
-
-    // do not try to rename /dev/null
-    if(strcmp(vob->video_out_file, "/dev/null") == 0)
-        return;
-
-    // get current outfile basename
-    base = tc_strdup(vob->video_out_file);
-
-    //check
-    if (base == NULL)
-        return;
-
-    // close output
-    if (tc_encoder_close()<0)
-        tc_error("failed to close output");
-
-    // create new filename
-    tc_snprintf(buf, sizeof(buf), "%s-%03d", base, rotate_ctr++);
-    //rename old outputfile
-    if (xio_rename(base, buf) < 0)
-        tc_error("failed to rename output file");
-
-    // reopen output
-    if (tc_encoder_open(vob) < 0)
-        tc_error("failed to open output");
-
-    tc_log_info(__FILE__, "outfile %s saved to %s", base, buf);
-    free(base);
-}
-
-/*************************************************************************/
-
-#endif  // SUPPORT_OLD_ENCODER
 
 /*
  * fake encoding, simply adjust frame counters.
@@ -1432,3 +988,4 @@ void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
  *
  * vim: expandtab shiftwidth=4:
  */
+

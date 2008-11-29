@@ -670,7 +670,7 @@ TC_OPTION(export_with,        'y', "vm[,am[,mm]]",
                 if ((s = strchr(ex_vid_mod, '=')) != NULL) {
                     *s++ = 0;
                     if (!*s) {
-                        tc_error("Invalid option string for video export"
+                        tc_error("Invalid option string for video encodet"
                                  " module");
                         goto short_usage;
                     }
@@ -682,7 +682,7 @@ TC_OPTION(export_with,        'y', "vm[,am[,mm]]",
                     if ((s = strchr(ex_aud_mod, '=')) != NULL) {
                         *s++ = 0;
                         if (!*s) {
-                            tc_error("Invalid option string for audio export"
+                            tc_error("Invalid option string for audio encode"
                                      " module");
                             goto short_usage;
                         }
@@ -721,48 +721,37 @@ TC_OPTION(export_param,       'F', "string",
 )
 TC_OPTION(export_codec,       'N', "format",
                 "export audio codec [mp3]",
+                char acodec[33];
+                char vcodec[33];
+                int n;
                 if (*optarg == '-')
                     goto short_usage;
-                if (optarg[0] == '0' && optarg[1] == 'x') {
-                    /* old behaviour */
-                    vob->ex_a_codec = strtol(optarg, &optarg, 16);
-                    if (*optarg) {
-                        tc_error("Invalid argument for -N/--export_format");
+                n = sscanf(optarg, "%32[^,],%32[^,]", vcodec, acodec);
+                /* codecs in reversed order for backward compatibility */
+                switch (n) {
+                  case 2: /* audio AND video codec */
+                    vob->ex_v_codec = tc_codec_from_string(vcodec);
+                    if (vob->ex_v_codec == TC_CODEC_ERROR) {
+                        tc_error("Unknown video format for"
+                                 " -N/--export_format");
+                        goto short_usage;
+                    }
+                    vob->export_attributes |= TC_EXPORT_ATTRIBUTE_VCODEC;
+                    /* move acodec to vcodec */
+                    memcpy(vcodec, acodec, sizeof(vcodec));
+                    /* fallthrough */
+                  case 1: /* audio codec */
+                    vob->ex_a_codec = tc_codec_from_string(acodec);
+                    if (vob->ex_a_codec == TC_CODEC_ERROR) {
+                        tc_error("Unknown audio format for"
+                                 " -N/--export_format");
                         goto short_usage;
                     }
                     vob->export_attributes |= TC_EXPORT_ATTRIBUTE_ACODEC;
-                } else {
-                    char acodec[33];
-                    char vcodec[33];
-                    int n;
-                    /* new behaviour */
-                    n = sscanf(optarg, "%32[^,],%32[^,]", vcodec, acodec);
-                    /* codecs in reversed order for backward compatibility */
-                    switch (n) {
-                      case 2: /* audio AND video codec */
-                        vob->ex_v_codec = tc_codec_from_string(vcodec);
-                        if (vob->ex_v_codec == TC_CODEC_ERROR) {
-                            tc_error("Unknown video format for"
-                                     " -N/--export_format");
-                            goto short_usage;
-                        }
-                        vob->export_attributes |= TC_EXPORT_ATTRIBUTE_VCODEC;
-                        /* move acodec to vcodec */
-                        memcpy(vcodec, acodec, sizeof(vcodec));
-                        /* fallthrough */
-                      case 1: /* audio codec */
-                        vob->ex_a_codec = tc_codec_from_string(acodec);
-                        if (vob->ex_a_codec == TC_CODEC_ERROR) {
-                            tc_error("Unknown audio format for"
-                                     " -N/--export_format");
-                            goto short_usage;
-                        }
-                        vob->export_attributes |= TC_EXPORT_ATTRIBUTE_ACODEC;
-                        break;
-                      default:
-                        tc_error("Invalid argument for -N/--export_format");
-                        goto short_usage;
-                    }
+                    break;
+                  default:
+                    tc_error("Invalid argument for -N/--export_format");
+                    goto short_usage;
                 }
 )
 TC_OPTION(multipass,          'R', "N[,vf[,af]]",
