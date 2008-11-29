@@ -16,7 +16,6 @@ if HAVE_MJPEGTOOLS
 MULTIPLEX_Y4M = multiplex_y4m.la
 endif
 
-if ENABLE_EXPERIMENTAL
 pkg_LTLIBRARIES = \
 	multiplex_avi.la \
 	multiplex_lavf.la \
@@ -26,7 +25,6 @@ pkg_LTLIBRARIES = \
 	multiplex_raw.la \
 	$(MULTIPLEX_Y4M) \
 	multiplex_wav.la
-endif
 
 multiplex_avi_la_SOURCES = multiplex_avi.c
 multiplex_avi_la_LDFLAGS = -module -avoid-version

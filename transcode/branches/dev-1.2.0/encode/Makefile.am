@@ -48,7 +48,6 @@ if HAVE_XVID
 ENCODE_XVID = encode_xvid.la
 endif
 
-if ENABLE_EXPERIMENTAL
 pkg_LTLIBRARIES = \
 	encode_copy.la \
 	$(ENCODE_DV) \
@@ -62,7 +61,6 @@ pkg_LTLIBRARIES = \
 	$(ENCODE_VORBIS) \
 	$(ENCODE_X264) \
 	$(ENCODE_XVID)
-endif
 
 encode_copy_la_SOURCES = encode_copy.c
 encode_copy_la_LDFLAGS = -module -avoid-version

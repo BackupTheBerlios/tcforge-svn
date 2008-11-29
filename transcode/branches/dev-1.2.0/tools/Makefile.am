@@ -9,9 +9,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src
 
-if ENABLE_EXPERIMENTAL
 NMS_PROGS = tcexport tcmodchain
-endif
 
 bin_PROGRAMS = \
 	avifix \
