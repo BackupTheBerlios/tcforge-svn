@@ -57,9 +57,6 @@ static int counter=0;
 static const char *prefix="frame.";
 static const char *type;
 
-static int interval=1;
-static unsigned int int_counter=0;
-
 ImageInfo *image_info;
 
 /* ------------------------------------------------------------
@@ -71,16 +68,13 @@ ImageInfo *image_info;
 MOD_init
 {
 
-    /* set the 'spit-out-frame' interval */
-    interval = vob->frame_interval;
-
     if(param->flag == TC_VIDEO) {
       int quality = 75;
 
       width = vob->ex_v_width;
       height = vob->ex_v_height;
 
-      codec = (vob->im_v_codec == TC_CODEC_YUV420P) ? TC_CODEC_YUV420P : TC_CODEC_RGB24;
+      codec = (vob->im_v_codec == CODEC_YUV) ? CODEC_YUV : CODEC_RGB;
 
       InitializeMagick("");
 
@@ -131,8 +125,8 @@ MOD_open
 
 	switch(vob->im_v_codec) {
 
-	case TC_CODEC_YUV420P:
-	case TC_CODEC_RGB24:
+	case CODEC_YUV:
+	case CODEC_RGB:
 
 	  if(vob->video_out_file!=NULL && strcmp(vob->video_out_file,"/dev/null")!=0) prefix=vob->video_out_file;
 
@@ -174,9 +168,6 @@ MOD_encode
   Image *image=NULL;
   int res;
 
-  if ((++int_counter-1) % interval != 0)
-      return (0);
-
   if(param->flag == TC_VIDEO) {
 
     GetExceptionInfo(&exception_info);
@@ -187,7 +178,7 @@ MOD_encode
       return(TC_EXPORT_ERROR);
     }
 
-    if(codec==TC_CODEC_YUV420P) {
+    if(codec==CODEC_YUV) {
       tcv_convert(tcvhandle, param->buffer, tmp_buffer, width, height,
 		  IMG_YUV_DEFAULT, IMG_RGB24);
       out_buffer = tmp_buffer;

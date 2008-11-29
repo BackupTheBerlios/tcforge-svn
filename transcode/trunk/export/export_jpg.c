@@ -47,9 +47,6 @@ static const char *prefix="frame.";
 static int jpeg_quality =0;
 #define JPEG_DEFAULT_QUALITY 85
 
-static int interval=1;
-static unsigned int int_counter=0;
-
 JSAMPLE * image_buffer;	/* Points to large array of R,G,B-order data */
 static unsigned char **line[3];
 
@@ -196,17 +193,14 @@ static void write_rgb_JPEG_file (char * filename, int quality, int width, int he
 MOD_init
 {
 
-    /* set the 'spit-out-frame' interval */
-    interval = vob->frame_interval;
-
     if(param->flag == TC_VIDEO) {
 
       width = vob->ex_v_width;
       height = vob->ex_v_height;
 
-      codec = (vob->im_v_codec == TC_CODEC_YUV420P) ? TC_CODEC_YUV420P : TC_CODEC_RGB24;
+      codec = (vob->im_v_codec == CODEC_YUV) ? CODEC_YUV : CODEC_RGB;
 
-      if(vob->im_v_codec == TC_CODEC_YUV420P) {
+      if(vob->im_v_codec == CODEC_YUV) {
 	line[0] = malloc(height*sizeof(char*));
 	line[1] = malloc(height*sizeof(char*)/2);
 	line[2] = malloc(height*sizeof(char*)/2);
@@ -236,8 +230,8 @@ MOD_open
 
 	switch(vob->im_v_codec) {
 
-	case TC_CODEC_YUV420P:
-	case TC_CODEC_RGB24:
+	case CODEC_YUV:
+	case CODEC_RGB:
 
 	  if(vob->video_out_file!=NULL && strcmp(vob->video_out_file,"/dev/null")!=0) prefix=vob->video_out_file;
 
@@ -280,9 +274,6 @@ MOD_encode
 
   char *out_buffer = param->buffer;
 
-  if ((++int_counter-1) % interval != 0)
-      return (0);
-
   if(param->flag == TC_VIDEO) {
 
 
@@ -291,7 +282,7 @@ MOD_encode
       return(TC_EXPORT_ERROR);
     }
 
-    if(codec==TC_CODEC_YUV420P) {
+    if(codec==CODEC_YUV) {
       unsigned char *base[3];
       YUV_INIT_PLANES(base, param->buffer, IMG_YUV420P, width, height);
       write_yuv_JPEG_file(buf2, jpeg_quality, base, width, height);

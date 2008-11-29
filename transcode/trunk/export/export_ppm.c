@@ -49,8 +49,6 @@ static int codec, width, height, row_bytes;
 static int counter=0;
 static const char *prefix="frame";
 static const char *type;
-static int interval=1;
-static unsigned int int_counter=0;
 
 static TCVHandle tcvhandle;
 
@@ -62,19 +60,16 @@ static TCVHandle tcvhandle;
 
 MOD_init
 {
-    /* set the 'spit-out-frame' interval */
-    interval = vob->frame_interval;
-
     if(param->flag == TC_VIDEO) {
 
       /* this supports output of 4:2:0 YUV material, ie CODEC_YUV */
-      if(vob->im_v_codec == TC_CODEC_YUV420P) {
+      if(vob->im_v_codec == CODEC_YUV) {
 	width = vob->ex_v_width;
 	height = vob->ex_v_height;
 
 	row_bytes = BPP/8 * vob->ex_v_width;
 
-	codec =  TC_CODEC_YUV420P;
+	codec =  CODEC_YUV;
 
 	if (!tmp_buffer)
 	  tmp_buffer = malloc (vob->ex_v_width*vob->ex_v_height*3);
@@ -89,7 +84,7 @@ MOD_init
       }
 
       /* this supports output of 4:2:2 YUV material, ie CODEC_YUV422 */
-      if(vob->im_v_codec == TC_CODEC_YUV422P) {
+      if(vob->im_v_codec == CODEC_YUV422) {
 	/* size of the exported image */
 	width = vob->ex_v_width;
 	height = vob->ex_v_height;
@@ -97,7 +92,7 @@ MOD_init
 	/* bytes per scan line (aka row) */
 	row_bytes = BPP/8 * vob->ex_v_width;
 
-	codec =  TC_CODEC_YUV422P;
+	codec =  CODEC_YUV422;
 
 	/* this is for the output, one byte each for R, G and B per pixel */
 	if (!tmp_buffer)
@@ -139,9 +134,9 @@ MOD_open
 
 	switch(vob->im_v_codec) {
 
-	case TC_CODEC_YUV420P:
-	case TC_CODEC_YUV422P:
-	case TC_CODEC_RGB24:
+	case CODEC_YUV:
+	case CODEC_YUV422:
+	case CODEC_RGB:
 
 	  if(vob->video_out_file!=NULL && strcmp(vob->video_out_file,"/dev/null")!=0) prefix=vob->video_out_file;
 
@@ -187,20 +182,17 @@ MOD_encode
   char *out_buffer = param->buffer;
   int n, out_size = param->size;
 
-  if ((++int_counter-1) % interval != 0)
-      return (0);
-
   if(param->flag == TC_VIDEO) {
 
 
-    if(codec==TC_CODEC_YUV420P) {
+    if(codec==CODEC_YUV) {
       tcv_convert(tcvhandle, param->buffer, tmp_buffer, width, height,
                   IMG_YUV_DEFAULT, IMG_RGB24);
       out_buffer = tmp_buffer;
       out_size = height * 3 *width;
     }
 
-    if(codec==TC_CODEC_YUV422P) {
+    if(codec==CODEC_YUV422) {
       tcv_convert(tcvhandle, param->buffer, tmp_buffer, width, height,
                   IMG_YUV422P, IMG_RGB24);
       out_buffer = tmp_buffer;

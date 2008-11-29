@@ -78,7 +78,7 @@ static int tc_rotate_if_needed_by_bytes(TCRotateContext *rotor,
 /* new-style encoder */
 
 static int encoder_export(TCEncoderData *data, vob_t *vob);
-static void encoder_skip(TCEncoderData *data);
+static void encoder_skip(TCEncoderData *data, int out_of_range);
 static int encoder_flush(TCEncoderData *data);
 
 /* rest of API is already public */
@@ -992,13 +992,13 @@ static int OLD_tc_export_setup(vob_t *vob,
         }
 
         switch (vob->im_a_codec) {
-          case TC_CODEC_PCM:
+          case CODEC_PCM:
             cc = (encdata.export_para.flag & TC_CAP_PCM);
             break;
-          case TC_CODEC_AC3:
+          case CODEC_AC3:
             cc = (encdata.export_para.flag & TC_CAP_AC3);
             break;
-          case TC_CODEC_RAW:
+          case CODEC_RAW:
             cc = (encdata.export_para.flag & TC_CAP_AUD);
             break;
           default:
@@ -1010,7 +1010,7 @@ static int OLD_tc_export_setup(vob_t *vob,
             return TC_ERROR;
         }
     } else { /* encdata.export_para.flag == verbose */
-        if (vob->im_a_codec != TC_CODEC_PCM) {
+        if (vob->im_a_codec != CODEC_PCM) {
             tc_log_warn(__FILE__, "audio codec not supported by export module");
             return TC_ERROR;
         }
@@ -1029,16 +1029,17 @@ static int OLD_tc_export_setup(vob_t *vob,
         }
 
         switch (vob->im_v_codec) {
-          case TC_CODEC_RGB24:
+          case CODEC_RGB:
             cc = (encdata.export_para.flag & TC_CAP_RGB);
             break;
-          case TC_CODEC_YUV420P:
+          case CODEC_YUV:
             cc = (encdata.export_para.flag & TC_CAP_YUV);
             break;
-          case TC_CODEC_YUV422P:
+          case CODEC_YUV422:
             cc = (encdata.export_para.flag & TC_CAP_YUV422);
             break;
-          case TC_CODEC_RAW:
+          case CODEC_RAW:
+          case CODEC_RAW_YUV: /* fallthrough */
             cc = (encdata.export_para.flag & TC_CAP_VID);
             break;
           default:
@@ -1050,7 +1051,7 @@ static int OLD_tc_export_setup(vob_t *vob,
             return TC_ERROR;
         }
     } else { /* encdata.export_para.flag == verbose */
-        if (vob->im_v_codec != TC_CODEC_RGB24) {
+        if (vob->im_v_codec != CODEC_RGB) {
             tc_log_warn(__FILE__, "video codec not supported by export module");
             return TC_ERROR;
         }
@@ -1252,7 +1253,7 @@ static int OLD_encoder_export(TCEncoderData *data, vob_t *vob)
  * (read: when we have enough encode/multiplexor module to go).
  *************************************************************************/
 
-#include "libtcutil/xio.h"
+#include "libtc/xio.h"
 
 //-----------------------------------------------------------------
 //
@@ -1317,17 +1318,24 @@ void tc_outstream_rotate(void)
 /*
  * fake encoding, simply adjust frame counters.
  */
-static void encoder_skip(TCEncoderData *data)
+static void encoder_skip(TCEncoderData *data, int out_of_range)
 {
     if (tc_progress_meter) {
         if (!data->fill_flag) {
             data->fill_flag = 1;
         }
-        counter_print(0, data->buffer->frame_id, data->saved_frame_last,
-                      data->frame_first-1);
+        if (out_of_range) {
+            counter_print(0, data->buffer->frame_id, data->saved_frame_last,
+                          data->frame_first-1);
+        } else { /* skipping from --frame_interval */
+            int last = (data->frame_last == TC_FRAME_LAST) ?(-1) :data->frame_last;
+            counter_print(1, data->buffer->frame_id, data->frame_first, last);
+        }
     }
-    data->buffer->vptr->attributes |= TC_FRAME_IS_OUT_OF_RANGE;
-    data->buffer->aptr->attributes |= TC_FRAME_IS_OUT_OF_RANGE;
+    if (out_of_range) {
+        data->buffer->vptr->attributes |= TC_FRAME_IS_OUT_OF_RANGE;
+        data->buffer->aptr->attributes |= TC_FRAME_IS_OUT_OF_RANGE;
+    }
 }
 
 static int need_stop(TCEncoderData *encdata)
@@ -1343,7 +1351,9 @@ static int need_stop(TCEncoderData *encdata)
 
 void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
 {
-    int err = 0, eos = 0; /* End Of Stream flag */
+    int err = 0;
+    int skip = 0; /* Frames to skip before next frame to encode */
+    int eos = 0;  /* End Of Stream flag */
 
     if (encdata.this_frame_last != frame_last) {
         encdata.old_frame_last  = encdata.this_frame_last;
@@ -1383,9 +1393,15 @@ void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
         /* check frame id */
         if (frame_first <= encdata.buffer->frame_id
           && encdata.buffer->frame_id < frame_last) {
-            encoder_export(&encdata, vob);
+            if (skip > 0) { /* skip frame */
+                encoder_skip(&encdata, 0);
+                skip--;
+            } else { /* encode frame */
+                encoder_export(&encdata, vob);
+                skip = vob->frame_interval - 1;
+            }
         } else { /* frame not in range */
-            encoder_skip(&encdata);
+            encoder_skip(&encdata, 1);
         } /* frame processing loop */
 
         /* release frame buffer memory */
