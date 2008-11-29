@@ -44,7 +44,7 @@
 
 
 #define MOD_NAME    "export_ffmpeg.so"
-#define MOD_VERSION "v0.3.17 (2007-11-02)"
+#define MOD_VERSION "v0.3.18 (2008-11-29)"
 #define MOD_CODEC   "(video) " LIBAVCODEC_IDENT \
                     " | (audio) MPEG/AC3/PCM"
 
@@ -349,18 +349,16 @@ MOD_init
 			            vt_name[video_template]);
         }
 
-        if(!(vob->export_attributes & TC_EXPORT_ATTRIBUTE_FIELDS)) {
-            if(video_template == vt_pal) {
+        if (!(vob->export_attributes & TC_EXPORT_ATTRIBUTE_FIELDS)) {
+            if (video_template == vt_pal) {
                 vob->encode_fields = TC_ENCODE_FIELDS_TOP_FIRST;
+            } else if (video_template == vt_ntsc) {
+                vob->encode_fields = TC_ENCODE_FIELDS_BOTTOM_FIRST;
             } else {
-                if(video_template == vt_ntsc)
-                    vob->encode_fields = TC_ENCODE_FIELDS_BOTTOM_FIRST;
-                else {
-                    tc_log_warn(MOD_NAME, "Interlacing parameters unknown, "
-                               "select video type with profile");
-                    vob->encode_fields = TC_ENCODE_FIELDS_UNKNOWN;
-                }
-	        }
+                tc_log_warn(MOD_NAME, "Interlacing parameters unknown, "
+                                      "select video type with profile");
+                vob->encode_fields = TC_ENCODE_FIELDS_UNKNOWN;
+            }
 
     	    if (verbose) {
 	        	tc_log_info(MOD_NAME, "Set interlacing to %s",
@@ -382,11 +380,6 @@ MOD_init
 	    	    	    vob->ex_frc == 3 ? "25" :
 		    	        vob->ex_frc == 4 ? "29.97" : "unknown");
 	    }
-    } else { /* no profile active */
-        if (!(vob->export_attributes & TC_EXPORT_ATTRIBUTE_FIELDS)) {
-            tc_log_warn(MOD_NAME, "Interlacing parameters unknown, use --encode_fields");
-            vob->encode_fields = TC_ENCODE_FIELDS_UNKNOWN;
-        }
     }
 
     switch(pseudo_codec) {

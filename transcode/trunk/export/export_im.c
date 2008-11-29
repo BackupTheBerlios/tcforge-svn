@@ -74,7 +74,7 @@ MOD_init
       width = vob->ex_v_width;
       height = vob->ex_v_height;
 
-      codec = (vob->im_v_codec == CODEC_YUV) ? CODEC_YUV : CODEC_RGB;
+      codec = (vob->im_v_codec == TC_CODEC_YUV420P) ? TC_CODEC_YUV420P : TC_CODEC_RGB24;
 
       InitializeMagick("");
 
@@ -125,8 +125,8 @@ MOD_open
 
 	switch(vob->im_v_codec) {
 
-	case CODEC_YUV:
-	case CODEC_RGB:
+	case TC_CODEC_YUV420P:
+	case TC_CODEC_RGB24:
 
 	  if(vob->video_out_file!=NULL && strcmp(vob->video_out_file,"/dev/null")!=0) prefix=vob->video_out_file;
 
@@ -178,7 +178,7 @@ MOD_encode
       return(TC_EXPORT_ERROR);
     }
 
-    if(codec==CODEC_YUV) {
+    if(codec==TC_CODEC_YUV420P) {
       tcv_convert(tcvhandle, param->buffer, tmp_buffer, width, height,
 		  IMG_YUV_DEFAULT, IMG_RGB24);
       out_buffer = tmp_buffer;

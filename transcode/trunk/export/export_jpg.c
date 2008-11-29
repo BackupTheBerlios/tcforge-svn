@@ -198,9 +198,9 @@ MOD_init
       width = vob->ex_v_width;
       height = vob->ex_v_height;
 
-      codec = (vob->im_v_codec == CODEC_YUV) ? CODEC_YUV : CODEC_RGB;
+      codec = (vob->im_v_codec == TC_CODEC_YUV420P) ? TC_CODEC_YUV420P : TC_CODEC_RGB24;
 
-      if(vob->im_v_codec == CODEC_YUV) {
+      if(vob->im_v_codec == TC_CODEC_YUV420P) {
 	line[0] = malloc(height*sizeof(char*));
 	line[1] = malloc(height*sizeof(char*)/2);
 	line[2] = malloc(height*sizeof(char*)/2);
@@ -230,8 +230,8 @@ MOD_open
 
 	switch(vob->im_v_codec) {
 
-	case CODEC_YUV:
-	case CODEC_RGB:
+	case TC_CODEC_YUV420P:
+	case TC_CODEC_RGB24:
 
 	  if(vob->video_out_file!=NULL && strcmp(vob->video_out_file,"/dev/null")!=0) prefix=vob->video_out_file;
 
@@ -282,7 +282,7 @@ MOD_encode
       return(TC_EXPORT_ERROR);
     }
 
-    if(codec==CODEC_YUV) {
+    if(codec==TC_CODEC_YUV420P) {
       unsigned char *base[3];
       YUV_INIT_PLANES(base, param->buffer, IMG_YUV420P, width, height);
       write_yuv_JPEG_file(buf2, jpeg_quality, base, width, height);
