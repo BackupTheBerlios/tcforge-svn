@@ -1013,7 +1013,7 @@ static vob_t *new_vob(void)
     vob->aa_bias             = TC_DEFAULT_AABIAS;
 
     vob->a52_mode            = 0;
-    vob->encode_fields       = 0;
+    vob->encode_fields       = TC_ENCODE_FIELDS_PROGRESSIVE;
 
     vob->ttime               = NULL;
 
