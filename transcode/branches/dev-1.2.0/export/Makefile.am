@@ -10,9 +10,7 @@ PROFILES = \
 	xvcd-pal.cfg \
 	xvcd-ntsc.cfg
 
+pkgdir = $(PROF_PATH)
 pkg_DATA = $(PROFILES)
 
-install-exec-hook:
-	@mkdir -p $(DESTDIR)$(PROF_PATH)
-	@cp $(PROFILES) $(DESTDIR)$(PROF_PATH)
 

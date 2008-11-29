@@ -7,7 +7,7 @@ AC_CONFIG_SRCDIR(src/transcode.c)
 dnl Detect the canonical host and target build environment
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(transcode,1.2.0-cvs)
+AM_INIT_AUTOMAKE(transcode,1.2.0-dev1)
 AM_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE
@@ -1401,6 +1401,7 @@ AC_CONFIG_FILES([
 	docs/tech/Makefile
 	docs/tech/html/Makefile
 	encode/Makefile
+	export/Makefile
 	filter/Makefile
 	filter/divxkey/Makefile
 	filter/extsub/Makefile

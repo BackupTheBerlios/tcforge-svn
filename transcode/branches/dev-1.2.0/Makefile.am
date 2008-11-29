@@ -21,6 +21,7 @@ SUBDIRS = \
 	libtcaudio \
 	libtcvideo \
 	encode \
+	export \
 	filter \
 	import \
 	multiplex \
