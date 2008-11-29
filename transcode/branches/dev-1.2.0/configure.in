@@ -1401,7 +1401,6 @@ AC_CONFIG_FILES([
 	docs/tech/Makefile
 	docs/tech/html/Makefile
 	encode/Makefile
-	export/Makefile
 	filter/Makefile
 	filter/divxkey/Makefile
 	filter/extsub/Makefile
