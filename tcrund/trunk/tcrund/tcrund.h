@@ -62,10 +62,10 @@ struct tcrconfig_ {
     int  debug_mode;
 };
 
-typedef enum tcrlogmode_ TCRLogMode;
+typedef enum tcrlogtarget_ TCRLogTarget;
 enum tcrlogmode_ {
-    TCR_LOG_FILE = TC_LOG_USEREXT,
-    TCR_LOG_NULL
+    TCR_LOG_TARGET_FILE = TC_LOG_TARGET_USEREXT,
+    TCR_LOG_TARGET_NULL
 };
 
 typedef enum tcrunderrorcode_ TCRunDErrorCode;

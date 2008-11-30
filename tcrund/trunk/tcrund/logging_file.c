@@ -197,8 +197,8 @@ static int tcr_log_file_open(TCLogContext *ctx, int *argc, char ***argv)
 
 int tcr_log_register_methods(void)
 {
-    tc_log_register_method(TCR_LOG_FILE, tcr_log_file_open);
-    tc_log_register_method(TCR_LOG_NULL, tcr_log_null_open);
+    tc_log_register_method(TCR_LOG_TARGET_FILE, tcr_log_file_open);
+    tc_log_register_method(TCR_LOG_TARGET_NULL, tcr_log_null_open);
     return TC_OK;
 }
 

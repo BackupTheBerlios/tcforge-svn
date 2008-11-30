@@ -33,7 +33,7 @@ TCRProcess *tcr_process_new_from_conf(const char *cfgfile)
     return NULL;
 }
 
-int tcr_process_run(TCRProcess *proc)
+int tcr_process_run(TCRProcess *proc, const char *rundir)
 {
     return TC_ERROR;
 }

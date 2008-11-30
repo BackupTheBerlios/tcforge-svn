@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "config.h"
 
@@ -46,6 +47,8 @@ struct tcrcontext_ {
     const char      *cfg_file;
     const char      *account_file;
     int              banner_only; /* flag */
+
+    const char      *pid_file;
 };
 
 static TCRContext TCRunD = {
@@ -55,7 +58,7 @@ static TCRContext TCRunD = {
     .cfg_file     = NULL,
     .account_file = NULL,
     .log_level    = TC_INFO,
-    .log_target   = TCR_LOG_FILE,
+    .log_target   = TCR_LOG_TARGET_FILE,
     .banner_only  = TC_FALSE
 };
 
@@ -156,15 +159,16 @@ static void usage(void)
 {
     version();
 
-    fprintf(stderr,"\nUsage: %s [options]\n", PACKAGE);
-    fprintf(stderr,"    -f conf     select configuration file to use\n");
-    fprintf(stderr,"    -p file     select user account data file to use\n");
-    fprintf(stderr,"    -l log      select daemon log file to use\n");
-    fprintf(stderr,"    -D          run in debug mode "
+    fprintf(stderr, "\nUsage: %s [options]\n", PACKAGE);
+    fprintf(stderr, "    -f conf     select configuration file to use\n");
+    fprintf(stderr, "    -p file     select user account data file to use\n");
+    fprintf(stderr, "    -l log      select daemon log file to use\n");
+    fprintf(stderr, "    -D          run in debug mode "
                                    "(don't detach from terminal)\n");
-    fprintf(stderr,"    -q level    select log level\n");
-    fprintf(stderr,"    -v          print version and exit\n");
-    fprintf(stderr,"    -h          print this message\n");
+    fprintf(stderr, "    -P file     select daemon PID file\n");
+    fprintf(stderr, "    -q level    select log level\n");
+    fprintf(stderr, "    -v          print version and exit\n");
+    fprintf(stderr, "    -h          print this message\n");
 }
 
 
@@ -183,6 +187,29 @@ static TCVerboseLevel verbose_level_from_str(const char *str)
         }
     }
     return ret;
+}
+
+static void dump_pid(const char *pid_file)
+{
+    if (pid_file) {
+        FILE *f = fopen(pid_file, "wt");
+        if (!f) {
+            tc_log(TC_LOG_WARN, PACKAGE,
+                   "unable to open the PID file `%s': %s",
+                   pid_file, strerror(errno));
+        } else {
+            int err = 0;
+
+            fprintf(f, "%li", (long)getpid());
+
+            err = fclose(f);
+
+            if (err) {
+                tc_log(TC_LOG_WARN, PACKAGE,
+                       "error closing the PID file: %s", strerror(errno));
+            }
+        }
+    }        
 }
 
 #define VALIDATE_OPTION \
@@ -232,6 +259,10 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
             usage();
             ctx->banner_only = TC_TRUE;
             break;
+          case 'P':
+            VALIDATE_OPTION;
+            ctx->pid_file = optarg;
+            break;
           default:
             usage();
             return TC_ERROR;
@@ -241,7 +272,7 @@ int parse_cmdline(TCRContext *ctx, int argc, char *argv[])
 
     if (debug_mode) {
         ctx->log_level = TC_STATS; /* reset */
-        ctx->log_target = TC_LOG_CONSOLE;
+        ctx->log_target = TC_LOG_TARGET_CONSOLE;
         ctx->config.debug_mode = TC_TRUE;
         /* 
          * this field is NOT present into the configuration file, so it will
@@ -322,6 +353,8 @@ int main(int argc, char *argv[])
         }
 
         tc_log(TC_LOG_INFO, PACKAGE, "server run");
+
+        dump_pid(TCRunD.pid_file);
 
         err = tcr_server_run(TCRunD.server);
         if (err) {
