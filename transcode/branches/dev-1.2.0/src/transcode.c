@@ -1018,8 +1018,6 @@ static vob_t *new_vob(void)
     vob->ttime               = NULL;
 
     vob->psu_offset          = 0.0f;
-    vob->bitreservoir        = TC_TRUE;
-    vob->lame_preset         = NULL;
 
     vob->ts_pid1             = 0x0;
     vob->ts_pid2             = 0x0;

@@ -1930,15 +1930,6 @@ infrastructure. Those modes can be used with any kind of source material. The on
             
             <varlistentry>
                 <term>
-                    <option>--no_bitreservoir </option>
-                </term>
-                <listitem>
-                    <para>disable lame bitreservoir for MP3 encoding [off]</para>
-                </listitem>
-            </varlistentry>
-            
-            <varlistentry>
-                <term>
                     <option>--config_dir </option>
                     <emphasis>dir</emphasis>
                 </term>

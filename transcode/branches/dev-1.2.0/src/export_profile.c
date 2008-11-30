@@ -117,7 +117,6 @@ static TCExportProfile prof_data = {
     .info.audio.mode = AMODE,
     .info.audio.vbr_flag = TC_FALSE,
     .info.audio.flush_flag = TC_FALSE,
-    .info.audio.bit_reservoir = TC_TRUE,
 };
 
 /* private helpers: declaration *******************************************/
@@ -341,7 +340,6 @@ void tc_export_profile_to_vob(const TCExportInfo *info, vob_t *vob)
     vob->dm_bits = info->audio.sample_bits;
     vob->dm_chan = info->audio.channels;
     vob->mp3mode = info->audio.mode;
-    vob->bitreservoir = info->audio.bit_reservoir;
     vob->zoom_interlaced = info->video.zoom_interlaced_flag;
     if (info->video.fast_resize_flag) {
         tc_compute_fast_resize_values(vob, TC_FALSE);

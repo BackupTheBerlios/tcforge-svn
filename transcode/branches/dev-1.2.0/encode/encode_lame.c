@@ -16,7 +16,7 @@
 #include <lame/lame.h>
 
 #define MOD_NAME        "encode_lame.so"
-#define MOD_VERSION     "v1.1 (2006-11-01)"
+#define MOD_VERSION     "v1.2 (2008-11-30)"
 #define MOD_CAP         "Encodes audio to MP3 using LAME"
 #define MOD_AUTHOR      "Andrew Church"
 
@@ -114,6 +114,50 @@ static int lamemod_init(TCModuleInstance *self, uint32_t features)
 
 /*************************************************************************/
 
+/* FIXME: vbr handling is clumsy */
+static int lame_setup_preset(PrivateData *pd,
+                             const char *lame_preset, vob_t *vob)
+{
+    preset_mode preset;
+    int fast = 0;
+
+    char *s = strchr(lame_preset, ',');
+    if (s) {
+        *s++ = 0;
+        if (strcmp(s, "fast") == 0)
+            fast = 1;
+    }
+
+    if (strcmp(lame_preset, "standard") == 0) {
+        preset = (fast ? STANDARD_FAST : STANDARD);
+        vob->a_vbr = 1;
+    } else if (strcmp(lame_preset, "medium") == 0) {
+        preset = (fast ? MEDIUM_FAST : MEDIUM);
+        vob->a_vbr = 1;
+    } else if (strcmp(lame_preset, "extreme") == 0) {
+        preset = (fast ? EXTREME_FAST : EXTREME);
+        vob->a_vbr = 1;
+    } else if (strcmp(lame_preset, "insane") == 0) {
+        preset = INSANE;
+        vob->a_vbr = 1;
+    } else {
+        preset = strtol(lame_preset, &s, 10);
+        if (*s || preset < 8 || preset > 320) {
+            tc_log_error(MOD_NAME, "Invalid preset \"%s\"",
+                         lame_preset);
+            return TC_ERROR;
+        } else {
+            vob->a_vbr = 1;
+        }
+    }
+    if (lame_set_preset(pd->lgf, preset) < 0) {
+        tc_log_error(MOD_NAME, "lame_set_preset(%d) failed", preset);
+        return TC_ERROR;
+    }
+    return TC_OK;
+}
+
+
 /**
  * lame_configure:  Configure this instance of the module.  See
  * tcmodule-data.h for function details.
@@ -122,9 +166,10 @@ static int lamemod_init(TCModuleInstance *self, uint32_t features)
 static int lame_configure(TCModuleInstance *self,
                           const char *options, vob_t *vob)
 {
+    char lame_preset[TC_BUF_MIN] = { '\0' };
     PrivateData *pd;
     int samplerate = vob->mp3frequency ? vob->mp3frequency : vob->a_rate;
-    int quality;
+    int ret, quality;
     MPEG_mode mode;
 
     TC_MODULE_SELF_CHECK(self, "configure");
@@ -196,43 +241,14 @@ static int lame_configure(TCModuleInstance *self,
         tc_log_error(MOD_NAME, "lame_set_brate(%d) failed", vob->mp3bitrate);
         return TC_ERROR;
     }
-    /* Ugly preset handling */
-    if (vob->lame_preset) {
-        preset_mode preset;
-        int fast = 0;
-        char *s = strchr(vob->lame_preset, ',');
-        if (s) {
-            *s++ = 0;
-            if (strcmp(s, "fast") == 0)
-                fast = 1;
+    /* A bit less ugly preset handling */
+    ret = optstr_get(options, "preset", "%[^:]", lame_preset); /* FIXME */
+    if (ret > 0) {
+        ret = lame_setup_preset(pd, lame_preset, vob);
+        if (ret != TC_OK) {
+            return ret;
         }
-        if (strcmp(vob->lame_preset, "standard") == 0) {
-            preset = (fast ? STANDARD_FAST : STANDARD);
-            vob->a_vbr = 1;
-        } else if (strcmp(vob->lame_preset, "medium") == 0) {
-            preset = (fast ? MEDIUM_FAST : MEDIUM);
-            vob->a_vbr = 1;
-        } else if (strcmp(vob->lame_preset, "extreme") == 0) {
-            preset = (fast ? EXTREME_FAST : EXTREME);
-            vob->a_vbr = 1;
-        } else if (strcmp(vob->lame_preset, "insane") == 0) {
-            preset = INSANE;
-            vob->a_vbr = 1;
-        } else {
-            preset = strtol(vob->lame_preset, &s, 10);
-            if (*s || preset < 8 || preset > 320) {
-                tc_log_error(MOD_NAME, "Invalid preset \"%s\"",
-                             vob->lame_preset);
-                return TC_ERROR;
-            } else {
-                vob->a_vbr = 1;
-            }
-        }
-        if (lame_set_preset(pd->lgf, preset) < 0) {
-            tc_log_error(MOD_NAME, "lame_set_preset(%d) failed", preset);
-            return TC_ERROR;
-        }
-    }  // if (vob->lame_preset)
+    }
     /* Acceleration setting failures aren't fatal */
     if (lame_set_asm_optimizations(pd->lgf, MMX, (tc_accel&AC_MMX  )?1:0) < 0)
         tc_log_warn(MOD_NAME, "lame_set_asm_optimizations(MMX,%d) failed",
@@ -246,9 +262,12 @@ static int lame_configure(TCModuleInstance *self,
                     (tc_accel&AC_SSE)?1:0);
     /* FIXME: this function is documented as "for testing only"--should we
      * really expose it to the user? */
-    if (!vob->bitreservoir && lame_set_disable_reservoir(pd->lgf, 1) < 0) {
-        tc_log_error(MOD_NAME, "lame_set_disable_reservoir(1) failed");
-        return TC_ERROR;
+    if (optstr_lookup(options, "nobitres")) {
+        ret = lame_set_disable_reservoir(pd->lgf, 1);
+        if (ret < 0) {
+            tc_log_error(MOD_NAME, "lame_set_disable_reservoir(1) failed");
+            return TC_ERROR;
+        }
     }
     if (lame_set_VBR(pd->lgf, vob->a_vbr ? vbr_default : vbr_off) < 0) {
         tc_log_error(MOD_NAME, "lame_set_VBR(%d) failed",

@@ -1401,16 +1401,6 @@ TC_OPTION(divx_vbv,           0,   "br,sz,oc",
                     goto short_usage;
                 }
 )
-TC_OPTION(lame_preset,        0,   "N[,fast]",
-                "(LAME) use preset named N [off]",
-                if (*optarg == '-')
-                    goto short_usage;
-                vob->lame_preset = optarg;
-)
-TC_OPTION(no_bitreservoir,    0,   0,
-                "(LAME) disable bitreservoir [off]",
-                vob->bitreservoir = TC_FALSE;
-)
 TC_OPTION(encoder_noflush,           'O', 0,
                 "avoid to flush buffer(s) on encoder stop [enabled]",
                 vob->encoder_flush = TC_FALSE;

@@ -328,9 +328,6 @@ typedef struct _vob_t {
     float mp3quality;           // 0=best (very slow), 9=worst (default=5)
     int mp3mode;                // 0=joint-stereo, 1=full-stereo, 2=mono
 
-    int bitreservoir;
-    const char *lame_preset;
-
     const char *audiologfile;
 
     int ex_a_codec;             // Audio codec for export module

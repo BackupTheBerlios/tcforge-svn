@@ -187,12 +187,11 @@ struct tcexportinfo_ {
         int channels; /* number of channels in audio stream */    
         int mode; /* audio mode: mode, stereo, joint stereo... */
         /* 
-         * those last three fields are mainly used by lame, but they
+         * those last fields are mainly used by lame, but they
          * should be generalized
          */
         int vbr_flag;
         int flush_flag;
-        int bit_reservoir;
     } audio;
 
     struct {
