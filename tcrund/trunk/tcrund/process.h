@@ -27,8 +27,8 @@ enum {
 
 typedef enum tcrcommandcode_ TCRCommandCode;
 enum tcrcommandcode_ {
-     TCR_COMMAND_CODE_UNKNOWN	=  0,
-     TCR_COMMAND_CODE_STOP	=  1,
+     TCR_COMMAND_CODE_UNKNOWN   =  0,
+     TCR_COMMAND_CODE_STOP      =  1,
      TCR_COMMAND_CODE_STATUS    =  2,
 };
 
@@ -39,10 +39,9 @@ enum tcrprocesserror_ {
 
 typedef struct tcrprocess_ TCRProcess;
 
-TCRProcess *tcr_process_new_from_args(char *args[]);
 TCRProcess *tcr_process_new_from_conf(const char *cfgfile);
 
-int tcr_process_run(TCRProcess *proc);
+int tcr_process_run(TCRProcess *proc, const char *rundir);
 
 int tcr_process_send_command(TCRProcess *proc, TCRCommandCode cmd,
                              char *args[], char *outbuf);

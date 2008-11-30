@@ -27,10 +27,6 @@ struct tcrprocess_ {
     int cmd_fd;
 };
 
-TCRProcess *tcr_process_new_from_args(char *args[])
-{
-    return NULL;
-}
 
 TCRProcess *tcr_process_new_from_conf(const char *cfgfile)
 {
