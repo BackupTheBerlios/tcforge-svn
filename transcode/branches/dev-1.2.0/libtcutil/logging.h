@@ -67,21 +67,22 @@ enum tclogtype_ {
 /* how to present the messages */
 typedef enum tclogtarget_ TCLogTarget;
 enum tclogtarget_ {
-    TC_LOG_INVALID = 0,  /* the usual `error/unknown' value */
-    TC_LOG_CONSOLE = 1,  /* default */
-    TC_LOG_USEREXT = 127 /* use this as base for extra methods */
+    TC_LOG_TARGET_INVALID = 0,  /* the usual `error/unknown' value */
+    TC_LOG_TARGET_CONSOLE = 1,  /* default */
+    TC_LOG_TARGET_USEREXT = 127 /* use this as base for extra methods */
 };
 
 /* those are flags, actually */
 typedef enum tcdebugsource_ TCDebugSource;
 enum tcdebugsource_ {
-    TC_CLEANUP = (1UL << 0), /* thread shutdown. Not easy as it seems. */
-    TC_FLIST   = (1UL << 1), /* multithreaded framebuffer. */
-    TC_SYNC    = (1UL << 2), /* the synchronization engine. */
-    TC_COUNTER = (1UL << 3), /* counter code. (can be tricky too...) */
-    TC_PRIVATE = (1UL << 4), /* legacy, currently. */
-    TC_THREADS = (1UL << 5), /* filter handling and import threads. */
-    TC_WATCH   = (1UL << 6)  /* legacy, currently. */
+    TC_DEBUG_CLEANUP = (1UL << 0), /* thread shutdown. Not easy as it seems. */
+    TC_DEBUG_FLIST   = (1UL << 1), /* multithreaded framebuffer. */
+    TC_DEBUG_SYNC    = (1UL << 2), /* the synchronization engine. */
+    TC_DEBUG_COUNTER = (1UL << 3), /* counter code. (can be tricky too...) */
+    TC_DEBUG_PRIVATE = (1UL << 4), /* generic internal behaviour */
+    TC_DEBUG_THREADS = (1UL << 5), /* filter handling and import threads. */
+    TC_DEBUG_WATCH   = (1UL << 6), /* legacy, currently. */
+    TC_DEBUG_MODULES = (1UL << 7)  /* module system */
 };
 
 typedef struct tclogcontext_ TCLogContext;
@@ -330,6 +331,8 @@ __attribute__((format(printf,3,4)))
 #endif
 ;
 
+#define tc_debug(src, fmt, args...) \
+    tc_log_debug(src, __FILE__, fmt, ## args)
 
 #ifdef __cplusplus
 }

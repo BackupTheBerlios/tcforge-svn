@@ -154,7 +154,11 @@ static int tc_log_console_close(TCLogContext *ctx)
 static int tc_log_console_open(TCLogContext *ctx, int *argc, char ***argv)
 {
     if (ctx) {
-        int ret = tc_mangle_cmdline(argc, argv, TC_LOG_COLOR_OPTION, NULL);
+        int ret;
+        
+        ctx->use_colors = TC_TRUE;
+
+        ret = tc_mangle_cmdline(argc, argv, TC_LOG_COLOR_OPTION, NULL);
 
         if (ret == 0) {
             ctx->use_colors = TC_FALSE;
@@ -183,8 +187,8 @@ struct tclogmethod {
 
 
 static struct tclogmethod methods[TC_LOG_MAX_METHODS] = {
-    { TC_LOG_CONSOLE, tc_log_console_open },
-    { TC_LOG_INVALID, NULL                }
+    { TC_LOG_TARGET_CONSOLE, tc_log_console_open },
+    { TC_LOG_TARGET_INVALID, NULL                }
 };
 static int last_method = 1;
 
@@ -220,7 +224,7 @@ int tc_log_open(TCLogTarget target, TCVerboseLevel verbose,
     TCLog.log_count   = 0;
     TCLog.flush_thres = 1;
 
-    for (i = 0; methods[i].target != TC_LOG_INVALID; i++) {
+    for (i = 0; methods[i].target != TC_LOG_TARGET_INVALID; i++) {
         if (target == methods[i].target) {
             ret = methods[i].open(&TCLog, argc, argv);
             break;
@@ -264,14 +268,15 @@ struct debugflag {
 };
 
 static const struct debugflag DebugFlags[] = {
-    { "CLEANUP",   TC_CLEANUP },
-    { "FRAMELIST", TC_FLIST   },
-    { "SYNC",      TC_SYNC    },
-    { "COUNTER",   TC_COUNTER },
-    { "PRIVATE",   TC_PRIVATE },
-    { "THREADS",   TC_THREADS },
-    { "WATCH",     TC_WATCH   },
-    { NULL,        0          }
+    { "CLEANUP",   TC_DEBUG_CLEANUP },
+    { "FRAMELIST", TC_DEBUG_FLIST   },
+    { "SYNC",      TC_DEBUG_SYNC    },
+    { "COUNTER",   TC_DEBUG_COUNTER },
+    { "PRIVATE",   TC_DEBUG_PRIVATE },
+    { "THREADS",   TC_DEBUG_THREADS },
+    { "WATCH",     TC_DEBUG_WATCH   },
+    { "MODULES",   TC_DEBUG_MODULES },
+    { NULL,        0                }
 };
 
 static int tc_log_debug_init(const char *envname)
@@ -301,11 +306,7 @@ int tc_log_debug(TCDebugSource src, const char *tag, const char *fmt, ...)
 {
     int ret = 0;
 
-    /*
-     * we call the backend directly, so we must replicate
-     * the verbosiness check - this time with hardcoded value
-     */
-    if ((TCLog.verbose >= TC_DEBUG) && (TCLog.debug_src & src)) {
+    if (TCLog.debug_src & src) {
         va_list ap;
 
         va_start(ap, fmt);
