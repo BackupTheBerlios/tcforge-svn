@@ -69,7 +69,7 @@ static int faac_init(TCModuleInstance *self, uint32_t features)
     /* FIXME: shouldn't this test a specific flag? */
     if (verbose) {
         tc_log_info(MOD_NAME, "%s %s", MOD_VERSION, MOD_CAP);
-        if (verbose & TC_INFO) {
+        if (verbose >= TC_INFO) {
             char *id, *copyright;
             faacEncGetVersion(&id, &copyright);
             tc_log_info(MOD_NAME, "Using FAAC %s", id);

@@ -316,12 +316,12 @@ static void x264_log(void *userdata, int level, const char *format,
         logtype = TC_LOG_WARN;
         break;
       case X264_LOG_INFO:
-        if (!(verbose & TC_INFO))
+        if (!(verbose >= TC_INFO))
             return;
         logtype = TC_LOG_INFO;
         break;
       case X264_LOG_DEBUG:
-        if (!(verbose & TC_DEBUG))
+        if (!(verbose >= TC_DEBUG))
             return;
         logtype = TC_LOG_MSG;
         break;

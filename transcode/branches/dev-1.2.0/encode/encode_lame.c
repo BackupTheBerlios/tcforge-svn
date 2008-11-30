@@ -60,7 +60,7 @@ static void lame_log_error(const char *format, va_list args)
 
 static void lame_log_msg(const char *format, va_list args)
 {
-    if (verbose & TC_INFO) {
+    if (verbose >= TC_INFO) {
         char buf[TC_BUF_MAX];
         tc_vsnprintf(buf, sizeof(buf), format, args);
         tc_log_info(MOD_NAME, "%s", buf);
@@ -69,7 +69,7 @@ static void lame_log_msg(const char *format, va_list args)
 
 static void lame_log_debug(const char *format, va_list args)
 {
-    if (verbose & TC_DEBUG) {
+    if (verbose >= TC_DEBUG) {
         char buf[TC_BUF_MAX];
         tc_vsnprintf(buf, sizeof(buf), format, args);
         tc_log_msg(MOD_NAME, "%s", buf);
@@ -106,7 +106,7 @@ static int lamemod_init(TCModuleInstance *self, uint32_t features)
     /* FIXME: shouldn't this test a specific flag? */
     if (verbose) {
         tc_log_info(MOD_NAME, "%s %s", MOD_VERSION, MOD_CAP);
-        if (verbose & TC_INFO)
+        if (verbose >= TC_INFO)
             tc_log_info(MOD_NAME, "Using LAME %s", get_lame_version());
     }
     return TC_OK;
@@ -383,7 +383,7 @@ static int lame_encode(TCModuleInstance *self,
          * -- FR
          */
         res = lame_encode_flush_nogap(pd->lgf, out->audio_buf, 0);
-        if (verbose & TC_DEBUG) {
+        if (verbose >= TC_DEBUG) {
             tc_log_info(MOD_NAME, "flushing %d audio bytes", res);
         }
     } else {
@@ -404,7 +404,7 @@ static int lame_encode(TCModuleInstance *self,
         }
 
         if (res < 0) {
-            if (verbose & TC_DEBUG) {
+            if (verbose >= TC_DEBUG) {
                 tc_log_error(MOD_NAME, "lame_encode_buffer_interleaved() failed"
                              " (%d: %s)", res,
                              res==-1 ? "output buffer overflow" :
