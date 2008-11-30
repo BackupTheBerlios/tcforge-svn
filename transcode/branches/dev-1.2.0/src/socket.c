@@ -276,13 +276,6 @@ static void dump_vob(int sock)
     SEND(divxlogfile, "%s");
     SEND(min_quantizer, "%d");
     SEND(max_quantizer, "%d");
-    SEND(rc_period, "%d");
-    SEND(rc_reaction_period, "%d");
-    SEND(rc_reaction_ratio, "%d");
-    SEND(divx5_vbv_prof, "%d");
-    SEND(divx5_vbv_bitrate, "%d");
-    SEND(divx5_vbv_size, "%d");
-    SEND(divx5_vbv_occupancy, "%d");
     SEND(mp3bitrate, "%d");
     SEND(mp3frequency, "%d");
     SEND(mp3quality, "%f");

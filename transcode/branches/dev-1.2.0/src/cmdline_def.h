@@ -1357,50 +1357,6 @@ TC_OPTION(quantizers,         0,   "min,max",
                     goto short_usage;
                 }
 )
-TC_OPTION(divx_quant,         0,   "min,max",
-                "(DivX) min/max quantizer (deprecated) [2,31]",
-                tc_warn("--divx_quant option is deprecated and will be removed soon.");
-                tc_warn("use --quantizers instead.");
-                if (sscanf(optarg, "%d,%d", &vob->min_quantizer,
-                           &vob->max_quantizer) != 2
-                 || vob->min_quantizer < 1 || vob->min_quantizer > 31
-                 || vob->max_quantizer < 1 || vob->max_quantizer > 31
-                ) {
-                    tc_error("Invalid argument for --divx_quant");
-                    goto short_usage;
-                }
-)
-TC_OPTION(divx_rc,            0,   "p,rp,rr",
-                "(DivX) rate control parameter [2000,10,20]",
-                if (sscanf(optarg, "%d,%d,%d", &vob->rc_period,
-                           &vob->rc_reaction_period,
-                           &vob->rc_reaction_ratio) != 3
-                ) {
-                    tc_error("Invalid argument for --divx_rc");
-                    goto short_usage;
-                }
-)
-TC_OPTION(divx_vbv_prof,      0,   "N",
-                "(DivX) VBV profile (0=free-5=hiqhq) [3]",
-                vob->divx5_vbv_prof = strtol(optarg, &optarg, 10);
-                if (*optarg
-                 || vob->divx5_vbv_prof < 0
-                 || vob->divx5_vbv_prof > 5
-                ) {
-                    tc_error("Invalid argument for --divx_vbv_prof");
-                    goto short_usage;
-                }
-)
-TC_OPTION(divx_vbv,           0,   "br,sz,oc",
-                "(DivX) VBV params (bitrate,size,occupancy) [10000,192,36864]",
-                if (sscanf(optarg, "%d,%d,%d", &vob->divx5_vbv_bitrate,
-                           &vob->divx5_vbv_size,
-                           &vob->divx5_vbv_occupancy) != 3
-                ) {
-                    tc_error("Invalid argument for --divx_vbv");
-                    goto short_usage;
-                }
-)
 TC_OPTION(encoder_noflush,           'O', 0,
                 "avoid to flush buffer(s) on encoder stop [enabled]",
                 vob->encoder_flush = TC_FALSE;
