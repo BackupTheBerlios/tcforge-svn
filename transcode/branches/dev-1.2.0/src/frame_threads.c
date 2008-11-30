@@ -161,8 +161,7 @@ static int stop_requested(TCFrameThreadData *data)
 
 
 #define SET_STOP_FLAG(DATAP, MSG) do { \
-    if (verbose >= TC_CLEANUP) \
-        tc_log_msg(__FILE__, "%s", (MSG)); \
+    tc_debug(TC_DEBUG_CLEANUP, "%s", (MSG)); \
     tc_frame_threads_stop((DATAP)); \
 } while (0)
 
@@ -217,8 +216,7 @@ static void *process_video_frame(void *_vob)
 
         vframe_push_next(ptr, TC_FRAME_READY);
     }
-    if (verbose >= TC_CLEANUP)
-        tc_log_msg(__FILE__, "video stream end: got, so exiting!");
+    tc_debug(TC_DEBUG_CLEANUP, "video stream end: got, so exiting!");
 
     pthread_exit(&res);
     return NULL;
@@ -275,8 +273,7 @@ static void *process_audio_frame(void *_vob)
 
         aframe_push_next(ptr, TC_FRAME_READY);
     }
-    if (verbose >= TC_CLEANUP)
-        tc_log_msg(__FILE__, "audio stream end: got, so exiting!");
+    tc_debug(TC_DEBUG_CLEANUP, "audio stream end: got, so exiting!");
 
     pthread_exit(&res);
     return NULL;
@@ -301,9 +298,9 @@ void tc_frame_threads_init(vob_t *vob, int vworkers, int aworkers)
     int n = 0;
 
     if (vworkers > 0) {
-        if (verbose >= TC_DEBUG)
-            tc_log_info(__FILE__, "starting %i video frame"
-                                 " processing thread(s)", vworkers);
+        tc_debug(TC_DEBUG_THREADS,
+                 "starting %i video frame processing thread(s)",
+                 vworkers);
 
         // start the thread pool
         for (n = 0; n < vworkers; n++) {
@@ -315,9 +312,9 @@ void tc_frame_threads_init(vob_t *vob, int vworkers, int aworkers)
     video_threads.count = vworkers;
 
     if (aworkers > 0) {
-        if (verbose >= TC_DEBUG)
-            tc_log_info(__FILE__, "starting %i audio frame"
-                                 " processing thread(s)", aworkers);
+        tc_debug(TC_DEBUG_THREADS,
+                 "starting %i audio frame processing thread(s)",
+                 aworkers);
 
         // start the thread pool
         for (n = 0; n < aworkers; n++) {
@@ -336,24 +333,30 @@ void tc_frame_threads_close(void)
 
     if (audio_threads.count > 0) {
         tc_frame_threads_stop(&audio_threads);
-        if (verbose >= TC_CLEANUP)
-            tc_log_msg(__FILE__, "wait for %i audio frame processing threads",
-                       audio_threads.count);
+
+        tc_debug(TC_DEBUG_CLEANUP,
+                     "wait for %i audio frame processing threads",
+                     audio_threads.count);
+
         for (n = 0; n < audio_threads.count; n++)
             pthread_join(audio_threads.threads[n], &status);
-        if (verbose >= TC_CLEANUP)
-            tc_log_msg(__FILE__, "audio frame processing threads canceled");
+
+        tc_debug(TC_DEBUG_CLEANUP,
+                     "audio frame processing threads canceled");
     }
 
     if (video_threads.count > 0) {
         tc_frame_threads_stop(&video_threads);
-        if (verbose >= TC_CLEANUP)
-            tc_log_msg(__FILE__, "wait for %i video frame processing threads",
-                       video_threads.count);
+
+        tc_debug(TC_DEBUG_CLEANUP,
+                     "wait for %i video frame processing threads",
+                     video_threads.count);
+
         for (n = 0; n < video_threads.count; n++)
             pthread_join(video_threads.threads[n], &status);
-        if (verbose >= TC_CLEANUP)
-            tc_log_msg(__FILE__, "video frame processing threads canceled");
+
+        tc_debug(TC_DEBUG_CLEANUP,
+                     "video frame processing threads canceled");
     }
 }
 

@@ -187,18 +187,18 @@ int split_stream(vob_t *vob, const char *file, int this_unit, int *fa, int *fb, 
       }
 
       if(this_unit > unit_ctr) {
-	if(verbose &TC_DEBUG) tc_log_msg(__FILE__, "invalid PSU %s", file);
+	if(verbose >= TC_DEBUG) tc_log_msg(__FILE__, "invalid PSU %s", file);
 	return(-1);
       }
 
       if(-1 < this_unit) unit = this_unit;
 
-      if(verbose &TC_DEBUG) tc_log_msg(__FILE__, "unit=%d, frames=%ld, offset=%ld (%d)", n, uframe[n], unit_offset[n], vob->ps_unit);
+      if(verbose >= TC_DEBUG) tc_log_msg(__FILE__, "unit=%d, frames=%ld, offset=%ld (%d)", n, uframe[n], unit_offset[n], vob->ps_unit);
   }
 
   // (II) determine largest (main) presentation unit
 
-  if(verbose &TC_DEBUG) tc_log_msg(__FILE__, "selecting unit %d, frames=%ld, offset=%ld", unit, uframe[unit], unit_offset[unit]);
+  if(verbose >= TC_DEBUG) tc_log_msg(__FILE__, "selecting unit %d, frames=%ld, offset=%ld", unit, uframe[unit], unit_offset[unit]);
 
 
   // video or audio mode ?
@@ -230,7 +230,7 @@ int split_stream(vob_t *vob, const char *file, int this_unit, int *fa, int *fb, 
 
   frame_inc = (vob->vob_percentage) ? (long) ((startc * uframe[unit])/100) : (long) ((startc * uframe[unit])/vob->vob_chunk_max);
 
-  if(verbose &TC_DEBUG) tc_log_msg(__FILE__, "estimated chunk offset = %ld", frame_inc);
+  if(verbose >= TC_DEBUG) tc_log_msg(__FILE__, "estimated chunk offset = %ld", frame_inc);
 
   _n = get_frame_index(unit, frame_inc);
 
@@ -245,7 +245,7 @@ int split_stream(vob_t *vob, const char *file, int this_unit, int *fa, int *fb, 
 
   s1 = seq[_n]->seq;
 
-  if(verbose &TC_DEBUG) tc_log_msg(__FILE__, "chunk %d starts at frame %ld, pack offset %ld, finc=%d", startc, _n, poff, foff);
+  if(verbose >= TC_DEBUG) tc_log_msg(__FILE__, "chunk %d starts at frame %ld, pack offset %ld, finc=%d", startc, _n, poff, foff);
 
 
   // (IV) determine end of chunk(s)

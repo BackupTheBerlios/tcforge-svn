@@ -72,7 +72,7 @@ static int do_process_audio(vob_t *vob, aframe_list_t *ptr)
         /* This is the first time here: convert time (ms) to samples.
          * Note that we adjust based on the source rate */
         vob->sync_samples = (vob->sync_ms * vob->a_rate / 1000) * vob->dm_chan;
-        if (verbose & TC_DEBUG) {
+        if (verbose >= TC_DEBUG) {
             if (vob->sync_samples < 0) {
                 tc_log_info(__FILE__, "inserting %d PCM samples (%d ms)",
                             -vob->sync_samples, -vob->sync_ms);

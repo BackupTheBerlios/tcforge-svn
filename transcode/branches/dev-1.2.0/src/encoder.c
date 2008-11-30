@@ -528,9 +528,7 @@ int tc_export_setup(vob_t *vob,
     int match = 0;
     const char *mod_name = NULL;
 
-    if (verbose >= TC_DEBUG) {
-        tc_log_info(__FILE__, "loading export modules");
-    }
+    tc_debug(TC_DEBUG_MODULES, "loading export modules");
 
     mod_name = (a_mod == NULL) ?TC_DEFAULT_EXPORT_AUDIO :a_mod;
     encdata.aud_mod = tc_new_module(encdata.factory, "encode", mod_name, TC_AUDIO);
@@ -582,9 +580,7 @@ int tc_export_setup(vob_t *vob,
 
 void tc_export_shutdown(void)
 {
-    if (verbose >= TC_DEBUG) {
-        tc_log_info(__FILE__, "unloading export modules");
-    }
+    tc_debug(TC_DEBUG_MODULES, "unloading export modules");
 
     tc_del_module(encdata.factory, encdata.mplex_mod);
     tc_del_module(encdata.factory, encdata.vid_mod);
@@ -612,7 +608,7 @@ int tc_encoder_init(vob_t *vob)
     options = (vob->ex_v_string) ?vob->ex_v_string :"";
     ret = tc_module_configure(encdata.vid_mod, options, vob);
     if (ret != TC_OK) {
-        tc_log_warn(__FILE__, "video export module error: init failed");
+        tc_log_error(__FILE__, "video export module error: init failed");
         return TC_ERROR;
     }
 
@@ -675,9 +671,7 @@ int tc_encoder_close(void)
         return TC_ERROR;
     }
 
-    if(verbose >= TC_DEBUG) {
-        tc_log_info(__FILE__, "encoder closed");
-    }
+    tc_debug(TC_DEBUG_CLEANUP, "encoder closed");
     return TC_OK;
 }
 
@@ -706,9 +700,7 @@ int tc_encoder_stop(void)
 
     free_buffers(&encdata);
 
-    if(verbose >= TC_DEBUG) {
-        tc_log_info(__FILE__, "encoder stopped");
-    }
+    tc_debug(TC_DEBUG_CLEANUP, "encoder stopped");
     return TC_OK;
 }
 
@@ -927,17 +919,15 @@ void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
 
         err = encdata.buffer->acquire_video_frame(encdata.buffer, vob);
         if (err) {
-            if (verbose >= TC_DEBUG) {
-                tc_log_warn(__FILE__, "failed to acquire next raw video frame");
-            }
+            tc_debug(TC_DEBUG_PRIVATE,
+                     "failed to acquire next raw video frame");
             break; /* can't acquire video frame */
         }
 
         err = encdata.buffer->acquire_audio_frame(encdata.buffer, vob);
         if (err) {
-            if (verbose >= TC_DEBUG) {
-                tc_log_warn(__FILE__, "failed to acquire next raw audio frame");
-            }
+            tc_debug(TC_DEBUG_PRIVATE,
+                     "failed to acquire next raw audio frame");
             break;  /* can't acquire frame */
         }
 
@@ -966,13 +956,13 @@ void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
     }
     /* main frame decoding loop */
 
-    if (verbose >= TC_CLEANUP) {
-        if (eos) {
-            tc_log_info(__FILE__, "encoder last frame finished (%i/%i)",
-                        encdata.buffer->frame_id, encdata.frame_last);
-        }
-        tc_log_info(__FILE__, "export terminated - buffer(s) empty");
-    }
+    if (eos) {
+        tc_debug(TC_DEBUG_CLEANUP,
+                 "encoder last frame finished (%i/%i)",
+                    encdata.buffer->frame_id, encdata.frame_last);
+    } 
+    tc_debug(TC_DEBUG_CLEANUP,
+             "export terminated - buffer(s) empty");
     return;
 }
 

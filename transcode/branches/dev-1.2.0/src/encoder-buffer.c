@@ -197,17 +197,14 @@ static int encoder_acquire_vframe(TCEncoderBuffer *buf, vob_t *vob)
     do {
         buf->vptr = vframe_retrieve();
         if (!buf->vptr) {
-            if (verbose >= TC_THREADS)
-                tc_log_msg(__FILE__, "frame retrieve interrupted!");
+            tc_debug(TC_DEBUG_THREADS, "frame retrieve interrupted!");
             return -1; /* can't acquire video frame */
         }
         got_frame = TC_TRUE;
         buf->frame_id = buf->vptr->id + tc_get_frames_skipped_cloned();
 
-        if (verbose & TC_STATS) {
-            tc_log_info(__FILE__, "got frame %p (id=%i)",
-                                  buf->vptr, buf->frame_id);
-        }
+        tc_debug(TC_DEBUG_FLIST,
+                 "got frame %p (id=%i)", buf->vptr, buf->frame_id);
 
         /*
          * now we do the post processing ... this way, if just a video frame is
@@ -236,12 +233,10 @@ static int encoder_acquire_vframe(TCEncoderBuffer *buf, vob_t *vob)
                  * up also skipping the clone?  or perhaps they'll keep,
                  * but modify the clone?  Best to do the whole drill :/
                  */
-                if (verbose & TC_DEBUG) {
-                    tc_log_info (__FILE__, "(%i) V pointer done. "
-                                           "Skipped and Cloned: (%i)",
-                                           buf->vptr->id,
-                                           (buf->vptr->attributes));
-                }
+                tc_debug(TC_DEBUG_THREADS,  "(%i) V pointer done. "
+                         "Skipped and Cloned: (%i)",
+                         buf->vptr->id,
+                         (buf->vptr->attributes));
 
                 /* update flags */
                 buf->vptr->attributes &= ~TC_FRAME_IS_CLONED;
@@ -273,15 +268,14 @@ static int encoder_acquire_aframe(TCEncoderBuffer *buf, vob_t *vob)
     do {
         buf->aptr = aframe_retrieve();
         if (!buf->aptr) {
-            if (verbose >= TC_THREADS)
-                tc_log_msg(__FILE__, "frame retrieve interrupted!");
+            tc_debug(TC_DEBUG_THREADS,
+                     "frame retrieve interrupted!");
             return -1;
         }
         got_frame = TC_TRUE;
 
-        if (verbose & TC_STATS) {
-            tc_log_info(__FILE__, "got audio frame (id=%i)", buf->aptr->id);
-        }
+        tc_debug(TC_DEBUG_FLIST,
+                 "got audio frame (id=%i)", buf->aptr->id);
 
         apply_audio_filters(buf->aptr, vob);
 
@@ -297,10 +291,9 @@ static int encoder_acquire_aframe(TCEncoderBuffer *buf, vob_t *vob)
             if (buf->aptr != NULL
               && (buf->aptr->attributes & TC_FRAME_IS_CLONED)
             ) {
-                if (verbose & TC_DEBUG) {
-                    tc_log_info(__FILE__, "(%i) A pointer done. Skipped and Cloned: (%i)",
-                                        buf->aptr->id, (buf->aptr->attributes));
-                }
+                tc_debug(TC_DEBUG_THREADS,
+                         "(%i) A pointer done. Skipped and Cloned: (%i)",
+                         buf->aptr->id, (buf->aptr->attributes));
 
                 /* adjust clone flags */
                 buf->aptr->attributes &= ~TC_FRAME_IS_CLONED;
@@ -338,10 +331,10 @@ static void encoder_dispose_vframe(TCEncoderBuffer *buf)
     if (buf->vptr != NULL
       && (buf->vptr->attributes & TC_FRAME_IS_CLONED)
     ) {
-        if(verbose & TC_DEBUG) {
-            tc_log_info(__FILE__, "(%i) V pointer done. Cloned: (%i)",
-                                buf->vptr->id, (buf->vptr->attributes));
-        }
+        tc_debug(TC_DEBUG_THREADS,
+                 "(%i) V pointer done. Cloned: (%i)",
+                 buf->vptr->id, (buf->vptr->attributes));
+
         buf->vptr->attributes &= ~TC_FRAME_IS_CLONED;
         buf->vptr->attributes |= TC_FRAME_WAS_CLONED;
         // update counter
@@ -363,10 +356,9 @@ static void encoder_dispose_aframe(TCEncoderBuffer *buf)
     if (buf->aptr != NULL
       && (buf->aptr->attributes & TC_FRAME_IS_CLONED)
     ) {
-        if (verbose & TC_DEBUG) {
-            tc_log_info(__FILE__, "(%i) A pointer done. Cloned: (%i)",
-                                 buf->aptr->id, (buf->aptr->attributes));
-        }
+        tc_debug(TC_DEBUG_THREADS,
+                 "(%i) A pointer done. Cloned: (%i)",
+                 buf->aptr->id, buf->aptr->attributes);
 
         buf->aptr->attributes &= ~TC_FRAME_IS_CLONED;
         buf->aptr->attributes |= TC_FRAME_WAS_CLONED;

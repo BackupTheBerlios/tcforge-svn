@@ -46,178 +46,171 @@ int (*TCA_import)(int opt, void *para1, void *para2);
 
 static void watch_export_module(const char *s, int opt, transfer_t *para)
 {
-    tc_log_msg(__FILE__, "module=%s [option=%02d, flag=%d]", s, opt, ((para==NULL)? -1:para->flag));
+    tc_debug(TC_DEBUG_MODULES,
+             "module=%s [option=%02d, flag=%d]", s, opt, ((para==NULL)? -1:para->flag));
 }
 
 static void watch_import_module(const char *s, int opt, transfer_t *para)
 {
-    tc_log_msg(__FILE__, "module=%s [option=%02d, flag=%d]", s, opt, ((para==NULL)? -1:para->flag));
-    fflush(stdout);
+    tc_debug(TC_DEBUG_MODULES,
+             "module=%s [option=%02d, flag=%d]", s, opt, ((para==NULL)? -1:para->flag));
 }
 
 int tcv_export(int opt, void *para1, void *para2)
 {
+    int ret;
 
-  int ret;
-
-  if(verbose & TC_WATCH)
     watch_export_module("tcv_export", opt, (transfer_t*) para1);
 
-  ret = TCV_export(opt, para1, para2);
+    ret = TCV_export(opt, para1, para2);
 
-  if(ret==TC_EXPORT_ERROR && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "video export module error");
+    if (ret == TC_EXPORT_ERROR && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "video export module error");
 
-  if(ret==TC_EXPORT_UNKNOWN && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "option %d unsupported by video export module", opt);
+    if (ret == TC_EXPORT_UNKNOWN && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "option %d unsupported by video export module", opt);
 
-  return(ret);
+    return ret;
 }
 
 int tca_export(int opt, void *para1, void *para2)
 {
+    int ret;
 
-  int ret;
-
-  if(verbose & TC_WATCH)
     watch_export_module("tca_export", opt, (transfer_t*) para1);
 
-  ret = TCA_export(opt, para1, para2);
+    ret = TCA_export(opt, para1, para2);
 
-  if(ret==TC_EXPORT_ERROR && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "audio export module error");
+    if (ret == TC_EXPORT_ERROR && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "audio export module error");
 
-  if(ret==TC_EXPORT_UNKNOWN && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "option %d unsupported by audio export module", opt);
+    if (ret == TC_EXPORT_UNKNOWN && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "option %d unsupported by audio export module", opt);
 
-  return(ret);
+    return(ret);
 }
 
 int tcv_import(int opt, void *para1, void *para2)
 {
+    int ret;
 
-  int ret;
-
-  if(verbose & TC_WATCH)
     watch_import_module("tcv_import", opt, (transfer_t*) para1);
 
-  ret = TCV_import(opt, para1, para2);
+    ret = TCV_import(opt, para1, para2);
 
-  if(ret==TC_IMPORT_ERROR && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "video import module error");
+    if (ret == TC_IMPORT_ERROR && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "video import module error");
 
-  if(ret==TC_IMPORT_UNKNOWN && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "option %d unsupported by video import module", opt);
+    if (ret == TC_IMPORT_UNKNOWN && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "option %d unsupported by video import module", opt);
 
-  return(ret);
+    return(ret);
 }
 
 int tca_import(int opt, void *para1, void *para2)
 {
-  int ret;
+    int ret;
 
-  if(verbose & TC_WATCH)
     watch_import_module("tca_import", opt, (transfer_t*) para1);
 
-  ret = TCA_import(opt, para1, para2);
+    ret = TCA_import(opt, para1, para2);
 
-  if(ret==TC_IMPORT_ERROR && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "audio import module error");
+    if (ret == TC_IMPORT_ERROR && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "audio import module error");
 
-  if(ret==TC_IMPORT_UNKNOWN && (verbose & TC_DEBUG))
-    tc_log_msg(__FILE__, "option %d unsupported by audio import module", opt);
+    if (ret == TC_IMPORT_UNKNOWN && (verbose >= TC_DEBUG))
+        tc_log_msg(__FILE__, "option %d unsupported by audio import module", opt);
 
-  return(ret);
+    return(ret);
 }
 
 
 void *load_module(const char *mod_name, int mode)
 {
-  const char *error;
-  void *handle;
+    const char *error;
+    void *handle;
 
-  if(mode & TC_EXPORT) {
+    if (mode & TC_EXPORT) {
+        tc_snprintf(module, sizeof(module), "%s/export_%s.so", ((mod_path==NULL)? TC_DEFAULT_MOD_PATH:mod_path), mod_name);
 
-    tc_snprintf(module, sizeof(module), "%s/export_%s.so", ((mod_path==NULL)? TC_DEFAULT_MOD_PATH:mod_path), mod_name);
+        tc_debug(TC_DEBUG_MODULES,
+                 "loading %s export module %s",
+                 ((mode & TC_VIDEO)? "video": "audio"), module);
 
-    if(verbose & TC_DEBUG)
-      tc_log_msg(__FILE__, "loading %s export module %s", ((mode & TC_VIDEO)? "video": "audio"), module);
+        handle = dlopen(module, RTLD_GLOBAL| RTLD_LAZY);
+        if (!handle) {
+            error = dlerror();
+            tc_warn("%s", error);
+            tc_warn("(%s) loading \"%s\" failed", __FILE__, module);
+            return(NULL);
+        }
 
-    handle = dlopen(module, RTLD_GLOBAL| RTLD_LAZY);
+        if (mode & TC_VIDEO) {
+            TCV_export = dlsym(handle, "tc_export");
+            error = dlerror();
+            if (error != NULL)  {
+                tc_warn("%s", error);
+                return(NULL);
+            }
+        }
 
-    if (!handle) {
-      error=dlerror();
-      tc_warn("%s", error);
-      tc_warn("(%s) loading \"%s\" failed", __FILE__, module);
-      return(NULL);
-    }
+        if (mode & TC_AUDIO) {
+            TCA_export = dlsym(handle, "tc_export");
+            error = dlerror();
+            if (error != NULL)  {
+                tc_warn("%s", error);
+                return(NULL);
+            }
+        }
 
-    if(mode & TC_VIDEO) {
-      TCV_export = dlsym(handle, "tc_export");
-      error = dlerror();
-      if (error != NULL)  {
-	tc_warn("%s", error);
-	return(NULL);
-      }
-    }
-
-    if(mode & TC_AUDIO) {
-      TCA_export = dlsym(handle, "tc_export");
-      error = dlerror();
-      if (error != NULL)  {
-	tc_warn("%s", error);
-	return(NULL);
-      }
-    }
-
-    return(handle);
-  }
-
-
-  if(mode & TC_IMPORT) {
-
-    tc_snprintf(module, sizeof(module), "%s/import_%s.so", ((mod_path==NULL)? TC_DEFAULT_MOD_PATH:mod_path), mod_name);
-
-    if(verbose & TC_DEBUG)
-      tc_log_msg(__FILE__, "loading %s import module %s", ((mode & TC_VIDEO)? "video": "audio"), module);
-
-    handle = dlopen(module, RTLD_GLOBAL| RTLD_LAZY);
-
-    if (!handle) {
-      error = dlerror();
-      tc_warn("%s", error);
-      return(NULL);
-    }
-
-    if(mode & TC_VIDEO) {
-      TCV_import = dlsym(handle, "tc_import");
-      if ((error = dlerror()) != NULL)  {
-	tc_warn("%s", error);
-	return(NULL);
-      }
+        return(handle);
     }
 
 
-    if(mode & TC_AUDIO) {
-      TCA_import = dlsym(handle, "tc_import");
-      if ((error = dlerror()) != NULL)  {
-	tc_warn("%s", error);
-	return(NULL);
-      }
+    if (mode & TC_IMPORT) {
+        tc_snprintf(module, sizeof(module), "%s/import_%s.so", ((mod_path==NULL)? TC_DEFAULT_MOD_PATH:mod_path), mod_name);
+
+        tc_debug(TC_DEBUG_MODULES,
+                 "loading %s import module %s",
+                 ((mode & TC_VIDEO)? "video": "audio"), module);
+
+        handle = dlopen(module, RTLD_GLOBAL| RTLD_LAZY);
+        if (!handle) {
+            error = dlerror();
+            tc_warn("%s", error);
+            return(NULL);
+        }
+
+        if (mode & TC_VIDEO) {
+            TCV_import = dlsym(handle, "tc_import");
+            error = dlerror();
+            if (error != NULL)  {
+                tc_warn("%s", error);
+                return(NULL);
+            }
+        }
+
+        if(mode & TC_AUDIO) {
+            TCA_import = dlsym(handle, "tc_import");
+            error = dlerror();
+            if (error != NULL)  {
+                tc_warn("%s", error);
+                return(NULL);
+            }
+        }
+
+        return(handle);
     }
 
-    return(handle);
-  }
-
-  // wrong mode?
-  return(NULL);
+    // wrong mode?
+    return(NULL);
 }
 
 void unload_module(void *handle)
 {
-  if (dlclose(handle) != 0) {
-      perror("unloading module");
-  }
-  handle=NULL;
+    if (dlclose(handle) != 0) {
+        perror("unloading module");
+    }
+    handle=NULL;
 }
 

@@ -302,7 +302,7 @@ int tc_filter_add(const char *name, const char *options)
             return 0;
         }
         filters[i].id = id;  /* loaded, at least */
-        if (verbose & TC_DEBUG)
+        if (verbose >= TC_DEBUG)
             tc_log_msg(__FILE__, "tc_filter_add: module %s loaded", path);
 
         /* Call tc_filter() to initialize the module */
@@ -315,7 +315,7 @@ int tc_filter_add(const char *name, const char *options)
             tc_warn("Initialization of filter %s failed, skipping.", name);
             tc_filter_remove(id);
         }
-        if (verbose & TC_DEBUG)
+        if (verbose >= TC_DEBUG)
             tc_log_msg(__FILE__, "tc_filter_add: filter %s successfully"
                        " initialized", name);
     }

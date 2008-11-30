@@ -64,7 +64,7 @@ int probe_stream_data(const char *file, int range, ProbeInfo *info)
         if (!do_probe(file, NULL, 0, range, 0,
                       (verbose >= TC_DEBUG) ? verbose : 0, info)
         ) {
-            if (verbose & TC_DEBUG) {
+            if (verbose >= TC_DEBUG) {
                 tc_log_warn(PACKAGE, "(%s) failed to probe stream '%s'",
                             __FILE__, file);
             }
@@ -103,7 +103,7 @@ int probe_source(const char *vid_file, const char *aud_file, int range,
                       (flags & TC_PROBE_NO_BUILTIN),
                       (verbose >= TC_DEBUG) ? verbose : 0, &vinfo)
         ) {
-            if (verbose & TC_DEBUG) {
+            if (verbose >= TC_DEBUG) {
                 tc_log_warn(PACKAGE, "(%s) failed to probe video source",
                             __FILE__);
             }
@@ -119,7 +119,7 @@ int probe_source(const char *vid_file, const char *aud_file, int range,
                       (flags & TC_PROBE_NO_BUILTIN),
                       (verbose >= TC_DEBUG) ? verbose : 0, &ainfo)
         ) {
-            if (verbose & TC_DEBUG) {
+            if (verbose >= TC_DEBUG) {
                 tc_log_warn(PACKAGE, "(%s) failed to probe audio source",
                             __FILE__);
             }
@@ -130,7 +130,7 @@ int probe_source(const char *vid_file, const char *aud_file, int range,
     /* Set global parameters based on probed data */
     probe_to_vob(vid_file ? &vinfo : NULL, aud_file ? &ainfo : NULL,
                  flags, vob);
-    if (verbose & TC_DEBUG) {
+    if (verbose >= TC_DEBUG) {
         tc_log_info(PACKAGE, "(%s) V format=0x%lx, A format=0x%lx,"
                     " V codec=0x%lx, A codec=0x%lx", __FILE__,
                     vob->v_format_flag, vob->a_format_flag,
