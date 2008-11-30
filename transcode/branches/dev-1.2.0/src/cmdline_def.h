@@ -960,6 +960,21 @@ TC_OPTION(export_afmt,        'E', "r[,b[,c]]",
                     break;
                 }
 )
+TC_OPTION(quantizers,         0,   "min,max",
+                "min/max quantizer, for MPEG-like codecs [2,31]",
+                if (sscanf(optarg, "%d,%d", &vob->min_quantizer,
+                           &vob->max_quantizer) != 2
+                 || vob->min_quantizer < 1 || vob->min_quantizer > 31
+                 || vob->max_quantizer < 1 || vob->max_quantizer > 31
+                ) {
+                    tc_error("Invalid argument for --quantizers");
+                    goto short_usage;
+                }
+)
+TC_OPTION(encoder_noflush,           'O', 0,
+                "avoid to flush buffer(s) on encoder stop [enabled]",
+                vob->encoder_flush = TC_FALSE;
+)
 
 /********/ TC_HEADER("Video processing options") /********/
 
@@ -1345,21 +1360,6 @@ TC_OPTION(dv_yuy2_mode,       0,   0,
                 "If you experience crashes decoding DV video,"
                 " try this option.",
                 vob->dv_yuy2_mode = TC_TRUE;
-)
-TC_OPTION(quantizers,         0,   "min,max",
-                "min/max quantizer, for MPEG-like codecs [2,31]",
-                if (sscanf(optarg, "%d,%d", &vob->min_quantizer,
-                           &vob->max_quantizer) != 2
-                 || vob->min_quantizer < 1 || vob->min_quantizer > 31
-                 || vob->max_quantizer < 1 || vob->max_quantizer > 31
-                ) {
-                    tc_error("Invalid argument for --quantizers");
-                    goto short_usage;
-                }
-)
-TC_OPTION(encoder_noflush,           'O', 0,
-                "avoid to flush buffer(s) on encoder stop [enabled]",
-                vob->encoder_flush = TC_FALSE;
 )
 TC_OPTION(a52_demux,          0,   0,
                 "(liba52) demux AC3/A52 to separate channels [off]",
