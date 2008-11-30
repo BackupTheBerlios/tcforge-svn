@@ -448,10 +448,10 @@ int ivtc(int *flag, int pflag, char *buffer, char *pulldown_buffer, int width, i
     //reset
     if(pulldown_frame_ctr==last_frame) {
 
-      if(verbose & TC_STATS)
+      if(verbose >= TC_STATS)
 	  tc_log_msg(__FILE__, "DROP: (%2d)", pulldown_drop_ctr);
       //summary
-      if(verbose & TC_COUNTER)
+      if(verbose >= TC_STATS)
 	  tc_log_msg(__FILE__, "frames=(%2d|%d), interlaced=%2d, merged=%2d, flushed=%2d, post=%2d",
 		     last_frame, must_drop, interlace_ctr, merge_ctr,
 		     flush_ctr, post_interlace_ctr);

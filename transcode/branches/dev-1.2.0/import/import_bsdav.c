@@ -54,7 +54,7 @@ int sret;
     switch (param->flag) {
     case TC_VIDEO:
 
-        if (verbose_flag & TC_DEBUG) {
+        if (verbose_flag >= TC_DEBUG) {
             tc_log_info(MOD_NAME,
                 "bsdav raw video");
         }
@@ -65,7 +65,7 @@ int sret;
         if (sret < 0)
             return(TC_IMPORT_ERROR);
 
-	if (verbose_flag & TC_INFO)
+	if (verbose_flag >= TC_INFO)
             tc_log_info(MOD_NAME, "%s", import_cmd_buf);
 
 	if ((param->fd = popen(import_cmd_buf, "r")) == NULL) {
@@ -76,7 +76,7 @@ int sret;
 
     case TC_AUDIO:
 
-        if (verbose_flag & TC_DEBUG) {
+        if (verbose_flag >= TC_DEBUG) {
             tc_log_info(MOD_NAME,
                 "bsdav raw audio");
         }
@@ -87,7 +87,7 @@ int sret;
         if (sret < 0)
             return(TC_IMPORT_ERROR);
 
-	if (verbose_flag & TC_INFO)
+	if (verbose_flag >= TC_INFO)
             tc_log_info(MOD_NAME, "%s", import_cmd_buf);
 
 	if ((param->fd = popen(import_cmd_buf, "r")) == NULL) {

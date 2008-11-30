@@ -187,7 +187,8 @@ int scan_pack_pics(char *video)
 
 //   tc_log_msg(__FILE__, "off=%d byte=0x%x byte=0x%x ctr=%d", off , (video[off] & 0xff), (video[VOB_PACKET_SIZE-4] & 0xff), ctr);
 
-   if(ctr && (verbose & TC_PRIVATE)) tc_log_msg(__FILE__, "split PIC code detected");
+   if(ctr)
+     tc_debug(TC_DEBUG_PRIVATE, "split PIC code detected");
 
    flag1=flag2=flag3=0;
 

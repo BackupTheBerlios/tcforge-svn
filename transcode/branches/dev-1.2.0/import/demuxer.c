@@ -958,7 +958,7 @@ void tcdemux_thread(info_t *ipipe)
 
     } // process next packet/block
 
-    if(ipipe->verbose & TC_SYNC)
+    if(ipipe->verbose >= TC_DEBUG)
       tc_log_msg(__FILE__, "EOS - flushing packet buffer");
 
     //post processing

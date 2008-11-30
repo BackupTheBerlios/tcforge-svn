@@ -78,8 +78,7 @@ packet_list_t *packet_register(int id)
   // retrieve a valid pointer from the pool
 
 #ifdef STATBUFFER
-  if(verbose_flag & TC_FLIST)
-    tc_log_msg(__FILE__, "packet id=%d", id);
+  tc_debug(TC_DEBUG_FLIST, "packet id=%d", id);
   if((ptr = sbuf_retrieve()) == NULL) {
     pthread_mutex_unlock(&packet_list_lock);
     return(NULL);
@@ -292,8 +291,7 @@ packet_list_t *sbuf_retrieve()
 
     // ok
 
-    if(verbose_flag & TC_FLIST)
-        tc_log_msg(__FILE__, "alloc  =%d [%d]", sbuf_next, ptr->bufid);
+    tc_debug(TC_DEBUG_FLIST, "alloc  =%d [%d]", sbuf_next, ptr->bufid);
     ++sbuf_next;
     sbuf_next %= sbuf_max;
 
@@ -326,8 +324,7 @@ int sbuf_release(packet_list_t *ptr)
 	return(-1);
     } else {
 
-	if(verbose_flag & TC_FLIST)
-	    tc_log_msg(__FILE__, "release=%d [%d]", sbuf_next, ptr->bufid);
+    tc_debug(TC_DEBUG_FLIST, "release=%d [%d]", sbuf_next, ptr->bufid);
 	ptr->status = PACKET_NULL;
 
     }
@@ -370,8 +367,8 @@ int packet_buffer_flush()
   pthread_mutex_lock(&pack_ctr_lock);
 
   //info:
-  if(verbose_flag & TC_SYNC)
-    tc_log_msg(__FILE__, "packet buffer status (%03d/%03d) [%.1f%%]", pack_ctr, pack_fill_ctr, (double) 100*pack_fill_ctr/FLUSH_BUFFER_MAX);
+  tc_debug(TC_DEBUG_SYNC, "packet buffer status (%03d/%03d) [%.1f%%]",
+           pack_ctr, pack_fill_ctr, (double) 100*pack_fill_ctr/FLUSH_BUFFER_MAX);
   pthread_mutex_unlock(&pack_ctr_lock);
 
   if(ptr==NULL) {
@@ -381,8 +378,8 @@ int packet_buffer_flush()
 
   n = tc_pwrite(ifd, ptr->buffer, ptr->size);
 
-  if(verbose_flag & TC_SYNC)
-    tc_log_msg(__FILE__, "done writing packet (%d/%03d)", ptr->id, pack_ctr);
+  tc_debug(TC_DEBUG_SYNC,
+           "done writing packet (%d/%03d)", ptr->id, pack_ctr);
 
   // no release, if not set!
   ptr->status = PACKET_EMPTY;
@@ -456,8 +453,7 @@ int flush_buffer_init(int _ifd, int _verbose)
     tc_log_error(__FILE__, "failed to start packet flush thread");
     return(-1);
   } else {
-    if(verbose_flag & TC_SYNC)
-      tc_log_msg(__FILE__, "flush buffer thread started");
+    tc_debug(TC_DEBUG_SYNC, "flush buffer thread started");
   }
 
   return(0);
@@ -498,8 +494,9 @@ int flush_buffer_write(int fd_out, char*buffer, int packet_size)
     ++pack_fill_ctr;
 
     //info: buffer status
-    if(verbose_flag & TC_SYNC)
-        tc_log_msg(__FILE__, "packet submitted to flush buffer (%03d/%03d) [%.1f%%]", pack_ctr, pack_fill_ctr, (double) 100*pack_fill_ctr/FLUSH_BUFFER_MAX);
+    tc_debug(TC_DEBUG_SYNC,
+             "packet submitted to flush buffer (%03d/%03d) [%.1f%%]",
+             pack_ctr, pack_fill_ctr, (double) 100*pack_fill_ctr/FLUSH_BUFFER_MAX);
 
     pthread_mutex_unlock(&pack_ctr_lock);
 

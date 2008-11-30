@@ -250,12 +250,12 @@ MOD_open
         int ret, i = 0;
 
         if (vob->im_v_string && optstr_lookup(vob->im_v_string, "nopad")) {
-            if (verbose & TC_INFO) 
+            if (verbose >= TC_INFO) 
                 fprintf(stderr, "[%s] forcing no-pad mode\n", MOD_NAME);
             workarounds = FF_BUG_NO_PADDING;
         }
         if (vob->im_v_string && optstr_lookup(vob->im_v_string, "trunc")) {
-            if (verbose & TC_INFO) 
+            if (verbose >= TC_INFO) 
                 fprintf(stderr, "[%s] allowing truncated streams\n", MOD_NAME);
             trunc = TC_TRUE;
         }

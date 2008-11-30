@@ -125,8 +125,7 @@ static int buffered_p_read(char *s)
 	return(0);
     }
 
-    if(verbose & TC_SYNC)
-	tc_log_msg(__FILE__, "WAIT (%d)", buffer_fill_ctr);
+    tc_debug(TC_DEBUG_SYNC, "WAIT (%d)", buffer_fill_ctr);
 
     while(buffer_fill_ctr == 0) {
       pthread_cond_wait(&buffer_fill_cv, &buffer_fill_lock);
@@ -164,8 +163,7 @@ static int get_next_frame(char *buffer, int size)
 
   if(sync_disabled_flag) goto read_only;
 
-  if(verbose & TC_SYNC)
-      tc_log_msg(__FILE__, "----------------- reading syncinfo (%d)", sync_ctr);
+  tc_debug(TC_DEBUG_SYNC, "----------------- reading syncinfo (%d)", sync_ctr);
 
   if((i=buffered_p_read((char *) &ptr)) != sizeof(sync_info_t)) {
 
@@ -184,7 +182,7 @@ static int get_next_frame(char *buffer, int size)
 
   // infos:
 
-  if(verbose & TC_COUNTER) {
+  if(verbose >= TC_DEBUG) {
       if(ptr.sequence != seq_dis) {
 
 	  drift = ptr.dec_fps - fps;
@@ -207,8 +205,7 @@ static int get_next_frame(char *buffer, int size)
 
   read_only:
 
-  if(verbose & TC_SYNC)
-      tc_log_msg(__FILE__, "reading frame (%d)", frame_ctr);
+  tc_debug(TC_DEBUG_SYNC, "reading frame (%d)", frame_ctr);
   ret = fread(buffer, size, 1, pfd);
 
   if(ret!=1) {
@@ -366,8 +363,7 @@ void clone_read_thread()
 	    pthread_exit(0);
 	}
 
-	if(verbose & TC_SYNC)
-	    tc_log_msg(__FILE__, "READ (%d)", i);
+    tc_debug(TC_DEBUG_SYNC, "READ (%d)", i);
 
 	if((j=tc_pread(sfd, (uint8_t *) ptr->sync_info, sizeof(sync_info_t))) != sizeof(sync_info_t)) {
 

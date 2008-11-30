@@ -147,7 +147,7 @@ static sframe_list_t *sub_buf_retrieve(void)
 
     // ok
 
-    if(verbose & TC_FLIST) tc_log_msg(__FILE__, "alloc  =%d [%d]", sub_buf_next, ptr->bufid);
+    tc_debug(TC_DEBUG_FLIST, "alloc  =%d [%d]", sub_buf_next, ptr->bufid);
 
     ++sub_buf_next;
     sub_buf_next %= sub_buf_max;
@@ -181,7 +181,7 @@ static int sub_buf_release(sframe_list_t *ptr)
 	return(-1);
     } else {
 
-	if(verbose & TC_FLIST) tc_log_msg(__FILE__, "release=%d [%d]", sub_buf_next, ptr->bufid);
+    tc_debug(TC_DEBUG_FLIST, "release=%d [%d]", sub_buf_next, ptr->bufid);
 	ptr->status = FRAME_NULL;
 
     }
@@ -235,7 +235,7 @@ sframe_list_t *sframe_register(int id)
   // retrive a valid pointer from the pool
 
 #ifdef STATBUFFER
-  if(verbose & TC_FLIST) tc_log_msg(__FILE__, "frameid=%d", id);
+  tc_debug(TC_DEBUG_FLIST, "frameid=%d", id);
   if((ptr = sub_buf_retrieve()) == NULL) {
     pthread_mutex_unlock(&sframe_list_lock);
     return(NULL);

@@ -168,9 +168,7 @@ static void seq_flush_thread(void)
 
   if(ptr!=NULL) {
 
-      if(verbose & TC_SYNC) {
-          tc_log_msg(__FILE__, "syncinfo write (%d)", ptr->id);
-      }
+      tc_debug(TC_DEBUG_SYNC, "syncinfo write (%d)", ptr->id);
 
       seq_write(ptr);
 
@@ -265,10 +263,8 @@ void seq_write(seq_list_t *ptr)
       } else
 	  sync_info.drop_seq=0;
 
-      if(verbose & TC_PRIVATE) {
-          tc_log_msg(__FILE__, "[%ld] %d %d %d %ld",
-                     frame_ctr, ptr->id, i, clone[i], check_ctr);
-      }
+      tc_debug(TC_DEBUG_PRIVATE, "[%ld] %d %d %d %ld",
+               frame_ctr, ptr->id, i, clone[i], check_ctr);
 
       drop_ctr += (int) (clone[i]-1);
 
@@ -289,17 +285,16 @@ void seq_write(seq_list_t *ptr)
       }
       check_ctr += clone[i];
 
-      if(verbose & TC_SYNC && i==ptr->enc_pics-1) {
-          tc_log_msg(__FILE__, "sync data for sequence %d flushed [%ld]",
-                     ptr->id, sync_info.enc_frame);
+      if(i==ptr->enc_pics-1) {
+          tc_debug(TC_DEBUG_SYNC, "sync data for sequence %d flushed [%ld]",
+                   ptr->id, sync_info.enc_frame);
       }
   }
 
-  if(verbose & TC_PRIVATE) {
-      tc_log_msg(__FILE__, "frames=%6ld seq=%4ld adj=%4d AV=%8.4f [fps] ratio= %.4f PTS= %.2f",
-                 sync_info.enc_frame, sync_info.sequence, drop_ctr,
-                 sync_info.dec_fps-fps, sync_info.enc_fps/fps, sync_info.pts);
-  }
+   tc_debug(TC_DEBUG_PRIVATE, 
+           "frames=%6ld seq=%4ld adj=%4d AV=%8.4f [fps] ratio= %.4f PTS= %.2f",
+           sync_info.enc_frame, sync_info.sequence, drop_ctr,
+           sync_info.dec_fps-fps, sync_info.enc_fps/fps, sync_info.pts);
 
   return;
 
@@ -408,7 +403,7 @@ void seq_update(seq_list_t *ptr, int end_pts, int pictures, int packets, int fla
 
  skip:
 
-  if(verbose & TC_PRIVATE) {
+  if (verbose >= TC_DEBUG) {
 
     tc_log_msg(__FILE__, "---------------------------------------------------------");
     tc_log_msg(__FILE__, "MPEG sequence: %d (reset=%d)", ptr->id, ptr->sync_reset);
@@ -430,7 +425,7 @@ void seq_update(seq_list_t *ptr, int end_pts, int pictures, int packets, int fla
   ptr->av_sync = (ptr->tot_dec_pics - request_pics)/fps;
 
 
-  if(verbose & TC_PRIVATE) {
+  if(verbose >= TC_DEBUG) {
 
     tc_log_msg(__FILE__, "adjusted frames (decoded in sequence 0-%d): %d --> A-V: %.4f", ptr->id, ptr->tot_dec_pics, ptr->av_sync);
     tc_log_msg(__FILE__, "---------------------------------------------------------");
