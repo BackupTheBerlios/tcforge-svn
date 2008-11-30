@@ -40,7 +40,7 @@ extern "C" {
  *     libtc function.
  *
  * Parameters:
- *     flags: flag to tune libtc behaviour (see above)
+ *     WRITEME
  * Return Value:
  *     N/A
  * Side effects:
