@@ -287,7 +287,6 @@ static void dump_vob(int sock)
     SEND(mp3frequency, "%d");
     SEND(mp3quality, "%f");
     SEND(mp3mode, "%d");
-    SEND(lame_preset, "%s");
     SEND(audiologfile, "%s");
     SEND(ex_a_codec, "%d");
     SEND(ex_v_codec, "%d");
