@@ -1,0 +1,56 @@
+===============================
+ Transcode 1.2.0 Release Notes
+===============================
+:Info: See <http://www.transcoding.org> and <http://tcforge.berlios.de>
+       for more documentation.
+:Author: Francesco Romani <fromani@gmail.com>
+:Date: $Date: 2008/11/30 17:12:47 $
+:Revision: $Revision: 1.0 $
+
+
+Introduction
+============
+
+The transcode team is pleased to announce the avalbility of transcode 1.2.0.
+
+
+Overview
+========
+
+This section outlines the changes between transcode 1.0.x and 1.1.0.
+
+---
+
+
+User visible Changes
+====================
+
+See the document `CHANGES-1.1-1.2' for a detailed list of user-visible changes,
+including commandline options and their syntax, and transcode's output.
+
+
+For Developers
+==============
+
+
+Bugs
+====
+
+Despite the effort spent and the new focus on testing, due to large amount of code
+changed or being changed, there are likely new bugs in this release, and a few regressions
+are possible as well.
+Please help us in improving the quality of transcode by reporting bugs and crashes
+using the procedure described here:
+
+  http://www.transcoding.org/cgi-bin/transcode?Reporting_Problems
+  http://www.transcoding.org/cgi-bin/transcode?Reporting_Crashes
+
+Bugs should be reported in our bug-tracker (on http://tcforge.berlios.de) first;
+mailing list should be used as last resort.
+
+
+Last Words
+==========
+
+EOF
+

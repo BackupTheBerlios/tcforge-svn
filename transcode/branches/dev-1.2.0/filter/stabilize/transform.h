@@ -23,7 +23,7 @@
 #ifndef __TRANSFORM_H
 #define __TRANSFORM_H
 
-#define NEW(type,cnt) (type*)tc_malloc(sizeof(type)*cnt) 
+#define DEFAULT_TRANS_FILE_NAME     "transforms.dat"
 
 /* structure to hold information about frame transformations 
    x,y are translations' alpha is a rotation around the center in RAD

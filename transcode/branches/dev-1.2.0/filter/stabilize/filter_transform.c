@@ -24,8 +24,23 @@
  * transcode -J transform="crop=0" -i inp.m2v -y xdiv,pcm inp_stab.avi
 */
 
+/* TODO:
+ * o [georg] allow comments in transforms file 
+ *
+ * o [georg] When keep pixels from last frame for the border, also transform it by
+ *  the estimated camera speed, this should give much better results
+ *
+ * * Sharpen the image after rotation. (now quadratic interpolation done)
+ * 
+ * * When possible with transcode then resize the image while
+ *    rotating. This will provide better results, because now we do
+ *    simple interpolation which makes the movie smoother.
+ * 
+ */
+
+
 #define MOD_NAME    "filter_transform.so"
-#define MOD_VERSION "v0.4.2 (2008-09-18)"
+#define MOD_VERSION "v0.4.4 (2008-12-06)"
 #define MOD_CAP     "transforms each frame according to transformations\n\
  given in an input file (e.g. translation, rotate) see also filter stabilize"
 #define MOD_AUTHOR  "Georg Martius"
@@ -35,8 +50,6 @@
 #define MOD_FLAGS \
     TC_MODULE_FLAG_RECONFIGURABLE
   
-#include <math.h>
-
 #include "src/transcode.h"
 #include "src/filter.h"
 #include "libtc/libtc.h"
@@ -45,10 +58,16 @@
 #include "libtcmodule/tcmodule-plugin.h"
 #include "transform.h"
 
+#include <math.h>
+#include <libgen.h>
+
 #define DEFAULT_TRANS_FILE_NAME     "transforms.dat"
 
 #define PIXEL(img, x, y, w, h, def) ((x) < 0 || (y) < 0) ? def       \
     : (((x) >=w || (y) >= h) ? def : img[(x) + (y) * w]) 
+// gives Pixel in N-channel image. channel in {0..N-1}
+#define PIXELN(img, x, y, w, h, N,channel , def) ((x) < 0 || (y) < 0) ? def  \
+    : (((x) >=w || (y) >= h) ? def : img[((x) + (y) * w)*N + channel]) 
 
 typedef struct {
     size_t framesize_src;  // size of frame buffer in bytes (src)
@@ -105,7 +124,10 @@ static const char transform_help[] = ""
 
 /* forward deklarations, please look below for documentation*/
 void interpolate(unsigned char *rv, float x, float y, 
-        		 unsigned char* img, int width, int height, unsigned char def);
+                 unsigned char* img, int width, int height, unsigned char def);
+void interpolateN(unsigned char *rv, float x, float y, 
+                  unsigned char* img, int width, int height, 
+                  unsigned char N, unsigned char channel, unsigned char def);
 int transformRGB(TransformData* td);
 int transformYUV(TransformData* td);
 int read_input_file(TransformData* td);
@@ -148,8 +170,47 @@ void interpolate(unsigned char *rv, float x, float y,
 }
 
 /** 
+ * interpolateN: quatratic interpolation function for N channel image. 
+ *
+ * Parameters:
+ *             rv: destination pixel (call by reference)
+ *            x,y: the source coordinates in the image img. Note this 
+ *                 are real-value coordinates, that's why we interpolate
+ *            img: source image
+ *   width,height: dimension of image
+ *              N: number of channels
+ *        channel: channel number (0..N-1)
+ *            def: default value if coordinates are out of range
+ * Return value:  None
+ */
+void interpolateN(unsigned char *rv, float x, float y, 
+                  unsigned char* img, int width, int height, 
+                  unsigned char N, unsigned char channel,
+                  unsigned char def)
+{
+    if (x < - 1 || x > width || y < -1 || y > height) {
+        *rv = def;    
+    } else {
+        int x_c = (int)ceilf(x);
+        int x_f = (int)floorf(x);
+        int y_c = (int)ceilf(y);
+        int y_f = (int)floorf(y);
+        short v1 = PIXELN(img, x_c, y_c, width, height, N, channel, def);
+        short v2 = PIXELN(img, x_c, y_f, width, height, N, channel, def);
+        short v3 = PIXELN(img, x_f, y_c, width, height, N, channel, def);
+        short v4 = PIXELN(img, x_f, y_f, width, height, N, channel, def);
+        float f1 = 1 - sqrt(fabs(x_c - x) * fabs(y_c - y));
+        float f2 = 1 - sqrt(fabs(x_c - x) * fabs(y_f - y));
+        float f3 = 1 - sqrt(fabs(x_f - x) * fabs(y_c - y));
+        float f4 = 1 - sqrt(fabs(x_f - x) * fabs(y_f - y));
+        float s  = (v1*f1 + v2*f2 + v3*f3+ v4*f4)/(f1 + f2 + f3 + f4);
+        *rv = (unsigned char)s;
+    }
+}
+
+
+/** 
  * transformRGB: applies current transformation to frame
- *   Todo: implement
  * Parameters:
  *         td: private data structure of this filter
  * Return value: 
@@ -159,8 +220,66 @@ void interpolate(unsigned char *rv, float x, float y,
  */
 int transformRGB(TransformData* td)
 {
-    tc_log_warn(MOD_NAME, "Not Supported yet!"); 
-    return 0;
+    Transform t;
+    int x = 0, y = 0, z = 0;
+    unsigned char *D_1, *D_2;
+    t = td->trans[td->current_trans];
+  
+    D_1  = td->src;  
+    D_2  = td->dest;  
+    float c_s_x = td->width_src/2.0;
+    float c_s_y = td->height_src/2.0;
+    float c_d_x = td->width_dest/2.0;
+    float c_d_y = td->height_dest/2.0;    
+
+    /* for each pixel in the destination image we calc the source
+     * coordinate and make an interpolation: 
+     *      p_d = c_d + M(p_s - c_s) + t 
+     * where p are the points, c the center coordinate, 
+     *  _s source and _d destination, 
+     *  t the translation, and M the rotation matrix
+     *      p_s = M^{-1}(p_d - c_d - t) + c_s
+     */
+    /* All 3 channels */
+    if (fabs(t.alpha) > td->rotation_threshhold) {
+        for (x = 0; x < td->width_dest; x++) {
+            for (y = 0; y < td->height_dest; y++) {
+                float x_d1 = (x - c_d_x);
+                float y_d1 = (y - c_d_y);
+                float x_s  =  cos(-t.alpha) * x_d1 
+                    + sin(-t.alpha) * y_d1 + c_s_x -t.x;
+                float y_s  = -sin(-t.alpha) * x_d1 
+                    + cos(-t.alpha) * y_d1 + c_s_y -t.y;                
+                for (z = 0; z < 3; z++) { // iterate over colors 
+                    unsigned char* dest = &D_2[(x + y * td->width_dest)*3+z];
+                    interpolateN(dest, x_s, y_s, D_1, 
+                                 td->width_src, td->height_src, 
+                                 3, z, td->crop ? 16 : *dest);
+                }
+            }
+        }
+     }else { 
+        /* no rotation, just translation 
+         *(also no interpolation, since no size change (so far) 
+         */
+        int round_tx = myround(t.x);
+        int round_ty = myround(t.y);
+        for (x = 0; x < td->width_dest; x++) {
+            for (y = 0; y < td->height_dest; y++) {
+                for (z = 0; z < 3; z++) { // iterate over colors
+                    short p = PIXELN(D_1, x - round_tx, y - round_ty, 
+                                     td->width_src, td->height_src, 3, z, -1);
+                    if (p == -1) {
+                        if (td->crop == 1)
+                            D_2[(x + y * td->width_dest)*3+z] = 16;
+                    } else {
+                        D_2[(x + y * td->width_dest)*3+z] = (unsigned char)p;
+                    }
+                }
+            }
+        }
+    }
+    return 1;
 }
 
 /** 
@@ -366,7 +485,7 @@ int preprocess_transforms(TransformData* td)
     }
     if (td->smoothing>0) {
         /* smoothing */
-        Transform* ts2 = NEW(Transform, td->trans_len);
+        Transform* ts2 = tc_malloc(sizeof(Transform) * td->trans_len);
         memcpy(ts2, ts, sizeof(Transform) * td->trans_len);
 
         /*  we will do a sliding average with minimal update
@@ -389,7 +508,7 @@ int preprocess_transforms(TransformData* td)
          * b) assume that the camera moves and we use the first transforms
          */
         Transform s_sum = null; 
-        for(i = 0; i < td->smoothing; i++){
+        for (i = 0; i < td->smoothing; i++){
             s_sum = add_transforms(&s_sum, i < td->trans_len ? &ts2[i]:&null);
         }
         mult_transform(&s_sum, 2); // choice b (comment out for choice a)
@@ -419,7 +538,7 @@ int preprocess_transforms(TransformData* td)
                            s_sum.x, s_sum.y, s_sum.alpha, 
                            ts[i].x, ts[i].y, ts[i].alpha);
                 tc_log_msg(MOD_NAME, 
-                           "\tavg: %5lf, %5lf, %5lf avg2: %5lf, %5lf, %5lf", 
+                           "  avg: %5lf, %5lf, %5lf avg2: %5lf, %5lf, %5lf", 
                            avg.x, avg.y, avg.alpha, 
                            avg2.x, avg2.y, avg2.alpha);      
             }
@@ -440,7 +559,7 @@ int preprocess_transforms(TransformData* td)
         Transform t = ts[0];
         for (i = 1; i < td->trans_len; i++) {
             if (verbose  & TC_DEBUG) {
-                tc_log_msg(MOD_NAME, "shift: %5lf\t %5lf\t %lf \n", 
+                tc_log_msg(MOD_NAME, "shift: %5lf   %5lf   %lf \n", 
                            t.x, t.y, t.alpha *180/M_PI);
             }
             ts[i] = add_transforms(&ts[i], &t); 
@@ -493,6 +612,7 @@ static int transform_configure(TCModuleInstance *self,
 			       const char *options, vob_t *vob)
 {
     TransformData *td = NULL;
+    char* filenamecopy, *filebasename;
     TC_MODULE_SELF_CHECK(self, "configure");
 
     td = self->userdata;
@@ -529,13 +649,17 @@ static int transform_configure(TCModuleInstance *self,
     /* Options */
     td->maxshift = -1;
     td->maxangle = -1;
-    if (strlen(td->vob->video_in_file) < 250) {
-        tc_snprintf(td->input, TC_BUF_LINE, "%s.trf", td->vob->video_in_file);
+    
+    filenamecopy = tc_strdup(td->vob->video_in_file);
+    filebasename = basename(filenamecopy);
+    if (strlen(filebasename) < TC_BUF_LINE - 4) {
+        tc_snprintf(td->input, TC_BUF_LINE, "%s.trf", filebasename);
     } else {
         tc_log_warn(MOD_NAME, "input name too long, using default `%s'",
                     DEFAULT_TRANS_FILE_NAME);
-        tc_snprintf(td->input, TC_BUF_LINE, "transforms.dat");
+        tc_snprintf(td->input, TC_BUF_LINE, DEFAULT_TRANS_FILE_NAME);
     }
+
     td->crop = 0;
     td->relative = 1;
     td->invert = 0;
@@ -547,10 +671,10 @@ static int transform_configure(TCModuleInstance *self,
         optstr_get(options, "input", "%[^:]", (char*)&td->input);
     }
     td->f = fopen(td->input, "r");
-    if(td->f == NULL) {
+    if (td->f == NULL) {
         tc_log_error(MOD_NAME, "cannot open input file %s!\n", td->input);
         /* return (-1); when called using tcmodinfo this will fail */ 
-    } else if(!read_input_file(td)) { /* read input file */
+    } else if (!read_input_file(td)) { /* read input file */
         tc_log_info(MOD_NAME, "error parsing input file %s!\n", td->input);
         // return (-1);      
     }
@@ -615,7 +739,7 @@ static int transform_filter_video(TCModuleInstance *self,
   
     if (td->vob->im_v_codec == TC_CODEC_RGB24) {
         transformRGB(td);
-    } else if(td->vob->im_v_codec == TC_CODEC_YUV420P) {
+    } else if (td->vob->im_v_codec == TC_CODEC_YUV420P) {
         transformYUV(td);
     } else {
         tc_log_error(MOD_NAME, "unsupported Codec: %i\n", td->vob->im_v_codec);

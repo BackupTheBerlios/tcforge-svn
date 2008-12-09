@@ -63,6 +63,11 @@ typedef struct {
 /* Static structure to provide pointers for configuration entries */
 static struct confdata_struct {
     x264_param_t x264params;
+#if X264_BUILD >= 65
+    /* Dummy fields for obsolete options */
+    int dummy_bidir_me;
+    int dummy_brdo;
+#endif
     /* No local parameters at the moment */
 } confdata;
 
@@ -209,14 +214,21 @@ static TCConfigEntry conf[] ={
     OPT_RANGE(analyse.i_me_range,         "me_range",       4,    64)
     /* Maximum length of a MV (in pixels), 32-2048 or -1=auto */
     OPT_RANGE(analyse.i_mv_range,         "mv_range",      -1,  2048)
-    /* Subpixel motion estimation quality: 1=fast, 7=best */
-    OPT_RANGE(analyse.i_subpel_refine,    "subq",           1,     7)
+    /* Subpixel motion estimation quality: 1=fast, 9=best */
+    OPT_RANGE(analyse.i_subpel_refine,    "subq",           1,     9)
+#if X264_BUILD < 65
     /* Bidirectional motion estimation */
     OPT_FLAG (analyse.b_bidir_me,         "bidir_me")
-    /* Chroma ME for subpel and mode decision in P-frames */
-    OPT_FLAG (analyse.b_chroma_me,        "chroma_me")
     /* RD based mode decision for B-frames */
     OPT_FLAG (analyse.b_bframe_rdo,       "brdo")
+#else
+    {"bidir_me",   &confdata.dummy_bidir_me, TCCONF_TYPE_FLAG, 0, 0, 1},
+    {"nobidir_me", &confdata.dummy_bidir_me, TCCONF_TYPE_FLAG, 0, 1, 0},
+    {"brdo",       &confdata.dummy_brdo,     TCCONF_TYPE_FLAG, 0, 0, 1},
+    {"nobrdo",     &confdata.dummy_brdo,     TCCONF_TYPE_FLAG, 0, 1, 0},
+#endif
+    /* Chroma ME for subpel and mode decision in P-frames */
+    OPT_FLAG (analyse.b_chroma_me,        "chroma_me")
     /* Allow each MB partition in P-frames to have its own reference number */
     OPT_FLAG (analyse.b_mixed_references, "mixed_refs")
     /* Trellis RD quantization */
@@ -330,7 +342,6 @@ static void x264_log(void *userdata, int level, const char *format,
     }
     tc_vsnprintf(buf, sizeof(buf), format, args);
     buf[strcspn(buf,"\r\n")] = 0;  /* delete trailing newline */
-    /* bypass log filtering silently */
     tc_log(logtype, MOD_NAME, "%s", buf);
 }
 
@@ -583,6 +594,12 @@ static int x264_configure(TCModuleInstance *self,
     confdata.x264params.analyse.intra = ~0;
     confdata.x264params.analyse.inter = ~0;
 
+    /* Watch for obsolete options being set */
+#if X264_BUILD >= 65
+    confdata.dummy_bidir_me = -1;
+    confdata.dummy_brdo = -1;
+#endif
+
     /* Read settings from configuration file */
     tc_config_read_file(X264_CONFIG_FILE, NULL, conf, MOD_NAME);
 
@@ -597,6 +614,28 @@ static int x264_configure(TCModuleInstance *self,
             return TC_ERROR;
         }
     }
+
+    /* Complain about obsolete options being set */
+#if X264_BUILD >= 65
+    if (confdata.dummy_bidir_me != -1) {
+        tc_log_warn(MOD_NAME,
+                    "Option bidir_me is obsolete in x264 version 65.\n"
+                    "    bidir_me will be automatically applied when"
+                    " subq >= 5.");
+    }
+    if (confdata.dummy_brdo != -1) {
+        tc_log_warn(MOD_NAME,
+                    "Option bidir_me is obsolete in x264 version 65.\n"
+                    "    brdo will be automatically applied when subq >= 7.");
+    }
+#endif
+
+#if X264_BUILD < 65
+    /* subq values are different in old x264 builds */
+    if (confdata.x264params.analyse.i_subpel_refine > 7) {
+        confdata.x264params.analyse.i_subpel_refine = 7;
+    }
+#endif
 
     /* Apply extra settings to $x264params */
     if (0 != x264params_set_multipass(&confdata.x264params, vob->divxmultipass,

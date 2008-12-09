@@ -22,6 +22,12 @@
  *
  */
 
+/* TODO:
+ * o [georg] Write parameters to transforms file (allow comments) 
+ *
+ * * Introduce confidence in translation vectors from single fields
+ */
+
 /* Typical call:
  *  transcode -V -J stabilize="maxshift=48:fieldsize=48" 
  *         -i inp.m2v -y null,null -o dummy
@@ -29,10 +35,10 @@
 */
 
 #define MOD_NAME    "filter_stabilize.so"
-#define MOD_VERSION "v0.4.2 (2008-09-16)"
+#define MOD_VERSION "v0.4.3 (2008-11-30)"
 #define MOD_CAP     "extracts relative transformations of \n\
-\tsubsequent frames (used for stabilization together with the\n\
-\ttransform filter in a second pass)"
+    subsequent frames (used for stabilization together with the\n\
+    transform filter in a second pass)"
 #define MOD_AUTHOR  "Georg Martius"
 
 #define MOD_FEATURES \
@@ -40,8 +46,6 @@
 #define MOD_FLAGS  \
     TC_MODULE_FLAG_RECONFIGURABLE | TC_MODULE_FLAG_DELAY
   
-#include <math.h>
-
 #include "src/transcode.h"
 #include "src/filter.h"
 #include "libtc/libtc.h"
@@ -49,10 +53,10 @@
 #include "libtcutil/optstr.h"
 #include "libtcutil/tclist.h"
 #include "libtcmodule/tcmodule-plugin.h"
-
 #include "transform.h"
 
-#define DEFAULT_TRANS_FILE_NAME     "transforms.dat"
+#include <math.h>
+#include <libgen.h>
 
 /* if defined we are very verbose and generate files to analyse
  * this is really just for debugging and development */
@@ -153,9 +157,9 @@ int initFields(StabData* sd, int field_setup)
 {
     if (field_setup < 1) 
         field_setup = 1;
-  
+
     sd->field_num = field_setup*field_setup;  
-    if (!(sd->fields = NEW(Field, sd->field_num))) {
+    if (!(sd->fields = tc_malloc(sizeof(Field) * sd->field_num))) {
         tc_log_error(MOD_NAME, "malloc failed!\n");
         return 0;
     } else {
@@ -227,7 +231,7 @@ double compareImg(unsigned char* I1, unsigned char* I2,
             p2 -= d_x * bytesPerPixel; 
         }
         // TODO: use some mmx or sse stuff here
-        for(j = 0; j < effectWidth * bytesPerPixel; j++) {
+        for (j = 0; j < effectWidth * bytesPerPixel; j++) {
             /* debugging code continued */
             /* fwrite(p1,1,1,pic1);fwrite(p1,1,1,pic1);fwrite(p1,1,1,pic1);
                fwrite(p2,1,1,pic2);fwrite(p2,1,1,pic2);fwrite(p2,1,1,pic2); 
@@ -397,7 +401,7 @@ Transform calcFieldTransYUV(StabData* sd, const Field* field, int fieldnum)
   
     double minerror = 1e20;  
     for (i = -sd->maxshift; i <= sd->maxshift; i += sd->stepsize) {
-        for(j = -sd->maxshift; j <= sd->maxshift; j += sd->stepsize) {
+        for (j = -sd->maxshift; j <= sd->maxshift; j += sd->stepsize) {
             double error = compareSubImg(Y_c, Y_p, field, 
                                          sd->width, sd->height, 1, i, j);
 #ifdef STABVERBOSE
@@ -460,7 +464,7 @@ Transform calcFieldTransRGB(StabData* sd, const Field* field, int fieldnum)
   
     double minerror = 1e20;  
     for (i = -sd->maxshift; i <= sd->maxshift; i += 2) {
-        for(j=-sd->maxshift; j <= sd->maxshift; j += 2) {      
+        for (j=-sd->maxshift; j <= sd->maxshift; j += 2) {      
             double error = compareSubImg(I_c, I_p, field, 
                                          sd->width, sd->height, 3, i, j);
             if (error < minerror) {
@@ -474,7 +478,7 @@ Transform calcFieldTransRGB(StabData* sd, const Field* field, int fieldnum)
         for (j = -t.y - 1; j <= t.y + 1; j += 2) {
             double error = compareSubImg(I_c, I_p, field, 
                                          sd->width, sd->height, 3, i, j);
-            if(error < minerror) {
+            if (error < minerror) {
                 minerror = error;
                 t.x = i;
                 t.y = j;
@@ -502,8 +506,8 @@ Transform calcFieldTransRGB(StabData* sd, const Field* field, int fieldnum)
 */
 Transform calcTransFields(StabData* sd, calcFieldTransFunc fieldfunc)
 {
-    Transform* ts = NEW(Transform, sd->field_num);
-    double *angles = NEW(double, sd->field_num);
+    Transform* ts  = tc_malloc(sizeof(Transform) * sd->field_num);
+    double *angles = tc_malloc(sizeof(double) * sd->field_num);
     int i;
     Transform t;
 #ifdef STABVERBOSE
@@ -526,7 +530,7 @@ Transform calcTransFields(StabData* sd, calcFieldTransFunc fieldfunc)
 /*   // average over all transforms */
 /*   { */
 /*     Transform sum = null_transform(); */
-/*     for(i=0; i < sd->field_num; i++){ */
+/*     for (i=0; i < sd->field_num; i++){ */
 /*       sum = add_transforms(&sum, &ts[i]); */
 /*     } */
 /*     t = mult_transform(&sum, 1.0/ sd->field_num); */
@@ -596,7 +600,8 @@ static int stabilize_init(TCModuleInstance *self, uint32_t features)
 
     sd = tc_zalloc(sizeof(StabData));
     if (!sd) {
-        tc_log_error(MOD_NAME, "init: out of memory!");
+        if (verbose > TC_INFO)
+            tc_log_error(MOD_NAME, "init: out of memory!");
         return TC_ERROR;
     }
 
@@ -612,9 +617,10 @@ static int stabilize_init(TCModuleInstance *self, uint32_t features)
     sd->prev = 0;
 
     self->userdata = sd;
-    if (verbose) {
+    if (verbose & TC_INFO){
         tc_log_info(MOD_NAME, "%s %s", MOD_VERSION, MOD_CAP);
     }
+
     return TC_OK;
 }
 
@@ -645,10 +651,12 @@ static int stabilize_configure(TCModuleInstance *self,
 
     StabData *sd = NULL;
     TC_MODULE_SELF_CHECK(self, "configure");
+    char* filenamecopy, *filebasename;
 
     sd = self->userdata;
 
-    //    sd->framesize = sd->vob->im_v_width * MAX_PLANES * sizeof(char) * 2 * sd->vob->im_v_height * 2;    
+    /*    sd->framesize = sd->vob->im_v_width * MAX_PLANES * 
+          sizeof(char) * 2 * sd->vob->im_v_height * 2;     */
     sd->framesize = sd->vob->im_v_size;    
     sd->prev = tc_zalloc(sd->framesize); /* FIXME */
     if (!sd->prev) {
@@ -667,12 +675,14 @@ static int stabilize_configure(TCModuleInstance *self,
     sd->stepsize = 2;
     sd->allowmax = 1;
     sd->result = tc_malloc(TC_BUF_LINE);
-    if (strlen(sd->vob->video_in_file) < TC_BUF_LINE - 1) {
-        tc_snprintf(sd->result, TC_BUF_LINE, "%s.trf", sd->vob->video_in_file);
+    filenamecopy = tc_strdup(sd->vob->video_in_file);
+    filebasename = basename(filenamecopy);
+    if (strlen(filebasename) < TC_BUF_LINE - 4) {
+        tc_snprintf(sd->result, TC_BUF_LINE, "%s.trf", filebasename);
     } else {
         tc_log_warn(MOD_NAME, "input name too long, using default `%s'",
                     DEFAULT_TRANS_FILE_NAME);
-        tc_snprintf(sd->result, TC_BUF_LINE, "transforms.dat");
+        tc_snprintf(sd->result, TC_BUF_LINE, DEFAULT_TRANS_FILE_NAME);
     }
     sd->algo = 1;
     field_setup = 3;
@@ -730,16 +740,16 @@ static int stabilize_filter_video(TCModuleInstance *self,
     TC_MODULE_SELF_CHECK(self, "filter_video");
     TC_MODULE_SELF_CHECK(frame, "filter_video");
   
-    sd = self->userdata;
-  
+    sd = self->userdata;    
+    
     if (sd->hasSeenOneFrame) {
         sd->curr = frame->video_buf;
         if (sd->vob->im_v_codec == TC_CODEC_RGB24) {
-            if(sd->algo == 0)
+            if (sd->algo == 0)
                 addTrans(sd, calcShiftRGBSimple(sd));
             else if (sd->algo == 1)
                 addTrans(sd, calcTransFields(sd, calcFieldTransRGB));
-        } else if(sd->vob->im_v_codec == TC_CODEC_YUV420P) {
+        } else if (sd->vob->im_v_codec == TC_CODEC_YUV420P) {
             if (sd->algo == 0)
                 addTrans(sd, calcShiftYUVSimple(sd));
             else if (sd->algo == 1)
@@ -753,6 +763,7 @@ static int stabilize_filter_video(TCModuleInstance *self,
         sd->hasSeenOneFrame = 1;
         addTrans(sd, null_transform());
     }
+    
     memcpy(sd->prev, frame->video_buf, sd->framesize);
     sd->t++;
     return TC_OK;
@@ -776,13 +787,12 @@ static int stabilize_stop(TCModuleInstance *self)
         ID.f       = sd->f;
 
         fprintf(sd->f, "# Transforms\n#C FrameNr x y alpha extra\n");
-   
         tc_list_foreach(sd->transs, stabilize_dump_trans, &ID);
     
         fclose(sd->f);
         sd->f = NULL;
     }
-    tc_list_del(sd->transs, 1);
+    tc_list_del(sd->transs, 1 );
     if (sd->prev) {
         tc_free(sd->prev);
         sd->prev = NULL;
