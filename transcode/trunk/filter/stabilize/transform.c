@@ -156,7 +156,7 @@ int cmp_double(const void *t1, const void* t2)
  */
 Transform median_xy_transform(const Transform* transforms, int len)
 {
-    Transform* ts = NEW(Transform,len);
+    Transform* ts = tc_malloc(sizeof(Transform) * len);
     Transform t;
     memcpy(ts,transforms, sizeof(Transform)*len ); 
     int half = len/2;
@@ -188,16 +188,16 @@ Transform median_xy_transform(const Transform* transforms, int len)
  */
 Transform cleanmean_xy_transform(const Transform* transforms, int len)
 {
-    Transform* ts = NEW(Transform,len);
+    Transform* ts = tc_malloc(sizeof(Transform) * len);
     Transform t = null_transform();
     int i, cut = len / 5;
     memcpy(ts, transforms, sizeof(Transform) * len); 
     qsort(ts,len, sizeof(Transform), cmp_trans_x);
-    for(i = cut; i < len - cut; i++){ // all but cutted
+    for (i = cut; i < len - cut; i++){ // all but cutted
         t.x += ts[i].x;
     }
     qsort(ts, len, sizeof(Transform), cmp_trans_y);
-    for(i = cut; i < len - cut; i++){ // all but cutted
+    for (i = cut; i < len - cut; i++){ // all but cutted
         t.y += ts[i].y;
     }
     tc_free(ts);
@@ -237,7 +237,7 @@ double mean(const double* ds, int len)
 {
     double sum=0;
     int i = 0;
-    for(i = 0; i < len; i++)
+    for (i = 0; i < len; i++)
         sum += ds[i];
     return sum / len;
 }
@@ -260,7 +260,7 @@ double cleanmean(double* ds, int len)
     double sum = 0;
     int i      = 0;
     qsort(ds, len, sizeof(double), cmp_double);
-    for(i = cut; i < len - cut; i++){ // all but first and last
+    for( i = cut; i < len - cut; i++){ // all but first and last
         sum += ds[i];
     }
     return sum / (len - (2.0 * cut));
