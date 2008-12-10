@@ -122,8 +122,8 @@ static int tc_audio_pass_through(char *aud_buffer, int aud_size, avi_t *avifile)
 static int tc_audio_pass_through_ac3(char *aud_buffer, int aud_size, avi_t *avifile);
 static int tc_audio_pass_through_pcm(char *aud_buffer, int aud_size, avi_t *avifile);
 static int tc_audio_mute(char *aud_buffer, int aud_size, avi_t *avifile);
-static char * lame_error2str(int error);
 #ifdef HAVE_LAME
+static char * lame_error2str(int error);
 static void no_debug(const char *format, va_list ap) {return;}
 static int tc_get_mp3_header(unsigned char* hbuf, int* chans, int* srate);
 #endif
@@ -1064,6 +1064,8 @@ int tc_audio_stop()
 }
 
 
+#ifdef HAVE_LAME
+
 /**
  *
  */
@@ -1080,8 +1082,6 @@ static char * lame_error2str(int error)
 	default: return "Unknown lame error";
 	}
 }
-
-#ifdef HAVE_LAME
 
 // from mencoder
 //----------------------- mp3 audio frame header parser -----------------------

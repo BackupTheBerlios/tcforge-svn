@@ -20,6 +20,7 @@ endif
 noinst_PROGRAMS = \
 	test-acmemcpy \
 	test-acmemcpy-speed \
+	test-average \
 	test-bufalloc \
 	test-cfg-filelist \
 	test-export-profile \
@@ -43,6 +44,9 @@ test_acmemcpy_LDADD = $(ACLIB_LIBS)
 
 test_acmemcpy_speed_SOURCES = test-acmemcpy-speed.c
 test_acmemcpy_speed_LDADD = $(ACLIB_LIBS)
+
+test_average_SOURCES = test-average.c
+test_average_LDADD = $(ACLIB_LIBS)
 
 test_bufalloc_SOURCES = test-bufalloc.c
 test_bufalloc_LDADD = $(LIBTC_LIBS) $(LIBTCUTIL_LIBS)
@@ -111,11 +115,12 @@ test-tclog$(EXEEXT): $(test_tclog_OBJECTS) $(test_tclog_DEPENDENCIES)
 .PHONY: test-low test-high test-all
 
 # Low-level tests for specific routines or functionality
-LOWTESTS = test-acmemcpy test-bufalloc test-framealloc test-framecode \
-           test-imgconvert test-iodir test-ratiocodes test-resize-values \
-           test-tcmoduleinfo test-tcstrdup
+LOWTESTS = test-acmemcpy test-bufalloc test-average test-framealloc \
+           test-framecode test-imgconvert test-iodir test-ratiocodes \
+           test-resize-values test-tcmoduleinfo test-tcstrdup
 test-low: $(LOWTESTS)
 	./test-acmemcpy
+	./test-average
 	./test-bufalloc
 	./test-framealloc
 	./test-framecode
