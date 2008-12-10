@@ -1142,7 +1142,7 @@ TC_PKG_HAVE(sdl, SDL)
 dnl
 dnl ImageMagick
 dnl
-TC_PKG_CONFIG_CHECK(imagemagick, no, IMAGEMAGICK, ImageMagick, [http://www.imagemagick.org/])
+TC_PKG_CONFIG_CHECK(imagemagick, no, IMAGEMAGICK, MagickWand, [http://www.imagemagick.org/])
 TC_PKG_HAVE(imagemagick, IMAGEMAGICK)
 if test x"$have_imagemagick" = x"yes" ; then
   SAVE_CPPFLAGS="$CPPFLAGS"

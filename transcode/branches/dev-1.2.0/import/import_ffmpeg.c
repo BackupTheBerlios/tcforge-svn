@@ -434,14 +434,20 @@ MOD_decode
                                       packet.size, len, got_picture);
 #endif
             }
-            av_free_packet(&packet);
-        } while (!got_picture && ret >= 0);
+            if (!got_picture) {
+                av_free_packet(&packet);
+            }
+        } while (!got_picture);
 
         img_adaptor(frame, vff_data.dec_context, picture);
         tcv_convert(tcvhandle, frame, param->buffer,
                     vff_data.dec_context->width,
                     vff_data.dec_context->height,
                     src_fmt, dst_fmt);
+        /* Can't free this until we're done with the data (the picture will
+         * be freed if it's a raw stream) */
+        av_free_packet(&packet);
+
         param->size = frame_size;
 #ifdef TC_LAVC_DEBUG
         tc_log_warn(MOD_NAME, "GOT PICTURE!: size=%lu", frame_size);

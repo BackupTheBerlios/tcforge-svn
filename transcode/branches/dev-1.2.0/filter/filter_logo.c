@@ -43,6 +43,18 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
+/* Add workaround for deprecated ScaleCharToQuantum() function */
+#undef ScaleCharToQuantum
+#if MAGICKCORE_QUANTUM_DEPTH == 8
+# define ScaleCharToQuantum(x) ((x))
+#elif MAGICKCORE_QUANTUM_DEPTH == 16
+# define ScaleCharToQuantum(x) ((x)*257)
+#elif MAGICKCORE_QUANTUM_DEPTH == 32
+# define ScaleCharToQuantum(x) ((x)*16843009)
+#elif MAGICKCORE_QUANTUM_DEPTH == 64
+# define ScaleCharToQuantum(x) ((x)*71777214294589695ULL)
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -31,12 +31,14 @@
 #include "tc.h"
 
 #ifdef HAVE_LAME
+
 #include "mpg123.h"
-#endif
 
 #define MP3_PCM_SIZE 1152
 static uint16_t buffer[MP3_PCM_SIZE<<2];
 static uint16_t ch1[MP3_PCM_SIZE], ch2[MP3_PCM_SIZE];
+
+#endif  // HAVE_LAME
 
 #define MP3_AUDIO_ID    0x55
 #define MP2_AUDIO_ID    0x50

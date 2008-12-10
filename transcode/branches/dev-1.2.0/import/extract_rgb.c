@@ -44,14 +44,14 @@
 
 void extract_rgb(info_t *ipipe)
 {
-    uint8_t video[SIZE_RGB_FRAME];
+    uint8_t *video;
     avi_t *avifile = NULL;
     int key, error = 0;
     long frames, bytes, n;
 
     switch (ipipe->magic) {
       case TC_MAGIC_AVI:
-	    if (ipipe->nav_seek_file) {
+	if (ipipe->nav_seek_file) {
             avifile = AVI_open_indexfd(ipipe->fd_in, 0, ipipe->nav_seek_file);
         } else {
             avifile = AVI_open_fd(ipipe->fd_in, 1);
@@ -70,7 +70,14 @@ void extract_rgb(info_t *ipipe)
             tc_log_msg(__FILE__, "%ld video frames", frames);
         }
 
+        video = tc_bufalloc(SIZE_RGB_FRAME);
+        if (!video) {
+            error = 1;
+            break;
+        }
+
         AVI_set_video_position(avifile, ipipe->frame_limit[0]);
+        /* FIXME: should this be < rather than <= ? */
         for (n = ipipe->frame_limit[0]; n <= frames; n++) {
             bytes = AVI_read_frame(avifile, video, &key);
             if (bytes < 0) {
@@ -82,6 +89,8 @@ void extract_rgb(info_t *ipipe)
                 break;
             }
         }
+
+        tc_buffree(video);
         break;
 
       case TC_MAGIC_RAW: /* fallthrough */

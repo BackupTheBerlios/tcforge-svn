@@ -252,5 +252,6 @@ int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     usage(EXIT_SUCCESS);
+    return(EXIT_SUCCESS);  // Avoid a compiler warning
 }
 #endif

@@ -80,11 +80,11 @@ struct tcimprivatedata_ {
 static int TCHandleMagickError(MagickWand *wand)
 {
     ExceptionType severity;
-    const char *description = MagickGetException(wand, &severity);
+    char *description = MagickGetException(wand, &severity);
 
     tc_log_error(MOD_NAME, "%s", description);
 
-    MagickRelinquishMemory((void*)description);
+    MagickRelinquishMemory(description);
     return TC_ERROR;
 }
 
@@ -209,7 +209,7 @@ static int tc_im_encode_video(TCModuleInstance *self,
 {
     TCIMPrivateData *pd = NULL;
     MagickBooleanType status;
-    const uint8_t *img = NULL;
+    uint8_t *img = NULL;
     size_t img_len = 0;
 
     TC_MODULE_SELF_CHECK(self, "encode_video");

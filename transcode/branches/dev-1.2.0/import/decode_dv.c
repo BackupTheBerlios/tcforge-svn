@@ -29,6 +29,8 @@
 
 /*************************************************************************/
 
+#ifdef HAVE_LIBDV
+
 /**
  * check_yuy2:  Internal routine to check whether libdv returns YUY2 or
  * YV12 data for PAL DV frames.
@@ -43,9 +45,6 @@
 
 static int check_yuy2(void)
 {
-
-#ifdef HAVE_LIBDV
-
     static uint8_t dv_frame[12][150][80]; /* Input DV frame (generated) */
     static uint8_t Y[720*576*2];          /* Output Y/YUY2 plane */
     static uint8_t U[(720/2)*(576/2)];    /* Output U plane */
@@ -191,10 +190,10 @@ static int check_yuy2(void)
                     U[0], U[1], V[0], V[1]);
     }
 
-#endif  // HAVE_LIBDV
-
     return -1;
 }
+
+#endif  // HAVE_LIBDV
 
 /*************************************************************************/
 
