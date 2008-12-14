@@ -1,0 +1,14 @@
+0.42
+	input filename and tc_list stuff used
+0.41    
+	code style from transcode used
+0.4	
+	moved to CVS version we use a cleaned median to select the right
+	transform from the fields
+0.3
+	Support RGB (untestet)
+	maxshift default 50
+	allowmax added
+	scan only every second shift and then make a second small
+          scan around the best match
+	removed black rectangle around transformed frame
