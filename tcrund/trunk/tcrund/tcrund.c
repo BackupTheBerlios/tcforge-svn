@@ -352,7 +352,9 @@ int main(int argc, char *argv[])
             return TCRUND_ERR_SERVER_SETUP;
         }
 
-        tc_log(TC_LOG_INFO, PACKAGE, "server run");
+        if (cfg->debug_mode) {
+            tc_log(TC_LOG_INFO, PACKAGE, "server run");
+        }
 
         dump_pid(TCRunD.pid_file);
 

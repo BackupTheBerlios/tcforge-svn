@@ -182,7 +182,7 @@ static int tcr_log_file_open(TCLogContext *ctx, int *argc, char ***argv)
     }
 
     if (logpath) {
-        ctx->f = fopen(logpath, "wt");
+        ctx->f = fopen(logpath, "at");
         if (ctx->f) {
             ctx->send  = tcr_log_file_send;
             ctx->close = tcr_log_file_close;
