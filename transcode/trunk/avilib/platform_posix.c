@@ -21,13 +21,10 @@
 
 #include "platform.h"
 
-#include <fcntl.h>
-#include <unistd.h>
-
 #include <string.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <errno.h>
+
 
 /*************************************************************************/
 /* I/O is straightforward.                                               */

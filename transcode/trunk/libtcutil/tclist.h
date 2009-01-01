@@ -21,6 +21,7 @@
 #ifndef TCLIST_H
 #define TCLIST_H
 
+/* FIXME: this has to be made private to implementation */
 typedef struct tclistitem_ TCListItem;
 struct tclistitem_ {
     void        *data;

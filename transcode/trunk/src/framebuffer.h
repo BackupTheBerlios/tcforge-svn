@@ -168,6 +168,20 @@ void tc_framebuffer_set_specs(const TCFrameSpecs *specs);
 void tc_framebuffer_interrupt(void);
 
 /*
+ * tc_framebuffer_interrupt_stage: (thread safe)
+ *     like tc_framebuffer_interrupt, but involves only a given processing stage.
+ *
+ * Parameters:
+ *     S: a TCFrameStatus representing the processing stage to interrupt.
+ * Return Value:
+ *     None.
+ * Side effects:
+ *     Any function claiming frames from the specified processing stage 
+ *     will fail after the invocation of this function.
+ */
+void tc_framebuffer_interrupt_stage(TCFrameStatus S);
+
+/*
  * vframe_alloc, aframe_alloc: (NOT thread safe)
  *     Allocate respectively a video or audio frame ringbuffer capable to hold
  *     given amount of frames, with a minimum of one.
@@ -359,6 +373,26 @@ aframe_list_t *aframe_retrieve(void);
  */
 void vframe_remove(vframe_list_t *ptr);
 void aframe_remove(aframe_list_t *ptr);
+
+/*
+ * vframe_reinject, aframe_reinject: (thread safe)
+ *     Respectively reinject an audio or video frame
+ *     into the originating frame pool, so the reinjected frame will
+ *     be obtained again when the frame pool is queried again.
+ *
+ *     Those function are (and should be) used when a processing
+ *     stage needs to see again a given frame.
+ *
+ *     In transcode, those functions are (and should be) used
+ *     only when the encoder handles a cloned frame.
+ *
+ * Parameters:
+ *     ptr: framebuffer to reinject.
+ * Return Value:
+ *     None.
+ */
+void aframe_reinject(aframe_list_t *ptr);
+void vframe_reinject(vframe_list_t *ptr);
 
 /*
  * vframe_push_next, aframe_push_next: (thread safe)

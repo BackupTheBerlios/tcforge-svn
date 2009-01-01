@@ -390,8 +390,8 @@ vob_t *tc_get_vob(void);
 int tc_next_video_in_file(vob_t *vob);
 int tc_next_audio_in_file(vob_t *vob);
 
-#define tc_has_more_video_in_file(VOB) (tc_glob_has_more((VOB)->video_in_files))
-#define tc_has_more_audio_in_file(VOB) (tc_glob_has_more((VOB)->audio_in_files))
+int tc_has_more_video_in_file(vob_t *vob);
+int tc_has_more_audio_in_file(vob_t *vob);
 
 void tc_outstream_rotate(void);
 void tc_outstream_rotate_request(void);

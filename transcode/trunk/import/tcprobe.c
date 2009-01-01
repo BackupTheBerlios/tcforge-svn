@@ -258,6 +258,11 @@ static int tc_scan_directory_info(const char *dname,
         if (entry == NULL) {
             break;
         }
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) {
+            /* it's safe to skip them */
+            continue;
+        }
+
         tc_snprintf(path_buf, sizeof(path_buf), "%s/%s",
                     dname, entry->d_name);
         err = stat(path_buf, &stat_buf);

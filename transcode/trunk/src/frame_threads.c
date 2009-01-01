@@ -50,13 +50,13 @@ struct tcframethreaddata_ {
 TCFrameThreadData audio_threads = {
     .count   = 0,
     .lock    = PTHREAD_MUTEX_INITIALIZER,
-    .running = TC_TRUE,
+    .running = TC_FALSE,
 };
 
 TCFrameThreadData video_threads = {
     .count   = 0,
     .lock    = PTHREAD_MUTEX_INITIALIZER,
-    .running = TC_TRUE,
+    .running = TC_FALSE,
 };
 
 /*************************************************************************/
@@ -300,7 +300,10 @@ void tc_frame_threads_init(vob_t *vob, int vworkers, int aworkers)
 {
     int n = 0;
 
-    if (vworkers > 0) {
+    if (vworkers > 0 && !video_threads.running) {
+        video_threads.count   = vworkers;
+        video_threads.running = TC_TRUE; /* enforce, needed when restarting */
+
         if (verbose >= TC_DEBUG)
             tc_log_info(__FILE__, "starting %i video frame"
                                  " processing thread(s)", vworkers);
@@ -312,9 +315,11 @@ void tc_frame_threads_init(vob_t *vob, int vworkers, int aworkers)
                 tc_error("failed to start video frame processing thread");
         }
     }
-    video_threads.count = vworkers;
 
-    if (aworkers > 0) {
+    if (aworkers > 0 && !audio_threads.running) {
+        audio_threads.count   = aworkers;
+        audio_threads.running = TC_TRUE; /* enforce, needed when restarting */
+
         if (verbose >= TC_DEBUG)
             tc_log_info(__FILE__, "starting %i audio frame"
                                  " processing thread(s)", aworkers);
@@ -326,7 +331,7 @@ void tc_frame_threads_init(vob_t *vob, int vworkers, int aworkers)
                 tc_error("failed to start audio frame processing thread");
         }
     }
-    audio_threads.count = aworkers;
+    return;
 }
 
 void tc_frame_threads_close(void)

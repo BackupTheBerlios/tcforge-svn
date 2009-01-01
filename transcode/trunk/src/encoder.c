@@ -487,6 +487,9 @@ static int is_last_frame(TCEncoderData *encdata, int cluster_mode)
 
     if ((encdata->buffer->vptr->attributes & TC_FRAME_IS_END_OF_STREAM
       || encdata->buffer->aptr->attributes & TC_FRAME_IS_END_OF_STREAM)) {
+        /* `consume' the flag(s) */
+        encdata->buffer->vptr->attributes &= ~TC_FRAME_IS_END_OF_STREAM;
+        encdata->buffer->aptr->attributes &= ~TC_FRAME_IS_END_OF_STREAM;
         return 1;
     }
     return (fid == encdata->frame_last);
@@ -1351,9 +1354,15 @@ static int need_stop(TCEncoderData *encdata)
 
 void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
 {
-    int err = 0;
+    int err  = 0;
     int skip = 0; /* Frames to skip before next frame to encode */
-    int eos = 0;  /* End Of Stream flag */
+    int eos  = 0;  /* End Of Stream flag */
+
+    if (verbose >= TC_DEBUG) {
+        tc_log_info(__FILE__,
+                    "encoder loop started [%i/%i)",
+                    frame_first, frame_last);
+    }
 
     if (encdata.this_frame_last != frame_last) {
         encdata.old_frame_last  = encdata.this_frame_last;
@@ -1365,7 +1374,7 @@ void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
     encdata.frame_last  = frame_last;
     encdata.saved_frame_last = encdata.old_frame_last;
 
-    while (!need_stop(&encdata)) {
+    while (!eos && !need_stop(&encdata)) {
         /* stop here if pause requested */
         tc_pause();
 
@@ -1386,13 +1395,10 @@ void tc_encoder_loop(vob_t *vob, int frame_first, int frame_last)
         }
 
         eos = is_last_frame(&encdata, tc_cluster_mode);
-        if (eos) {
-            break;
-        }
 
         /* check frame id */
-        if (frame_first <= encdata.buffer->frame_id
-          && encdata.buffer->frame_id < frame_last) {
+        if (!eos && (frame_first <= encdata.buffer->frame_id
+          && encdata.buffer->frame_id < frame_last)) {
             if (skip > 0) { /* skip frame */
                 encoder_skip(&encdata, 0);
                 skip--;

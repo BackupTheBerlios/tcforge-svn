@@ -175,6 +175,13 @@ int tc_running(void)
     return (TC_STATUS_RUNNING == tc_get_run_status());
 }
 
+void tc_start(void)
+{
+    pthread_mutex_lock(&run_status_lock);
+    tc_run_status = TC_STATUS_RUNNING;
+    pthread_mutex_unlock(&run_status_lock);
+}
+
 void tc_stop(void)
 {
     pthread_mutex_lock(&run_status_lock);

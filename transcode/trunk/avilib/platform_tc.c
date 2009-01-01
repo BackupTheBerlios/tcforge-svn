@@ -25,12 +25,8 @@
 #include "libtcutil/ioutils.h"
 #include "libtcutil/memutils.h"
 
-#include <fcntl.h>
-#include <unistd.h>
-
 #include <string.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <errno.h>
 
 

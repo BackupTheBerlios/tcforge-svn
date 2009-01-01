@@ -23,9 +23,20 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#include "config.h"
+
+#ifdef OS_DARWIN
+#include <sys/uio.h>
+#endif
+
+#include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+
 
 /*************************************************************************/
 /* POSIX-like I/O handling                                               */

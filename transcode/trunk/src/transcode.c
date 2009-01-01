@@ -186,6 +186,26 @@ int tc_next_audio_in_file(vob_t *vob)
     return TC_ERROR;
 }
 
+int tc_has_more_video_in_file(vob_t *vob)
+{
+    int ret = TC_FALSE;
+
+    if (core_mode == TC_MODE_DIRECTORY) {
+        ret = tc_glob_has_more(vob->video_in_files);
+    }
+    return ret;
+}
+
+int tc_has_more_audio_in_file(vob_t *vob)
+{
+    int ret = TC_FALSE;
+
+    if (core_mode == TC_MODE_DIRECTORY) {
+        ret = tc_glob_has_more(vob->audio_in_files);
+    }
+    return ret;
+}
+
 /*************************************************************************/
 /*********************** Internal utility routines ***********************/
 /*************************************************************************/
@@ -395,6 +415,8 @@ static int transcode_mode_default(vob_t *vob)
 {
     struct fc_time *tstart = NULL;
 
+    tc_start();
+
     // init decoder and open the source
     if (0 != vob->ttime->vob_offset) {
         vob->vob_offset = vob->ttime->vob_offset;
@@ -488,6 +510,8 @@ static int transcode_mode_avi_split(vob_t *vob)
     char buf[TC_BUF_MAX];
     int fa, fb, ch1 = 0;
 
+    tc_start();
+
     // init decoder and open the source
     if (tc_import_open(vob) < 0)
         tc_error("failed to open input source");
@@ -555,6 +579,8 @@ static int transcode_mode_directory(vob_t *vob)
 {
     struct fc_time *tstart = NULL;
     
+    tc_start();
+
     if (strcmp(vob->audio_in_file, vob->video_in_file) != 0)
         tc_error("directory mode DOES NOT support separate audio files (A=%s|V=%s)",
                  vob->audio_in_file, vob->video_in_file);
@@ -613,7 +639,7 @@ static int transcode_mode_directory(vob_t *vob)
 static int transcode_mode_psu(vob_t *vob, const char *psubase)
 {
     char buf[TC_BUF_MAX];
-    int fa, fb, ch1 = vob->vob_psu_num1;
+    int fa, fb, psu_cur = vob->vob_psu_num1;
 
     if (tc_encoder_init(vob) != TC_OK)
         tc_error("failed to init encoder");
@@ -635,7 +661,7 @@ static int transcode_mode_psu(vob_t *vob, const char *psubase)
         memset(buf, 0, sizeof buf);
         if (!no_split) {
             // create new filename
-            tc_snprintf(buf, sizeof(buf), psubase, ch1);
+            tc_snprintf(buf, sizeof(buf), psubase, psu_cur);
             // update vob structure
             vob->video_out_file = buf;
 
@@ -649,18 +675,20 @@ static int transcode_mode_psu(vob_t *vob, const char *psubase)
         vob->vob_chunk = 0;
         vob->vob_chunk_max = 1;
 
-        ret = split_stream(vob, nav_seek_file, ch1, &fa, &fb, 0);
+        ret = split_stream(vob, nav_seek_file, psu_cur, &fa, &fb, 0);
 
         if (verbose & TC_DEBUG)
             tc_log_msg(PACKAGE,"processing PSU %d, -L %d -c %d-%d %s (ret=%d)",
-                       ch1, vob->vob_offset, fa, fb, buf, ret);
+                       psu_cur, vob->vob_offset, fa, fb, buf, ret);
 
         // exit condition
-        if (ret < 0 || ch1 == vob->vob_psu_num2)
+        if (ret < 0 || psu_cur == vob->vob_psu_num2)
             break;
     
         // do not process units with a small frame number, assume it is junk
         if ((fb-fa) > psu_frame_threshold) {
+            tc_start();
+
             // start new decoding session with updated vob structure
             // this starts the full decoder setup, including the threads
             if (tc_import_open(vob) < 0)
@@ -668,6 +696,9 @@ static int transcode_mode_psu(vob_t *vob, const char *psubase)
 
             // start the AV import threads that load the frames into transcode
             tc_import_threads_create(vob);
+
+            // frame threads may need a reboot too.
+            tc_frame_threads_init(vob, max_frame_threads, max_frame_threads);
 
             // open new output file
             if (!no_split) {
@@ -677,7 +708,7 @@ static int transcode_mode_psu(vob_t *vob, const char *psubase)
 
             // core
             // we try to encode more frames and let the decoder safely
-           // drain the queue to avoid threads not stopping
+            // drain the queue to avoid threads not stopping
 
             tc_encoder_loop(vob, fa, TC_FRAME_LAST);
 
@@ -703,14 +734,13 @@ static int transcode_mode_psu(vob_t *vob, const char *psubase)
         } else {
             if (verbose & TC_INFO)
                 tc_log_info(PACKAGE, "skipping PSU %d with %d frame(s)",
-                            ch1, fb-fa);
+                            psu_cur, fb-fa);
 
         }
 
-        ch1++;
+        psu_cur++;
         if (tc_interrupted())
             break;
-
     } //next PSU
 
     // close output
@@ -720,7 +750,7 @@ static int transcode_mode_psu(vob_t *vob, const char *psubase)
     }
 
     tc_stop_all();
-    
+
     tc_encoder_stop();
 
     return TC_OK;
@@ -736,6 +766,8 @@ static int transcode_mode_dvd(vob_t *vob)
 #ifdef HAVE_LIBDVDREAD
     char buf[TC_BUF_MAX];
     int ch1, ch2;
+
+    tc_start();
 
     if (tc_encoder_init(vob) != TC_OK)
         tc_error("failed to init encoder");

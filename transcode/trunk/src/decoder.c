@@ -227,78 +227,58 @@ static int mfread(uint8_t *buf, int size, int nelem, FILE *f)
  */
 
 /*
- * tc_import_{video,audio}_stop (Thread safe): mark the import status flag
- * as `stopped'; import thread are stopped, or are going to stop as soon
- * as is possible.
+ * tc_import_thread_stop (Thread safe): mark the import status flag
+ * as `stopped'; the import thread will stop as soon as is possible.
  *
  * Parameters:
- *      None.
+ *      decdata: pointer to a TCDecoderData structure representing the
+ *               import thread to stop.
  * Return Value:
  *      None
  */
-static void tc_import_video_stop(void)
+static void tc_import_thread_stop(TCDecoderData *decdata)
 {
-    pthread_mutex_lock(&video_decdata.lock);
-    video_decdata.active_flag = 0;
-    pthread_mutex_unlock(&video_decdata.lock);
-}
-
-static void tc_import_audio_stop(void)
-{
-    pthread_mutex_lock(&audio_decdata.lock);
-    audio_decdata.active_flag = 0;
-    pthread_mutex_unlock(&audio_decdata.lock);
+    pthread_mutex_lock(&decdata->lock);
+    decdata->active_flag = TC_FALSE;
+    pthread_mutex_unlock(&decdata->lock);
 }
 
 /*
- * tc_import_{video,audio}_start (Thread safe): mark the import status flag
- * as `started'; import thread are running and they are producing data.
+ * tc_import_thread_start (Thread safe): mark the import status flag
+ * as `started'; import thread become running and it starts producing data.
  *
  * Parameters:
- *      None.
+ *      decdata: pointer to a TCDecoderData structure representing the
+ *               import thread to start.
  * Return Value:
  *      None
  */
-static void tc_import_video_start(void)
+static void tc_import_thread_start(TCDecoderData *decdata)
 {
-    pthread_mutex_lock(&video_decdata.lock);
-    video_decdata.active_flag = 1;
-    pthread_mutex_unlock(&video_decdata.lock);
-}
-
-static void tc_import_audio_start(void)
-{
-    pthread_mutex_lock(&audio_decdata.lock);
-    audio_decdata.active_flag = 1;
-    pthread_mutex_unlock(&audio_decdata.lock);
+    pthread_mutex_lock(&decdata->lock);
+    decdata->active_flag = TC_TRUE;
+    pthread_mutex_unlock(&decdata->lock);
 }
 
 /*
- * tc_import_{video,audio}_is_active (Thread safe): poll for the current
- * status flag of import threads.
+ * tc_import_thread_is_active (Thread safe): poll for the current
+ * status flag of an import thread.
  *
  * Parameters:
- *      None.
+ *      decdata: pointer to a TCDecoderData structure representing the
+ *               import thread to query.
  * Return Value:
- *      0: import threads are stopped or stopping.
- *      1: import threads are running.
+ *      TC_FALSE: import thread is stopped or stopping.
+ *      TC_TRUE:  import thread is running.
  */
-static int tc_import_video_is_active(void)
+
+static int tc_import_thread_is_active(TCDecoderData *decdata)
 {
     int flag;
-    pthread_mutex_lock(&video_decdata.lock);
-    flag = video_decdata.active_flag;
-    pthread_mutex_unlock(&video_decdata.lock);
+    pthread_mutex_lock(&decdata->lock);
+    flag = decdata->active_flag;
+    pthread_mutex_unlock(&decdata->lock);
     return flag;;
-}
-
-static int tc_import_audio_is_active(void)
-{
-    int flag;
-    pthread_mutex_lock(&audio_decdata.lock);
-    flag = audio_decdata.active_flag;
-    pthread_mutex_unlock(&audio_decdata.lock);
-    return flag;
 }
 
 /*************************************************************************/
@@ -492,7 +472,7 @@ static int video_import_loop(vob_t *vob)
     video_decdata.vob   = vob;
     video_decdata.bytes = vob->im_v_size;
 
-    while (tc_running()) {
+    while (tc_running() && tc_import_thread_is_active(&video_decdata)) {
         if (verbose >= TC_THREADS)
             tc_log_msg(__FILE__, "(V) %10s [%ld] %i bytes", "requesting",
                        vframecount, video_decdata.bytes);
@@ -565,7 +545,7 @@ static int video_import_loop(vob_t *vob)
              * we must delay this stuff in order to properly END_OF_STREAM
              * frames _and_ to push them to subsequent stages
              */
-            tc_import_video_stop();
+            tc_import_thread_stop(&audio_decdata);
             im_ret = TC_IM_THREAD_DONE;
             break;
         }
@@ -615,7 +595,7 @@ static int audio_import_loop(vob_t *vob)
     audio_decdata.vob   = vob;
     audio_decdata.bytes = vob->im_a_size;
 
-    while (tc_running()) {
+    while (tc_running() && tc_import_thread_is_active(&audio_decdata)) {
         /* stage 1: audio adjustment for non-PAL frame rates */
         if (aframecount != 0 && aframecount % TC_LEAP_FRAME == 0) {
             audio_decdata.bytes = vob->im_a_size + vob->a_leap_bytes;
@@ -679,7 +659,7 @@ static int audio_import_loop(vob_t *vob)
                                  aframecount, ptr->audio_size);
 
         if (ret < 0) {
-            tc_import_audio_stop();
+            tc_import_thread_stop(&audio_decdata);
             im_ret = TC_IM_THREAD_DONE;
             break;
         }
@@ -727,12 +707,12 @@ int tc_import_status()
 
 int tc_import_video_status(void)
 {
-    return (tc_import_video_is_active() || vframe_have_more());
+    return (tc_import_thread_is_active(&video_decdata) || vframe_have_more());
 }
 
 int tc_import_audio_status(void)
 {
-    return (tc_import_audio_is_active() || aframe_have_more());
+    return (tc_import_thread_is_active(&video_decdata) || aframe_have_more());
 }
 
 
@@ -740,6 +720,10 @@ void tc_import_threads_cancel(void)
 {
     void *status = NULL;
     int vret, aret;
+
+    tc_import_thread_stop(&video_decdata);
+    tc_import_thread_stop(&audio_decdata);
+    tc_framebuffer_interrupt_stage(TC_FRAME_NULL);
 
     if (tc_decoder_delay)
         tc_log_info(__FILE__, "sleeping for %i seconds to cool down", tc_decoder_delay);
@@ -766,13 +750,13 @@ void tc_import_threads_create(vob_t *vob)
 {
     int ret;
 
-    tc_import_audio_start();
+    tc_import_thread_start(&audio_decdata);
     ret = pthread_create(&audio_decdata.thread_id, NULL,
                          audio_import_thread, vob);
     if (ret != 0)
         tc_error("failed to start audio stream import thread");
 
-    tc_import_video_start();
+    tc_import_thread_start(&video_decdata);
     ret = pthread_create(&video_decdata.thread_id, NULL,
                          video_import_thread, vob);
     if (ret != 0)
@@ -966,18 +950,18 @@ static const char *current_in_file(vob_t *vob, int kind)
 
 typedef struct tcmultiimportdata_ TCMultiImportData;
 struct tcmultiimportdata_ {
-    int kind;
+    int             kind;
 
-    TCDecoderData *decdata;
-    vob_t *vob;
+    TCDecoderData   *decdata;
+    vob_t           *vob;
 
-    ProbeInfo infos;
+    ProbeInfo       infos;
 
-    int (*open)(vob_t *vob);
-    int (*import_loop)(vob_t *vob);
-    int (*close)(void);
+    int             (*open)(vob_t *vob);
+    int             (*import_loop)(vob_t *vob);
+    int             (*close)(void);
 
-    int (*next)(vob_t *vob);
+    int             (*next)(vob_t *vob);
 };
 /* FIXME: explain a such horrible thing */
 
@@ -1016,7 +1000,7 @@ static void *multi_import_thread(void *_sid)
     const char *fname = NULL;
     long int i = 1;
 
-    while (tc_running()) {
+    while (tc_running() && tc_import_thread_is_active(sid->decdata)) {
         ret = sid->open(sid->vob);
         if (ret == TC_ERROR) {
             status = TC_IM_THREAD_EXT_ERROR;
@@ -1074,7 +1058,7 @@ void tc_multi_import_threads_create(vob_t *vob)
 
     probe_from_vob(&(audio_multidata.infos), vob);
     MULTIDATA_INIT(audio, vob, TC_AUDIO);
-    tc_import_audio_start();
+    tc_import_thread_start(&audio_decdata);
     ret = pthread_create(&audio_decdata.thread_id, NULL,
                          multi_import_thread, &audio_multidata);
     if (ret != 0) {
@@ -1083,7 +1067,7 @@ void tc_multi_import_threads_create(vob_t *vob)
 
     probe_from_vob(&(video_multidata.infos), vob);
     MULTIDATA_INIT(video, vob, TC_VIDEO);
-    tc_import_video_start();
+    tc_import_thread_start(&video_decdata);
     ret = pthread_create(&video_decdata.thread_id, NULL,
                          multi_import_thread, &video_multidata);
     if (ret != 0) {

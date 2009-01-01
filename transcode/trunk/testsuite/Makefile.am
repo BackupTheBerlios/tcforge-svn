@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(PTHREAD_CFLAGS) \
 	-DMOD_PATH=\"$(MOD_PATH)\" \
 	-DPROF_PATH=\"$(PROF_PATH)\" \
+	-DFBUF_TEST \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
 	$(DLDARWIN_CFLAGS) \
@@ -32,6 +33,8 @@ noinst_PROGRAMS = \
 	$(PVM3_TEST) \
 	test-ratiocodes \
 	test-resize-values \
+	test-tcframefifo \
+	test-tclist \
 	test-tclog \
 	test-tcglob \
 	test-tclist \
@@ -68,6 +71,12 @@ test_iodir_LDADD = $(LIBTC_LIBS) $(LIBTCUTIL_LIBS)
 
 test_ratiocodes_SOURCES = test-ratiocodes.c
 test_ratiocodes_LDADD = $(LIBTC_LIBS) $(LIBTCUTIL_LIBS)
+
+test_tcframefifo_SOURCES = test-tcframefifo.c ../src/framebuffer.c
+test_tcframefifo_LDADD = $(LIBTC_LIBS) $(ACLIB_LIBS)
+
+test_tclist_SOURCES = test-tclist.c
+test_tclist_LDADD = $(LIBTC_LIBS)
 
 test_tclog_SOURCES = test-tclog.c
 test_tclog_LDADD = $(LIBTC_LIBS) $(LIBTCUTIL_LIBS)

@@ -170,5 +170,19 @@ int tc_stopped(void);
  */
 int tc_running(void);
 
+/*
+ * tc_start: start the encoder core. Tipically, this function
+ * is invoked once at the start of the processing; however, some core modes
+ * (e.g. PSU mode) may require multiple start.
+ * Every call to this function should be paired with a tc_stop() call into
+ * the same code path; however, it is safe to call this function multiple
+ * times. 
+ *
+ * Parameters:
+ *      None.
+ * Return Value:
+ *      None.
+ */
+void tc_start(void);
 
 #endif /* ENCODER_COMMON_H */
